@@ -102,6 +102,9 @@ void gzrt_wextract_init ( void )
 void gzrt_wextract_show ( MAINWIN *h )
 {
 	last = h;
+	
+	/* Set main window status */
+	gzrt_wmain_status_addmsg( h, "Extracting ROM contents" );
 	GZRTD_MESG( "Extractor window shown; fed WINMAIN * 0x%08X (#%u).", h, h->id );
 	gtk_widget_show_all( w->window );
 }
@@ -109,6 +112,7 @@ void gzrt_wextract_show ( MAINWIN *h )
 /* Regenerate window */
 void gzrt_wextract_regen ( void )
 {
+	gzrt_wmain_status_rmmsg( last );
 	GZRTD_MESG( "Extractor window destroyed - recreating." );
 	gzrt_wextract_init();
 }

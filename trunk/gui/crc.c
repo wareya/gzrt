@@ -88,6 +88,8 @@ create_CRC_Checker ( MAINWIN *parent )
   GtkWidget *Button_seperator;
   GtkWidget *Button_close;
   GtkWidget *Button_apply;
+	
+	gzrt_wmain_status_addmsg( parent, "Fixing CRCs" );
   
   /* Other elements */
   char buffer[128];
@@ -245,6 +247,7 @@ create_CRC_Checker ( MAINWIN *parent )
   /* On OK close window */
   g_signal_connect_swapped( Button_close, "clicked", G_CALLBACK(gtk_widget_destroy), (gpointer)CRC_Checker );
   g_signal_connect_swapped( Button_apply, "clicked", G_CALLBACK(gzrt_wcrc_write), (gpointer)&d );
+  g_signal_connect_swapped( CRC_Checker, "destroy", G_CALLBACK(gzrt_wcrc_closed), (gpointer)parent );
   
   /* Disable button? */
   if( crc_old[0] == crc_new[0] && crc_old[1] == crc_new[1] )
@@ -281,4 +284,10 @@ void gzrt_wcrc_write ( struct crcarg *c, GtkWidget *w )
 	/* Show notice box */
 	gzrt_werror_show( "Notice", "Done!", 0 );
 	gtk_widget_destroy( w );
+}
+
+/* Destroy handler */
+void gzrt_wcrc_closed ( MAINWIN *w )
+{
+	gzrt_wmain_status_rmmsg( w );
 }

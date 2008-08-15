@@ -24,6 +24,9 @@ GtkWidget * gzrt_wbyteswap_create ( MAINWIN * w )
   GtkWidget *hbox3;
   GtkWidget *image1;
   GtkWidget *label2;
+  
+  /* Set main window status */
+  gzrt_wmain_status_addmsg( w, "Byteswapping ROM" );
 
   Byteswap_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (Byteswap_window), _("Byteswapper"));
@@ -124,6 +127,7 @@ GtkWidget * gzrt_wbyteswap_create ( MAINWIN * w )
   
   /* Swap that bitch */
   g_signal_connect_swapped( G_OBJECT(Button_start), "clicked", G_CALLBACK(gzrt_wbyteswap_swap), (gpointer)w );
+  g_signal_connect_swapped( G_OBJECT(Byteswap_window), "destroy", G_CALLBACK(gzrt_wbyteswap_swap_closed), (gpointer)w );
   
   /* Show window */
   gtk_widget_show_all( Byteswap_window );
@@ -150,5 +154,12 @@ void gzrt_wbyteswap_swap ( MAINWIN * w )
 			((double)w->c->filesize / 1024.0 / 1024.0) / ((double)(t) / (double)CLOCKS_PER_SEC));
 		gzrt_werror_show( "Notice", buffer, 0 );
 	}
+}
+
+/* Window closed */
+void gzrt_wbyteswap_swap_closed ( MAINWIN *w )
+{
+	/* Reset main window status */
+	gzrt_wmain_status_rmmsg( w );
 }
 
