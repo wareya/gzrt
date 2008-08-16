@@ -51,12 +51,14 @@ int stringcmp ( char *s, char *e )
 }
 
 
-double timeval_subtract ( struct timeval * a, struct timeval * b )
+double time_since_start ( void )
 {
+	struct timeval tv;
+	gettimeofday( &tv, NULL );
 	double x, y;
 	
-	x = (double)a->tv_sec * 1000000.0 + (double)a->tv_usec;
-	y = (double)b->tv_sec * 1000000.0 + (double)b->tv_usec;
+	x = (double)tv.tv_sec * 1000000.0 + (double)tv.tv_usec;
+	y = (double)program_start.tv_sec * 1000000.0 + (double)program_start.tv_usec;
 	
 	return (x - y) / 1000000.0;
 }

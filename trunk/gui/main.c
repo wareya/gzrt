@@ -82,18 +82,25 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	/* Byteswap the ROM if required */
 	if( rc->endian != N64_BIG )
 	{
-		gzrt_werror_show( "Notice", "ROM was automatically byteswapped.", 0 );
-		
 		/* Swap */
 		d = gzrt_wpbar_new();
 		if( rc->endian == N64_LITTLE )
 			n64rom_swap( rc, 32, 0, 32, 1 );
 		else if( rc->endian == N64_V64 )
 			n64rom_swap( rc, 16, 0, 32, 1 );
-		gzrt_wpbar_set( d , 0.25 );
+		gzrt_wpbar_show( d );
 		
 		/* Write */
+		fseek( rc->handle, 0, SEEK_SET );
+		for( int i = 0; i < rc->filesize; i += rc->filesize / 32 )
+		{
+			fwrite( rc->data + i, rc->filesize / 32, 1, rc->handle );
+			gzrt_wpbar_set( d , (double)i / (double)rc->filesize );
+		}
+		gzrt_wpbar_close( d );
 		
+		/* Notice */
+		gzrt_werror_show( "Notice", "ROM was automatically byteswapped.", 0 );
 	}
 	
 	/* Identify Zelda filesystem elements */
