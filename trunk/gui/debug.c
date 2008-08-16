@@ -15,10 +15,10 @@ void gzrt_gui_debug_create ( void )
 	/* Create a new window */
 	w->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_widget_set_size_request( w->window, GZRT_WDEBUG_W, GZRT_WDEBUG_H );
-	gtk_window_set_title( w->window, GZRT_WDEBUG_T );
+	gtk_window_set_title( GTK_WINDOW(w->window), GZRT_WDEBUG_T );
 	
 	/* Set icon */
-	gtk_window_set_icon_from_file( w->window, GZRT_WDEBUG_ICO, NULL );
+	gtk_window_set_icon_from_file( GTK_WINDOW(w->window), GZRT_WDEBUG_ICO, NULL );
 	
 	/* On destroyed, remake */
 	g_signal_connect( G_OBJECT(w->window), "destroy", gzrt_gui_debug_create, NULL );
@@ -41,10 +41,10 @@ void gzrt_gui_debug_create ( void )
 	w->scroll = gtk_scrolled_window_new( NULL, NULL );
 	
 	/* Attach text box to scroll window */
-	gtk_container_add( w->scroll, w->text );
+	gtk_container_add( GTK_CONTAINER(w->scroll), w->text );
 	
 	/* Attach scroll to window */
-	gtk_container_add( w->window, w->scroll );
+	gtk_container_add( GTK_CONTAINER(w->window), w->scroll );
 	
 	/* Show all */
 	gtk_widget_show_all( w->window );
@@ -59,15 +59,15 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	GtkTextIter st, en;
 	
 	/* Navigate to the end */
-	gtk_text_buffer_get_bounds( w->buffer, &st, &en );
-	gtk_text_buffer_place_cursor( w->buffer, &en );
+	gtk_text_buffer_get_bounds( GTK_TEXT_BUFFER(w->buffer), &st, &en );
+	gtk_text_buffer_place_cursor( GTK_TEXT_BUFFER(w->buffer), &en );
 	
 	/* Print time/file info */
-	snprintf( minbuffer, sizeof(minbuffer), "[%s:%04u:%.2f] ", file, line, (float)clock()/(float)CLOCKS_PER_SEC );
+	snprintf( minbuffer, sizeof(minbuffer), "[%s:%04u:%.2f] ", file, line, (float)clock() / CLOCKS_PER_SEC );
 	len = snprintf( buffer, sizeof(buffer), "%-30s", minbuffer );
 	
 	/* Append */
-	gtk_text_buffer_insert_at_cursor( w->buffer, buffer, len );
+	gtk_text_buffer_insert_at_cursor( GTK_TEXT_BUFFER(w->buffer), buffer, len );
 	
 	/* User specified format */
 	va_start( ap, fmt );
@@ -75,7 +75,7 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	va_end( ap );
 	
 	/* Insert text */
-	gtk_text_buffer_insert_at_cursor( w->buffer, buffer, len );
+	gtk_text_buffer_insert_at_cursor( GTK_TEXT_BUFFER(w->buffer), buffer, len );
 	
 	/* Console mimic? */
 	#ifdef GZRT_DEBUG_CONSOLE_MIMIC

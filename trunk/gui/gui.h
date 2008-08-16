@@ -66,6 +66,7 @@ extern int window_amount;
 #include <gui/debug.h>
 #include <gui/pbar.h>
 #include <gui/main.h>
+#include <gui/mwi.h>
 #include <gui/splash.h>
 #include <gui/error.h>
 #include <gui/filesel.h>

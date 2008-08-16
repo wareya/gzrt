@@ -18,7 +18,7 @@ CFLAGS += -Wfatal-errors -Wno-format -Wcast-align -Wno-cast-qual \
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
 	gui/main.o gui/pbar.o gui/about.o gui/extract.o gui/decomp.o gui/crc.o \
-	gui/byteswap.o
+	gui/byteswap.o gui/mwi.o
 
 # Parts - Zelda 64
 PARTS += z64/z_actortable.o z64/z_scenetable.o z64/z_filesystem.o \

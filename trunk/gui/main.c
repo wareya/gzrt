@@ -82,7 +82,7 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	/* Debug */
 	GZRTD_MESG( "Creating window %u/%u (%08X).", window_amount + 1, GZRT_WMAIN_MAX, wmain_instances[window_amount + 1] );
 	GZRTD_MESG( "ROM storage: %.2f MB.", (float)(ram_use += rc->filesize) / 1024.0 / 1024.0 );
-	GZRTD_MESG( "Loading ROM \"%s\".", c->c->filename );
+	GZRTD_MESG( "Loading ROM \"%s\".", rc->filename );
 	
 	/* Load ROM */
 	d = gzrt_wpbar_new();

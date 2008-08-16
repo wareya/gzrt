@@ -64,9 +64,12 @@ void gzrt_wcrc_create ( MAINWIN *parent )
 	gzrt_window_attach( w, vbox );
 	gzrt_window_show( w );
 }
-	
-GtkWidget*
-create_CRC_Checker ( MAINWIN *parent )
+
+/* MWI for the CRC windows */
+static MWI gzrt_wcrc_mwi;
+
+/* Create a new window */
+GtkWidget * create_CRC_Checker ( MAINWIN *parent )
 {
   /* GTK Elements */
   GtkWidget *CRC_Checker;
@@ -88,8 +91,6 @@ create_CRC_Checker ( MAINWIN *parent )
   GtkWidget *Button_seperator;
   GtkWidget *Button_close;
   GtkWidget *Button_apply;
-	
-	gzrt_wmain_status_addmsg( parent, "Fixing CRCs" );
   
   /* Other elements */
   char buffer[128];
@@ -101,21 +102,29 @@ create_CRC_Checker ( MAINWIN *parent )
   static struct crcarg d;
   d.parent = parent;
   d.crc = (unsigned int*)&crc_new;
-  
-  /* Calculate new CRCs */
-  gen_table();
-  N64CalcCRC( crc_new, parent->c->data );
-  
-  /* Debug */
-  GZRTD_MESG( "Old CRCs: %08X, %08X", crc_old[0], crc_old[1] );
-  GZRTD_MESG( "New CRCs: %08X, %08X", crc_new[0], crc_new[1] );
-
-  /* Set up GTK window */
+    /* Set up GTK window */
   CRC_Checker = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_size_request (CRC_Checker, 180, 190);
   gtk_container_set_border_width (GTK_CONTAINER (CRC_Checker), 1);
   gtk_window_set_title (GTK_WINDOW (CRC_Checker), _("CRC Checker"));
   gtk_window_set_default_size (GTK_WINDOW (CRC_Checker), 180, 190);
+  
+  /* Bind window to MWI */
+  if( gzrt_mwi_bind( &gzrt_wcrc_mwi, parent, CRC_Checker ) )
+  {
+	  gtk_widget_destroy( CRC_Checker );
+	  return NULL;
+  }
+  
+  /* Calculate new CRCs */
+  gen_table();
+  N64CalcCRC( crc_new, parent->c->data );
+  
+  
+  /* Debug */
+  GZRTD_MESG( "Old CRCs: %08X, %08X", crc_old[0], crc_old[1] );
+  GZRTD_MESG( "New CRCs: %08X, %08X", crc_new[0], crc_new[1] );
+  gzrt_wmain_status_addmsg( parent, "Fixing CRCs" );
 
   window_seperator = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (window_seperator);
@@ -289,5 +298,7 @@ void gzrt_wcrc_write ( struct crcarg *c, GtkWidget *w )
 /* Destroy handler */
 void gzrt_wcrc_closed ( MAINWIN *w )
 {
+	/* Unbind window */
+	gzrt_mwi_remove( &gzrt_wcrc_mwi, w );
 	gzrt_wmain_status_rmmsg( w );
 }

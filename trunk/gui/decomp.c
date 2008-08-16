@@ -6,7 +6,10 @@
 /* Array of windows (for each open ROM) */
 static struct _gzrt_wdecompress 
 	gzrt_wdecompress[GZRT_WMAIN_MAX];
-	
+
+/* MWI interface for the decompressor */
+static MWI gzrt_wdecompress_mwi;
+
 /* Create a new zdec window */
 void gzrt_wdecompress_create ( MAINWIN *mw )
 {
