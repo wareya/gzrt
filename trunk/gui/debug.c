@@ -57,13 +57,19 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	char buffer[2048], minbuffer[128];
 	int len;
 	GtkTextIter st, en;
+	struct timeval tv;
+	double diff;
+	
+	/* Get the current time */
+	gettimeofday( &tv, NULL );
+	diff = timeval_subtract( &tv, &program_start );
 	
 	/* Navigate to the end */
 	gtk_text_buffer_get_bounds( GTK_TEXT_BUFFER(w->buffer), &st, &en );
 	gtk_text_buffer_place_cursor( GTK_TEXT_BUFFER(w->buffer), &en );
 	
 	/* Print time/file info */
-	snprintf( minbuffer, sizeof(minbuffer), "[%s:%04u:%.2f] ", file, line, (float)clock() / CLOCKS_PER_SEC );
+	snprintf( minbuffer, sizeof(minbuffer), "[%s:%04u:%.2f] ", file, line, diff );
 	len = snprintf( buffer, sizeof(buffer), "%-30s", minbuffer );
 	
 	/* Append */

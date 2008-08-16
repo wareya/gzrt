@@ -56,10 +56,9 @@
 #include <generic/generic.h>
 
 /* Application globals */
-extern N64ROM * rom_context;
-extern Z64FS  * fs_context;
+extern struct timeval program_start;
 
 /* Functions */
-void quit ( void );
+void gzrt_init ( int argc, char **argv );
 
 #endif

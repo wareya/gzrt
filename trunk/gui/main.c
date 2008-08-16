@@ -65,20 +65,6 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	/* Store ROM context */
 	wmain_instances[window_amount]->c = rc;
 	
-	/* Identify Zelda 64 filesystem elements */
-	if( rc->endian != N64_BIG )
-	{
-		gzrt_werror_show( "Notice!", "You probably want to byteswap this ROM before you do anything.\n(don't forget to reload)", 0 );
-		wmain_instances[window_amount]->z = NULL;
-	} else
-	if( !(wmain_instances[window_amount]->z = z64fs_init( rc->filename )) )
-	{
-		GZRTD_MESG( "Could not find filesystem!" );
-		gzrt_werror_show( "Error", "Error", 0 );
-		n64rom_close( rc );
-		return FALSE;
-	}
-	
 	/* Debug */
 	GZRTD_MESG( "Creating window %u/%u (%08X).", window_amount + 1, GZRT_WMAIN_MAX, wmain_instances[window_amount + 1] );
 	GZRTD_MESG( "ROM storage: %.2f MB.", (float)(ram_use += rc->filesize) / 1024.0 / 1024.0 );
@@ -92,6 +78,32 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 		gzrt_werror_show( "Error occured", n64rom_error(), 1 );
 	GZRTD_MESG( "Loaded ROM successfully." );
 	gzrt_wpbar_close( d );
+	
+	/* Byteswap the ROM if required */
+	if( rc->endian != N64_BIG )
+	{
+		gzrt_werror_show( "Notice", "ROM was automatically byteswapped.", 0 );
+		
+		/* Swap */
+		d = gzrt_wpbar_new();
+		if( rc->endian == N64_LITTLE )
+			n64rom_swap( rc, 32, 0, 32, 1 );
+		else if( rc->endian == N64_V64 )
+			n64rom_swap( rc, 16, 0, 32, 1 );
+		gzrt_wpbar_set( d , 0.25 );
+		
+		/* Write */
+		
+	}
+	
+	/* Identify Zelda filesystem elements */
+	if( !(wmain_instances[window_amount]->z = z64fs_init( rc->filename )) )
+	{
+		GZRTD_MESG( "Could not find filesystem!" );
+		gzrt_werror_show( "Error", "Error", 0 );
+		n64rom_close( rc );
+		return FALSE;
+	}
 	
 	/* Identify Zelda 64 name table elements */
 	if( !(wmain_instances[window_amount]->t = z64nt_init( rc->filename )) )

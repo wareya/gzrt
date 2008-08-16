@@ -40,7 +40,7 @@ int stringcmp ( char *s, char *e )
 {
 	while( tolower(*s) == tolower(*e) )
 	{
-		if( !*s | !*e )
+		if( !*s || !*e )
 			break;
 		
 		s++;
@@ -48,4 +48,15 @@ int stringcmp ( char *s, char *e )
 	}
 	
 	return tolower(*s) - tolower(*e);
+}
+
+
+double timeval_subtract ( struct timeval * a, struct timeval * b )
+{
+	double x, y;
+	
+	x = (double)a->tv_sec * 1000000.0 + (double)a->tv_usec;
+	y = (double)b->tv_sec * 1000000.0 + (double)b->tv_usec;
+	
+	return (x - y) / 1000000.0;
 }
