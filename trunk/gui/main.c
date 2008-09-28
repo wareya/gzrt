@@ -2,6 +2,7 @@
 * GZRT Main Window *
 *******************/
 #include <gzrt.h>
+#include <stdarg.h>
 
 /*
 ** No global struct here, since there can be several main windows
@@ -107,7 +108,7 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	if( !(wmain_instances[window_amount]->z = z64fs_init( rc->filename )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
-		gzrt_werror_show( "Error", "Error", 0 );
+		gzrt_werror_show( "Error", "Unable to find filesystem in ROM.", 0 );
 		n64rom_close( rc );
 		return FALSE;
 	}
@@ -876,7 +877,7 @@ void gzrt_wmain_update ( MAINWIN *c )
 	gtk_widget_destroy( i );
 	i = g_object_get_data( G_OBJECT(c->window), "Frame_1_alignment" ); /* ROM info */
 	
-	ROM_Info = gtk_frame_new (NULL);
+	ROM_Info = gtk_frame_new (NULL);              
 	gtk_widget_show (ROM_Info);
 	gtk_container_add (GTK_CONTAINER (i), ROM_Info);
 
@@ -889,46 +890,62 @@ void gzrt_wmain_update ( MAINWIN *c )
 	gtk_widget_show (Frame_1_label_seperator);
 	gtk_container_add (GTK_CONTAINER (Frame_1_label_alignment), Frame_1_label_seperator);
 
-	/* Set ROM information */
-	snprintf( buffer, sizeof(buffer), "Name: %.24s", c->c->header + 0x20 );
-	f1l1 = gtk_label_new ( buffer );
-	gtk_widget_show (f1l1);
-	gtk_box_pack_start (GTK_BOX (Frame_1_label_seperator), f1l1, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f1l1), 0, 0.5);
-    /* | */
-	snprintf( buffer, sizeof(buffer), "Code: %.4s", c->c->header + 0x3B );
-	f1l2 = gtk_label_new ( buffer );
-	gtk_widget_show (f1l2);
-	gtk_box_pack_start (GTK_BOX (Frame_1_label_seperator), f1l2, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f1l2), 0, 0.5);
-	/* | */
-	snprintf( buffer, sizeof(buffer), "Size: %.2fMB (%.2fMBits)", (float)c->c->filesize / 1024.0 / 1024.0, (float)c->c->filesize / 1024.0 / 1024.0 * 8.0 );
-	f1l3 = gtk_label_new ( buffer );
-	gtk_widget_show (f1l3);
-	gtk_box_pack_start (GTK_BOX (Frame_1_label_seperator), f1l3, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f1l3), 0, 0.5);
-	/* | */
-	snprintf( buffer, sizeof(buffer), "CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x10) );
-	f1l4 = gtk_label_new ( "" );
-	gtk_label_set_markup( GTK_LABEL(f1l4), buffer );
-	gtk_widget_show (f1l4);
-	gtk_box_pack_start (GTK_BOX (Frame_1_label_seperator), f1l4, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f1l4), 0, 0.5);
-	/* | */
-	snprintf( buffer, sizeof(buffer), "CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x14) );
-	f1l5 = gtk_label_new ( "" );
-	gtk_label_set_markup( GTK_LABEL(f1l5), buffer );
-	gtk_widget_show (f1l5);
-	gtk_box_pack_start (GTK_BOX (Frame_1_label_seperator), f1l5, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f1l5), 0, 0.5);
-	/* | */
-	snprintf( buffer, sizeof(buffer), "Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x08) );
-	f1l6 = gtk_label_new ( "" );
-	gtk_label_set_markup( GTK_LABEL(f1l6), buffer );
-	gtk_widget_show (f1l6);
-	gtk_box_pack_start (GTK_BOX (Frame_1_label_seperator), f1l6, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f1l6), 0, 0.5);
-	/* \_________________ */
+	
+	/*
+	** Set ROM information
+	*/
+	
+	/* ROM internal name */
+	gzrt_wmain_frame_add
+	(
+		Frame_1_label_seperator, 
+		"Name: %.24s", c->c->header + 0x20 
+	);
+	
+	/* Game country code */
+	gzrt_wmain_frame_add
+	(
+		Frame_1_label_seperator, 
+		"Code: %.4s", 
+		c->c->header + 0x3B
+	);
+	
+	/* ROM filesize */
+	gzrt_wmain_frame_add
+	(
+		Frame_1_label_seperator, 
+		"Size: %.2fMB (%.2fMBits)", 
+		(float)c->c->filesize / 1024.0 / 1024.0, 
+		(float)c->c->filesize / 1024.0 / 1024.0 * 8.0 
+	);
+	
+	/* ROM CRC # 1 */
+	gzrt_wmain_frame_add
+	(
+		Frame_1_label_seperator, 
+		"CRC 1: <span font_desc=\"Courier\">0x%08X</span>", 
+		U32(c->c->header + 0x10) 
+	);
+	
+	/* ROM CRC # 2 */
+	gzrt_wmain_frame_add
+	(
+		Frame_1_label_seperator, 
+		"CRC 2: <span font_desc=\"Courier\">0x%08X</span>", 
+		U32(c->c->header + 0x14) 
+	);
+	
+	/* ROM Entry point */
+	gzrt_wmain_frame_add
+	(
+		Frame_1_label_seperator, 
+		"Entry point: <span font_desc=\"Courier\">0x%08X</span>", 
+		U32(c->c->header + 0x08) 
+	);
+	
+	/*
+	** Set filesystem information
+	*/
 	
 	/* Set filesystem information */
 	Frame_1_label = gtk_label_new (_("<b>ROM Info</b>"));
@@ -952,55 +969,66 @@ void gzrt_wmain_update ( MAINWIN *c )
 	gtk_widget_show (Frame_2_label_seperator);
 	gtk_container_add (GTK_CONTAINER (Frame_2_label_alignment), Frame_2_label_seperator); 
 	
-	snprintf( buffer, sizeof(buffer), "Filesystem start: %s0x%08X%s", MONO(c->z->rstart) );
-	f2l1 = gtk_label_new ( "" );
-	gtk_label_set_markup( GTK_LABEL(f2l1), buffer );
-	gtk_widget_show (f2l1);
-	gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l1, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f2l1), 0, 0.5);
+	
+	
+	/* Filesystem start */
+	gzrt_wmain_frame_add
+	(
+		Frame_2_label_seperator, 
+		"Filesystem start: %s0x%08X%s", 
+		MONO(c->z->rstart) 
+	);
+	
+	/* Filesystem end */
+	gzrt_wmain_frame_add
+	(
+		Frame_2_label_seperator, 
+		"Filesystem end: %s0x%08X%s", 
+		MONO(c->z->rend) 
+	);
 
-	snprintf( buffer, sizeof(buffer), "Filesystem end: %s0x%08X%s", MONO(c->z->rend) );
-	f2l2 = gtk_label_new ( "" );
-	gtk_label_set_markup( GTK_LABEL(f2l2), buffer );
-	gtk_widget_show (f2l2);
-	gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l2, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f2l2), 0, 0.5);
+	/* File count */
+	gzrt_wmain_frame_add
+	(
+		Frame_2_label_seperator, 
+		"File count: %u", 
+		z64fs_num_entries( c->z ) 
+	);
 
-	snprintf( buffer, sizeof(buffer), "File count: %u", z64fs_num_entries( c->z ) );
-	f2l3 = gtk_label_new ( buffer );
-	gtk_widget_show (f2l3);
-	gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l3, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f2l3), 0, 0.5);
-
-	snprintf( buffer, sizeof(buffer), "Total size: %.2fMB", (float)z64fs_calc_size_decompressed( c->z ) / 1024.0 / 1024.0 );
-	f2l4 = gtk_label_new ( buffer );
-	gtk_widget_show (f2l4);
-	gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l4, TRUE, TRUE, 0);
-	gtk_misc_set_alignment (GTK_MISC (f2l4), 0, 0.5);
+	/* Total filesize */
+	gzrt_wmain_frame_add
+	(
+		Frame_2_label_seperator, 
+		"Total size: %.2fMB", 
+		(float)z64fs_calc_size_decompressed( c->z ) / 1024.0 / 1024.0 
+	);
 
 	/* Name table */
 	if( c->t )
 	{
-		snprintf( buffer, sizeof(buffer), "Name table start: %s0x%08X%s", MONO(__NAME_TABLE_START) );
-		f2l5 = gtk_label_new ( "" );
-		gtk_label_set_markup( GTK_LABEL(f2l5), buffer );
-		gtk_widget_show (f2l5);
-		gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l5, TRUE, TRUE, 0);
-		gtk_misc_set_alignment (GTK_MISC (f2l5), 0, 0.50);
+		/* Name table start */
+		gzrt_wmain_frame_add
+		(
+			Frame_2_label_seperator, 
+			"Name table start: %s0x%08X%s", 
+			MONO(__NAME_TABLE_START) 
+		);
 		
-		snprintf( buffer, sizeof(buffer), "Name table end: %s0x%08X%s", MONO(__NAME_TABLE_END) );
-		f2l6 = gtk_label_new ( "" );
-		gtk_label_set_markup( GTK_LABEL(f2l6), buffer );
-		gtk_widget_show (f2l6);
-		gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l6, TRUE, TRUE, 0);
-		gtk_misc_set_alignment (GTK_MISC (f2l6), 0, 0.50);
+		/* Name table end */
+		gzrt_wmain_frame_add
+		(
+			Frame_2_label_seperator, 
+			"Name table end: %s0x%08X%s", 
+			MONO(__NAME_TABLE_END) 
+		);
 	}
 	else
 	{
-		f2l5 = gtk_label_new ( "Name table: no" );
-		gtk_widget_show (f2l5);
-		gtk_box_pack_start (GTK_BOX (Frame_2_label_seperator), f2l5, TRUE, TRUE, 0);
-		gtk_misc_set_alignment (GTK_MISC (f2l5), 0, 0.50);
+		gzrt_wmain_frame_add
+		(
+			Frame_2_label_seperator, 
+			"Name table: no"
+		);
 	}
 	
 	Frame_2_label = gtk_label_new (_("<b>Filesystem Info</b>"));
@@ -1010,6 +1038,32 @@ void gzrt_wmain_update ( MAINWIN *c )
 	
 	/* Debug */
 	GZRTD_MESG( "Window %u redrawn.", c->id );
+}
+
+/* Add a new element to a side frame */
+void gzrt_wmain_frame_add ( GtkWidget *vbox, char *fmt, ... )
+{
+	char buffer[256];
+	GtkWidget * label;
+	va_list ap;
+	
+	/* Generate text */
+	va_start( ap, fmt );
+	vsnprintf( buffer, sizeof(buffer) - 1, fmt, ap );
+	va_end( ap );
+	
+	/* Create label */
+	label = gtk_label_new( "" );
+	gtk_label_set_markup( GTK_LABEL(label), buffer );
+	
+	/* Set alignment prefs */
+	gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.5f );
+	
+	/* Show */
+	gtk_widget_show( label );
+	
+	/* Pack it */
+	gtk_box_pack_start( GTK_BOX(vbox), label, TRUE, TRUE, 0 );
 }
 
 /* Disable an item */

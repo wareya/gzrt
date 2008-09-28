@@ -69,6 +69,7 @@ void gzrt_wmain_focus ( MAINWIN *w );
 void gzrt_wmain_close ( MAINWIN *w );
 void gzrt_wmain_closed ( MAINWIN *w );
 void pbu ( int a, int b );
+void gzrt_wmain_frame_add ( GtkWidget *vbox, char *fmt, ... );
 void gzrt_wmain_disable_item ( MAINWIN *w, char *name );
 void gzrt_wmain_enable_item  ( MAINWIN *w, char *name );
 void gzrt_wmain_status_rmmsg ( MAINWIN *w );
