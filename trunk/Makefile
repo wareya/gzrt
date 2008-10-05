@@ -29,6 +29,7 @@ PARTS += rom/rom.o rom/crc.o
 
 # Parts - other
 PARTS += generic/generic.o
+PARTS += generic/plugins.o
 
 # Debug!
 ifeq ($(DEBUG), 1)
@@ -41,7 +42,7 @@ ifeq ($(MIMIC), 1)
 endif
 
 all: $(PARTS)
-	$(CC) $(CFLAGS) $(PARTS) `pkg-config --libs gtk+-2.0` -o $(PROJECT)
+	$(CC) $(CFLAGS) $(PARTS) `pkg-config --libs gtk+-2.0` -ldl -o $(PROJECT)
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files

@@ -40,6 +40,9 @@ void gzrt_gui_init ( int argc, char **argv )
 	 gzrt_gui_debug_create();
 	#endif
 	
+	/* Load plugins */
+	gzrt_load_plugins();
+	
 	gzrt_wextract_init();
 	
 	/* Notice */

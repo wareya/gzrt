@@ -175,10 +175,6 @@ void gzrt_wextract_begin ( void )
 		/* Read next entry */
 		z64fs_read_next( last->z );
 		
-		/* Read next name table entry */
-		if( last->t )
-			z64nt_read_next( last->t );
-		
 		/* Set correct pointer */
 		data = last->c->data + ZF2START( last->z );
 		
@@ -257,6 +253,10 @@ void gzrt_wextract_begin ( void )
 			while (gtk_events_pending ())
 				gtk_main_iteration ();
 		}
+		
+		/* Read next name table entry */
+		if( last->t )
+			z64nt_read_next( last->t );
 	}
 	
 	/* Notice */
