@@ -400,6 +400,10 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	fix_crc1 = gtk_menu_item_new_with_mnemonic (_("Fix _CRC"));
 	gtk_widget_show (fix_crc1);
 	gtk_container_add (GTK_CONTAINER (Operations_menu_menu), fix_crc1);
+	
+	/* Plugins menu */
+	gtk_container_add( GTK_CONTAINER(Menu), gzrt_plugins_menu() );
+	
 
 	Help_menu = gtk_menu_item_new_with_mnemonic (_("_Help"));
 	gtk_widget_show (Help_menu);
@@ -719,12 +723,13 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_widget_show (image1);
 	gtk_box_pack_start (GTK_BOX (hbox3), image1, FALSE, FALSE, 0);
 
-	label13 = gtk_label_new_with_mnemonic (_("Disassemble"));
+	label13 = gtk_label_new_with_mnemonic ( "Plugin action" );
 	gtk_widget_show (label13);
 	gtk_box_pack_start (GTK_BOX (hbox3), label13, FALSE, FALSE, 0);
 	
-	/* No disassembler in this version! */
-	gtk_widget_set_sensitive( Disassemble_button, FALSE );
+	/* Are there plugins loaded? */
+	if( !gzrt_plugins_count() )
+		gtk_widget_set_sensitive( Disassemble_button, FALSE );
 
 	App_status = gtk_statusbar_new ();
 	gtk_widget_show (App_status);
