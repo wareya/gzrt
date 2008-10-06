@@ -733,6 +733,10 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	 g_signal_connect_swapped( G_OBJECT(wai1),"activate", G_CALLBACK(gzrt_wmain_focus), c );
 	#endif
 	
+	/* Action buttons */
+	g_signal_connect_swapped( G_OBJECT(Disassemble_button), "clicked", G_CALLBACK(gzrt_wmain_plugin_action), c );
+	
+	
 	/* Signals - window itself */
 	c->hid = (void*)g_signal_connect_swapped( G_OBJECT(Main_Window), "destroy", G_CALLBACK(gzrt_wmain_closed), c );
 
@@ -785,7 +789,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, alignment12, "alignment12");
 	GLADE_HOOKUP_OBJECT (Main_Window, Right_pane, "Right_pane");
 	GLADE_HOOKUP_OBJECT (Main_Window, Column_view_scroller, "Column_view_scroller");
-	GLADE_HOOKUP_OBJECT (Main_Window, treeview1, "treeview1");
+	GLADE_HOOKUP_OBJECT (Main_Window, treeview1, "treeview");
 	GLADE_HOOKUP_OBJECT (Main_Window, Action_buttons_organizer, "Action_buttons_organizer");
 	GLADE_HOOKUP_OBJECT (Main_Window, Action_buttons_seperator, "Action_buttons_seperator");
 	GLADE_HOOKUP_OBJECT (Main_Window, Extract_button, "Extract_button");
@@ -1047,6 +1051,16 @@ void gzrt_wmain_frame_add ( GtkWidget *vbox, char *fmt, ... )
 	/* Pack it */
 	gtk_box_pack_start( GTK_BOX(vbox), label, TRUE, TRUE, 0 );
 }
+
+/* Plugin action */
+void gzrt_wmain_plugin_action ( MAINWIN * w )
+{
+	GtkWidget        * tv = g_object_get_data( G_OBJECT(w->window), "treeview" );
+	GtkTreeSelection * sl = gtk_tree_view_get_selection( GTK_TREE_VIEW(tv) );
+	
+	printf( "%X\n", gtk_tree_selection_get_user_data(sl) );
+}
+	
 
 /* Disable an item */
 void gzrt_wmain_disable_item ( MAINWIN *w, char *name )

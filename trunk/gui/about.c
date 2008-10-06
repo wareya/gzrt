@@ -18,7 +18,6 @@ void gzrt_wabout_init ( void )
 	w->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	
 	/* Set window attrs */
-	gtk_widget_set_size_request( w->window, GZRT_WABOUT_W, GZRT_WABOUT_H );
 	gtk_window_set_title( GTK_WINDOW(w->window), GZRT_WABOUT_TITLE );
 	gtk_window_set_position( GTK_WINDOW(w->window), GTK_WIN_POS_CENTER );
 	
@@ -26,7 +25,7 @@ void gzrt_wabout_init ( void )
 	p = gzrt_wpadding_create( w->window );
 	
 	/* Create vbox */
-	w->vbox = gtk_vbox_new( FALSE, 0 );
+	w->vbox = gtk_vbox_new( FALSE, 8 );
 	
 	/* Connect box to inner padding */
 	gtk_box_pack_start( GTK_BOX(p->main), w->vbox, TRUE, TRUE, 0 );

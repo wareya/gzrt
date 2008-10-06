@@ -16,12 +16,16 @@ int         gzrt_plugins_count ( void );
 struct PluginFileSpec
 {
 	/* File info */
+	int 	    id;
 	char      * filename;
 	unsigned 	vstart;
 	unsigned 	vend;
 	unsigned 	start;
 	unsigned 	end;
-	int 	    id;
+	
+	/* File contents */
+	unsigned char * file;
+	unsigned		filesize;
 	
 	/* ROM info */
 	char  * rom_filename;
