@@ -76,6 +76,7 @@ void gzrt_wmain_status_rmmsg ( MAINWIN *w );
 void gzrt_wmain_status_addmsg ( MAINWIN *w, char *msg );
 void gzrt_wmain_update ( MAINWIN *c );
 void gzrt_wmain_plugin_action ( MAINWIN * w );
+GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w );
 
 //void create_Main_Window ( MAINWIN *c );
 		

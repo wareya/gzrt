@@ -429,10 +429,10 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	 gtk_container_add (GTK_CONTAINER (Help_menu_menu), wai1);
 	#endif
 
-	Main_window_padding = gtk_alignment_new (0.5, 0.5, 1, 1);
-	gtk_widget_show (Main_window_padding);
-	gtk_box_pack_start (GTK_BOX (Main_vbox), Main_window_padding, TRUE, TRUE, 0);
-	gtk_alignment_set_padding (GTK_ALIGNMENT (Main_window_padding), 12, 12, 12, 12);
+	/*Main_window_padding = gtk_alignment_new (0.5, 0.5, 1, 1);
+	gtk_widget_show (Main_window_padding);*/
+	gtk_box_pack_start (GTK_BOX (Main_vbox), gzrt_wmain_main_generate(c), TRUE, TRUE, 0);
+	/*gtk_alignment_set_padding (GTK_ALIGNMENT (Main_window_padding), 12, 12, 12, 12);*/
 
 	Main_window_seperator = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (Main_window_seperator);
@@ -1091,3 +1091,255 @@ void gzrt_wmain_status_rmmsg ( MAINWIN *w )
 	gtk_statusbar_pop( GTK_STATUSBAR(i), --w->sstack );
 	GZRTD_MESG( "Status reverted." );
 }
+
+/* Create a markup'd label */
+static GtkWidget * create_label ( char * fmt, ... )
+{
+	GtkWidget * label;
+	va_list		ap;
+	char		buffer[512];
+	int			len;
+	
+	/* Prepare string */
+	va_start( ap, fmt );
+	len = vsnprintf( buffer, sizeof(buffer), fmt, ap );
+	va_end( ap );
+	
+	/* Create widget */
+	label = gtk_label_new( buffer );
+	gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.5f );
+	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
+	gtk_widget_show( label );
+	
+	/* Return it */
+	return label;
+}
+
+/* Create a button with image */
+static GtkWidget * create_button ( char * label, char * image )
+{
+	GtkWidget * align;
+	GtkWidget * l;
+	GtkWidget * hbox;
+	GtkWidget * button;
+	GtkWidget * i;
+	
+	button = gtk_button_new();
+	align = gtk_alignment_new( 0.5f, 0.5f, 0.0f, 0.0f );
+	hbox = gtk_hbox_new( FALSE, 2 );
+	
+	gtk_container_add( GTK_CONTAINER(button), align);
+	gtk_container_add( GTK_CONTAINER(align), hbox );
+	
+	i = gtk_image_new_from_stock( image, GTK_ICON_SIZE_BUTTON );
+	gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
+	
+	l = gtk_label_new_with_mnemonic( label );
+	gtk_box_pack_start( GTK_BOX(hbox), l, FALSE, FALSE, 0 );
+	
+	return button;
+}
+	
+	
+/* Create ROM information frame */
+static GtkWidget * create_rom_info_frame ( MAINWIN * c )
+{
+	GtkWidget * frame;
+	GtkWidget * align;
+	GtkWidget * vbox;
+	GtkWidget * label;
+	GtkWidget * name;
+	char		buffer[512];
+	
+	/* Create frame */
+	frame = gtk_frame_new( NULL );
+	
+	/* Set name */
+	name = gtk_label_new( "<b>ROM Info</b>" );
+	gtk_label_set_use_markup( GTK_LABEL(name), TRUE );
+	gtk_frame_set_label_widget( GTK_FRAME(frame), name );
+	
+	/* Create label alignment */
+	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 12, 12 );
+	gtk_container_add( GTK_CONTAINER(frame), align );
+	
+	/* Create labels box */
+	vbox = gtk_vbox_new( FALSE, 8 );
+	gtk_container_add( GTK_CONTAINER(align), vbox );
+	
+	/* Pack info */
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Name: %.24s", c->c->header + 0x20), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Code: %.4s", c->c->header + 0x3B), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Size: %.2fMB (%.2fMBits)", (float)c->c->filesize / 1024.0 / 1024.0, (float)c->c->filesize / 1024.0 / 1024.0 * 8.0), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x10)), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x14)), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x08)), 
+	TRUE, TRUE, 0 );
+	
+	return frame;
+}
+
+/* Create filesystem information frame */
+static GtkWidget * create_bin_info_frame ( MAINWIN * c )
+{
+	GtkWidget * frame;
+	GtkWidget * align;
+	GtkWidget * vbox;
+	GtkWidget * label;
+	GtkWidget * name;
+	char		buffer[512];
+	
+	/* Create frame */
+	frame = gtk_frame_new( NULL );
+	
+	/* Set name */
+	name = gtk_label_new( "<b>Filesystem Info</b>" );
+	gtk_label_set_use_markup( GTK_LABEL(name), TRUE );
+	gtk_frame_set_label_widget( GTK_FRAME(frame), name );
+	
+	/* Create label alignment */
+	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 12, 12 );
+	gtk_container_add( GTK_CONTAINER(frame), align );
+	
+	/* Create labels box */
+	vbox = gtk_vbox_new( FALSE, 8 );
+	gtk_container_add( GTK_CONTAINER(align), vbox );
+	
+	/* Pack info */
+	#define MONO(x) "<span font_desc=\"Courier\">", x, "</span>"
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->rstart)), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->rend)), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("File count: %u", z64fs_num_entries( c->z )), 
+	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Total size: %.2fMB", (float)z64fs_calc_size_decompressed( c->z ) / 1024.0 / 1024.0), 
+	TRUE, TRUE, 0 );
+	
+	/* Name table? */
+	if( c->t )
+	{
+		gtk_box_pack_start( GTK_BOX(vbox), 
+			create_label("Name table start: %s0x%08X%s", MONO(__NAME_TABLE_START)), 
+		TRUE, TRUE, 0 );
+		gtk_box_pack_start( GTK_BOX(vbox), 
+			create_label("Name table end: %s0x%08X%s", MONO(__NAME_TABLE_END)), 
+		TRUE, TRUE, 0 );
+	}
+	else
+	{
+		gtk_box_pack_start( GTK_BOX(vbox), 
+			create_label("Name table end: %s%s%s", MONO("no")), 
+		TRUE, TRUE, 0 );
+	}
+	
+	return frame;
+}
+
+/* Populate the main window */
+GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
+{
+	/* GTK Elements */
+	GtkWidget * ret;					/* An alignment containing everything */
+	
+	GtkWidget * info_list_separator;	/* Separates info box and file list   */
+	GtkWidget * info_pane;				/* Resizable pane for information	  */
+	GtkWidget * info_vbox;				/* Information storage box (frames)   */
+	
+	GtkWidget * info_rom_align;			/* Align the frame nicely			  */
+	GtkWidget * info_rom_frame;			/* Frame the information labels 	  */
+	GtkWidget * info_rom_labels_align;	/* Align the labels inside nicely	  */
+	GtkWidget * info_rom_labels_vbox;	/* Label container					  */
+	
+	GtkWidget * info_bin_align;			/* Align the frame nicely			  */
+	GtkWidget * info_bin_frame;			/* Frame the information labels 	  */
+	GtkWidget * info_bin_labels_align;	/* Align the labels inside nicely	  */
+	GtkWidget * info_bin_labels_vbox;	/* Label container					  */
+	
+	GtkWidget * flist_align;			/*									  */
+	GtkWidget * flist_vbox;				/* Tree view and buttons sep		  */
+	GtkWidget * flist_scroll;			/* Scrolled window for tree			  */
+	GtkWidget * flist_tree;				/* The tree containing file listing	  */
+	GtkWidget * flist_button_hbox;		/* For the action buttons			  */
+	
+	/* Functions */
+	extern GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c );
+	
+	/* Create the alignemnt */
+	ret = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(ret), 12, 12, 12, 12 );
+	
+	/* Create the horizontal box separating info pane from file list */
+	info_list_separator = gtk_hbox_new( FALSE, 0 );
+	gtk_container_add( GTK_CONTAINER(ret), info_list_separator );
+	
+	/* Create the draggable pane */
+	info_pane = gtk_hpaned_new();
+	gtk_box_pack_start( GTK_BOX(info_list_separator), info_pane, TRUE, TRUE, 0 );
+	
+	/* Create the vertical box for all the frames */
+	info_vbox = gtk_vbox_new( FALSE, 0 );
+	gtk_paned_pack1( GTK_PANED(info_pane), info_vbox, FALSE, TRUE );
+	
+	/* Create alignments for frames */
+	info_rom_align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(info_rom_align), 0, 4, 0, 4 );
+	info_bin_align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(info_bin_align), 4, 0, 0, 4 );
+	
+	/* Pack them in */
+	gtk_box_pack_start( GTK_BOX(info_vbox), info_rom_align, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(info_vbox), info_bin_align, TRUE, TRUE, 0 );
+	
+	/* Create the frames */
+	gtk_container_add( GTK_CONTAINER(info_rom_align), create_rom_info_frame(w) );
+	gtk_container_add( GTK_CONTAINER(info_bin_align), create_bin_info_frame(w) );
+	
+	
+	/* ALignment */
+	flist_align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(flist_align), 0, 0, 4, 0 );
+	gtk_paned_pack2( GTK_PANED(info_pane), flist_align, TRUE, TRUE );
+	
+	/* Create right vbox */
+	flist_vbox = gtk_vbox_new( FALSE, 4 );
+	gtk_container_add( GTK_CONTAINER(flist_align), flist_vbox );
+	
+	/* Create file listing */
+	flist_scroll = gtk_scrolled_window_new( NULL, NULL );
+	gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW(flist_scroll), GTK_SHADOW_IN );
+	flist_tree = gzrt_wmain_tree_generate(w);
+	gtk_container_add( GTK_CONTAINER(flist_scroll), flist_tree );
+	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_scroll, TRUE, TRUE, 0 );
+	
+	/* Set up the buttons */
+	flist_button_hbox = gtk_hbox_new( FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_button_hbox, FALSE, TRUE, 0 );
+	
+	/* Create them */
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("Extract",		"gtk-save"), 		TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",			"gtk-zoom-100"), 	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("Replace",		"gtk-jump-to"), 	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("Plugin action",	"gtk-zoom-fit"), 	TRUE, TRUE, 0 );
+	
+	/* Return the final product */
+	return ret;
+}
+
