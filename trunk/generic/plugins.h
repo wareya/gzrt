@@ -17,7 +17,7 @@ struct PluginFileSpec
 {
 	/* File info */
 	int 	    id;
-	char      * filename;
+	char        filename[64];
 	unsigned 	vstart;
 	unsigned 	vend;
 	unsigned 	start;
