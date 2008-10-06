@@ -206,7 +206,14 @@ void pbu ( int a, int b )
 		gtk_main_iteration();
 }
 
-
+/* Set font of a widget */
+static void set_font ( GtkWidget * w, char * font )
+{
+    PangoFontDescription * font_desc;
+    
+    font_desc = pango_font_description_from_string( font );
+    gtk_widget_modify_font( w, font_desc );
+}
 
 /* Create new instance */
 void gzrt_wmain_fill ( MAINWIN *c )
@@ -332,7 +339,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 		c->c->filename, c->c->header + 0x20 );
 	Main_Window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (Main_Window), buffer );
-	gtk_window_set_default_size (GTK_WINDOW (Main_Window), 640, 480);
+	gtk_window_set_default_size (GTK_WINDOW (Main_Window), 800, 480);
 
 	Main_vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (Main_vbox);
@@ -442,7 +449,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	Frame_1_alignment = gtk_alignment_new (0.5, 0.5, 1, 1);
 	gtk_widget_show (Frame_1_alignment);
 	gtk_box_pack_start (GTK_BOX (Side_frame_seperator), Frame_1_alignment, TRUE, TRUE, 0);
-	gtk_alignment_set_padding (GTK_ALIGNMENT (Frame_1_alignment), 4, 4, 0, 4);
+	gtk_alignment_set_padding (GTK_ALIGNMENT (Frame_1_alignment), 0, 4, 0, 4);
 
 	ROM_Info = gtk_frame_new (NULL);
 	gtk_widget_show (ROM_Info);
@@ -453,7 +460,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_container_add (GTK_CONTAINER (ROM_Info), Frame_1_label_alignment);
 	gtk_alignment_set_padding (GTK_ALIGNMENT (Frame_1_label_alignment), 8, 8, 12, 12);
 
-	Frame_1_label_seperator = gtk_vbox_new (FALSE, 2);
+	Frame_1_label_seperator = gtk_vbox_new (FALSE, 8);
 	gtk_widget_show (Frame_1_label_seperator);
 	gtk_container_add (GTK_CONTAINER (Frame_1_label_alignment), Frame_1_label_seperator);
 
@@ -507,7 +514,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	Frame_2_alignment = gtk_alignment_new (0.5, 0.5, 1, 1);
 	gtk_widget_show (Frame_2_alignment);
 	gtk_box_pack_start (GTK_BOX (Side_frame_seperator), Frame_2_alignment, TRUE, TRUE, 0);
-	gtk_alignment_set_padding (GTK_ALIGNMENT (Frame_2_alignment), 4, 4, 0, 4);
+	gtk_alignment_set_padding (GTK_ALIGNMENT (Frame_2_alignment), 4, 0, 0, 4);
 	/* | */
 	Filesystem_info = gtk_frame_new (NULL);
 	gtk_widget_show (Filesystem_info);
@@ -518,7 +525,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_container_add (GTK_CONTAINER (Filesystem_info), Frame_2_label_alignment);
 	gtk_alignment_set_padding (GTK_ALIGNMENT (Frame_2_label_alignment), 8, 8, 12, 13);
 	/* | */
-	Frame_2_label_seperator = gtk_vbox_new (FALSE, 2);
+	Frame_2_label_seperator = gtk_vbox_new (FALSE, 8);
 	gtk_widget_show (Frame_2_label_seperator);
 	gtk_container_add (GTK_CONTAINER (Frame_2_label_alignment), Frame_2_label_seperator);
 	
@@ -595,47 +602,17 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_box_pack_start (GTK_BOX (Right_pane), Column_view_scroller, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (Column_view_scroller), GTK_SHADOW_IN);
 
-	treeview1 = gtk_tree_view_new ();
+	
+	extern GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c );
+	treeview1 = gzrt_wmain_tree_generate (c);
 	gtk_widget_show (treeview1);
 	gtk_container_add (GTK_CONTAINER (Column_view_scroller), treeview1);
 	
-	/* ~~ 
+	/* ~~ */
 	
-	if( !(c->z) )*/
+	if( !(c->z) );
 		goto after_tree;
-	
-	/* Set up columns */
-	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes( GTK_TREE_VIEW(treeview1), -1, "ID", renderer, "text", 0, NULL );
-	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes( GTK_TREE_VIEW(treeview1), -1, "VStart", renderer, "text", 1, NULL );
-	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes( GTK_TREE_VIEW(treeview1), -1, "VEnd", renderer, "text", 2, NULL );
-	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes( GTK_TREE_VIEW(treeview1), -1, "Start", renderer, "text", 3, NULL );
-	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes( GTK_TREE_VIEW(treeview1), -1, "End", renderer, "text", 4, NULL );
-	
-	/* Set up list view information */
-	liststore = (GtkWidget*)gtk_list_store_new( 5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );
-	
-	for( int i = 0; i < z64fs_num_entries( c->z ); i++ )
-	{
-		char buffs[5][32];
 		
-		for( int d = 0; d < 4; d++ )
-			snprintf( buffs[d], sizeof(buffs[d]), "0x%08X", U32( &c->z->fs_table[i * 16 + d * 4] ) );
-		snprintf( buffs[4], sizeof(buffs[4]), "%04u", i );
-		
-		z64fs_read_next( c->z );
-		gtk_list_store_append( GTK_LIST_STORE(liststore), &iter);
-		gtk_list_store_set( GTK_LIST_STORE(liststore), &iter, 0, buffs[4], 1, buffs[0],
-			2, buffs[1], 3, buffs[2], 4, buffs[3], -1 );
-	}
-	
-	/* Finalize */
-	gtk_tree_view_set_model( GTK_TREE_VIEW(treeview1), GTK_TREE_MODEL(liststore) );
-	
 	/* ~~ */
 	after_tree:
 	Action_buttons_organizer = gtk_alignment_new (0.5, 0.5, 1, 1);

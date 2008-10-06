@@ -11,14 +11,12 @@ CC=gcc
 CFLAGS=-I. `pkg-config --cflags gtk+-2.0` -O3 --std=gnu99 -funsigned-char
 
 # Error control flags
-CFLAGS += -Wfatal-errors -Wno-format -Wcast-align -Wno-cast-qual \
-	-Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wmissing-declarations \
-	-Wparentheses -Wno-strict-aliasing -Wno-conversion -Wunused-variable
+CFLAGS += -Wfatal-errors
 
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
 	gui/main.o gui/pbar.o gui/about.o gui/extract.o gui/decomp.o gui/crc.o \
-	gui/byteswap.o gui/mwi.o
+	gui/byteswap.o gui/mwi.o gui/list.o
 
 # Parts - Zelda 64
 PARTS += z64/z_actortable.o z64/z_scenetable.o z64/z_filesystem.o \
