@@ -614,6 +614,8 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	file->start		= U32( &w->z->fs_table[id * 16 + 8]  );
 	file->end		= U32( &w->z->fs_table[id * 16 + 12] );
 	
+	printf( "%u,%08X,%08X\n", id, file->vstart, file->vend );
+	
 	/* Get filename */
 	for( i = 0; i < id; i++ )
 		z64nt_read_next( &k );
@@ -622,10 +624,10 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	strncpy( file->filename, k.cur, sizeof(file->filename) - 1 );
 	
 	/* Read the file */
-	file->file = malloc( (file->filesize  = file->vend - file->vstart) );
-	memcpy( file->file, w->c->data + file->start, file->end - file->start );
+	file->file = malloc( (file->filesize = file->vend - file->vstart) );
+	memcpy( file->file, w->c->data + file->start, file->vend - file->vstart );
 	
-	printf( "%u, %s\n", file->filesize, file->filename );
+	gzrt_call_plugin( file );
 }
 
 /* Get ID of the currently selected file */

@@ -175,3 +175,14 @@ void gzrt_load_plugins ( void )
 			GZRTD_MESG( "Loaded plugin \"%s\".", data->long_name );
 	}
 }
+
+/* Call plugin */
+void gzrt_call_plugin ( void * file )
+{
+	if( total == 1 )
+		plugins.meta->action( file );
+	else 
+	{
+		return;
+	}
+}
