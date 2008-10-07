@@ -183,6 +183,11 @@ void gzrt_call_plugin ( void * file )
 		plugins.meta->action( file );
 	else 
 	{
+		GtkWidget * radio;
+		GtkWidget * window;
+		GList	  * group;
+		
+		
 		return;
 	}
 }
