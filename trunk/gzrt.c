@@ -12,7 +12,7 @@ int main ( int argc, char **argv )
 
 /* Initialize the application */
 void gzrt_init ( int argc, char **argv )
-{
+{	
 	/* Set the application start time */
 	gettimeofday( &program_start, NULL );
 	

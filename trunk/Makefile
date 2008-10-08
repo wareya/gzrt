@@ -8,7 +8,7 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS=-I. `pkg-config --cflags gtk+-2.0` -O3 --std=gnu99 -funsigned-char
+CFLAGS += -I. `pkg-config --cflags gtk+-2.0` -O3 --std=gnu99 -funsigned-char
 
 # Error control flags
 CFLAGS += -Wfatal-errors
@@ -28,6 +28,7 @@ PARTS += rom/rom.o rom/crc.o
 # Parts - other
 PARTS += generic/generic.o
 PARTS += generic/plugins.o
+PARTS += generic/mem.o
 
 # Debug!
 ifeq ($(DEBUG), 1)

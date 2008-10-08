@@ -117,7 +117,7 @@ load_plugin ( char * name )
 	void * p, * t;
 	
 	/* Open */
-	if( !(p = dlopen(name, RTLD_LOCAL | RTLD_LAZY)) )
+	if( !(p = dlopen(name, RTLD_LOCAL | RTLD_NOW)) )
 		return NULL;
 	
 	/* Check if there is plugin metadata */
@@ -179,15 +179,26 @@ void gzrt_load_plugins ( void )
 /* Call plugin */
 void gzrt_call_plugin ( void * file )
 {
+	GZRTD_MESG( "Plugin action requested.", PLUGINS_DIR );
+	
+	/* Check the plugin total */
 	if( total == 1 )
+	{
+		/* Only one */
+		GZRTD_MESG( "Only one plugin present - \"%s\".", plugins.meta->short_name );
+		
+		/* Call handler */
 		plugins.meta->action( file );
+	}
 	else 
 	{
 		GtkWidget * radio;
 		GtkWidget * window;
 		GList	  * group;
 		
-		
 		return;
 	}
+	
+	/* Done */
+	GZRTD_MESG( "Plugin request serviced." );
 }

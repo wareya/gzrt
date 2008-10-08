@@ -56,6 +56,7 @@
 /* Other */
 #include <generic/generic.h>
 #include <generic/plugins.h>
+#include <generic/mem.h>
 
 /* Application globals */
 extern struct timeval program_start;

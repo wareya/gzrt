@@ -6,6 +6,8 @@
 
 #ifdef __GZRT_H
 
+#include <generic/mem.h>
+
 void        gzrt_load_plugins  ( void );
 GtkWidget * gzrt_plugins_menu  ( void );
 int         gzrt_plugins_count ( void );
@@ -51,5 +53,13 @@ struct PluginMeta
 	int (*menu_bar)	( void                    );
 	int (*action)	( struct PluginFileSpec * );
 };
+
+/* Free a plugin */
+static inline void 
+plugin_cleanup ( struct PluginFileSpec * s )
+{
+	free( s->file );
+	free( s );
+}
 
 #endif /* __GZRT_PLUGINS_H */
