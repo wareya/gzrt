@@ -2,6 +2,7 @@
 * Memory management *
 ********************/
 #include <gzrt.h>
+#include <errno.h>
 
 typedef struct MemDB
 {
@@ -17,7 +18,8 @@ MEM;
 # define GZRT_MEMORY_DEBUG(x, ...) { fprintf( stderr, "[%s:%4u] " x "\n", __FILE__, __LINE__,  ##__VA_ARGS__ ); fflush(stderr); }
 #else
 # define GZRT_MEMORY_DEBUG(x, ...)
-#endif 
+#endif
+#define ERROR(x, ...)	{ fprintf( stderr, "[%s:%4u] " x "\n", __FILE__, __LINE__,  ##__VA_ARGS__ ); fflush(stderr); }
 
 /* Storage */
 static MEM        initial;
@@ -63,7 +65,11 @@ void * gzrt_malloc ( unsigned size )
 	
 	/* Allocate */
 	if( !(a = malloc( size )) )
+	{
+		/* Not good */
+		ERROR( "Unable to allocate %u bytes of memory. Error:\n%s", strerror(errno) );
 		return NULL;
+	}
 	
 	/* Update total */
 	mem_use += size;
@@ -89,7 +95,11 @@ void * gzrt_calloc ( unsigned size )
 	
 	/* Allocate */
 	if( !(a = calloc( size, 1 )) )
+	{
+		/* Not good */
+		ERROR( "Unable to allocate %u bytes of memory. Error:\n%s", strerror(errno) );
 		return NULL;
+	}
 	
 	/* Update total */
 	mem_use += size;

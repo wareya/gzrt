@@ -9,6 +9,24 @@
 #define PLUGINS_DIR			"plugins"
 #define PLUGIN_META_NAME	"gzrt_plugin_info"
 
+/* Inherited functions struct */
+static const struct Functions 
+functions =
+{
+	/* Malloc */
+	gzrt_malloc,
+	
+	/* Calloc */
+	gzrt_calloc,
+	
+	/* Free */
+	gzrt_free,
+	
+	/* Memory usage */
+	gzrt_mem_use
+};
+
+/* Plugin list */
 typedef struct
 {
 	/* Dynamic library context */
@@ -25,7 +43,7 @@ typedef struct
 }
 PLUGINS;
 
-
+/* List */
 static PLUGINS		plugins;
 static int			total;
 
@@ -52,25 +70,29 @@ GtkWidget * gzrt_plugins_menu ( void )
 	gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_head), menu );
 	
 	/* Create each respective plugin's entry */
-	while( p )
-	{
-		/* Create menu entry */
-		item = gtk_image_menu_item_new_with_mnemonic( p->meta->short_name );
-		gtk_widget_show( item );
-		
-		/* Add it to menu */
-		gtk_container_add( GTK_CONTAINER(menu), item );
-		
-		/* Set handler */
-		g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(p->meta->menu_bar), NULL );
-		
-		/* Call the functions init function (if applicable) */
-		if( !init && p->meta->init )
-			p->meta->init();
-		
-		/* Seek to next */
-		p = p->next;
-	}
+	if( plugins.dl )
+		while( p )
+		{
+			/* Create menu entry */
+			item = gtk_image_menu_item_new_with_mnemonic( "ok" );
+			gtk_widget_show( item );
+			
+			/* Add it to menu */
+			gtk_container_add( GTK_CONTAINER(menu), item );
+			
+			/* Set handler */
+			g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(p->meta->menu_bar), NULL );
+			
+			/* Call the functions init function (if applicable) */
+			if( !init && p->meta->init )
+				p->meta->init();
+			
+			/* Seek to next */
+			p = p->next;
+		}
+	
+	/* Initialized */
+	init++;
 	
 	/* Return final product */
 	return menu_head;
@@ -174,6 +196,10 @@ void gzrt_load_plugins ( void )
 		else
 			GZRTD_MESG( "Loaded plugin \"%s\".", data->long_name );
 	}
+	
+	/* Did we load any plugins? */
+	if( !plugins.dl )
+		GZRTD_MESG( "No plugins found." );
 }
 
 /* Call plugin */
@@ -188,7 +214,7 @@ void gzrt_call_plugin ( void * file )
 		GZRTD_MESG( "Only one plugin present - \"%s\".", plugins.meta->short_name );
 		
 		/* Call handler */
-		plugins.meta->action( file );
+		plugins.meta->action( &functions, file );
 	}
 	else 
 	{

@@ -8,10 +8,10 @@
 
 #include <generic/mem.h>
 
-void        gzrt_load_plugins  ( void );
-GtkWidget * gzrt_plugins_menu  ( void );
-int         gzrt_plugins_count ( void );
-void gzrt_call_plugin ( void * file );
+void        gzrt_load_plugins  ( void        );
+GtkWidget * gzrt_plugins_menu  ( void        );
+int         gzrt_plugins_count ( void        );
+void        gzrt_call_plugin   ( void * file );
 
 #endif
 
@@ -35,6 +35,22 @@ struct PluginFileSpec
 	FILE  * rom_handle;
 };
 
+/* GZRT inherited functions */
+struct Functions
+{
+	/* Memory management */
+	void     * (*malloc) ( unsigned );
+	void     * (*calloc) ( unsigned );
+	void       (*free)   ( void *   );
+	unsigned   (*mused)  ( void     );
+	
+	/* Debug/error handling */
+	unsigned	reserved1;
+	unsigned	reserved2;
+	unsigned	reserved3;
+	unsigned	reserved4;
+};
+
 /* Plugin information header */
 struct PluginMeta
 {
@@ -49,17 +65,17 @@ struct PluginMeta
 	char * desc;
 	
 	/* Functions */
-	int (*init)     ( void                    );
-	int (*menu_bar)	( void                    );
-	int (*action)	( struct PluginFileSpec * );
+	int (*init)     ( void                                              );
+	int (*menu_bar)	( void                                              );
+	int (*action)	( const struct Functions *, struct PluginFileSpec * );
 };
 
 /* Free a plugin */
 static inline void 
-plugin_cleanup ( struct PluginFileSpec * s )
+plugin_cleanup ( const struct Functions * f, struct PluginFileSpec * s )
 {
-	free( s->file );
-	free( s );
+	f->free( &s->file );
+	f->free( &s       );
 }
 
 #endif /* __GZRT_PLUGINS_H */

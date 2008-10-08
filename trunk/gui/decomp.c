@@ -107,7 +107,7 @@ void gzrt_wdecompress_close ( struct _gzrt_wdecompress * i )
 /* Close a ZDEC window */
 void gzrt_wdecompress_closed ( struct _gzrt_wdecompress * i )
 {
-	free( i->win );
+	gzrt_free( i->win );
 	
 	/* Reenable menu */
 	gzrt_wmain_enable_item( i->mw, "decompress_rom1" );
@@ -121,7 +121,7 @@ void gzrt_wdecompress_closed ( struct _gzrt_wdecompress * i )
 void gzrt_wdecompress_routine ( struct _gzrt_wdecompress * i )
 {
 	char *out = (char*)gtk_entry_get_text( GTK_ENTRY(i->entry) );
-	char *file_table = malloc( z64fs_num_entries( i->mw->z ) * 16 );
+	char *file_table = gzrt_malloc( z64fs_num_entries( i->mw->z ) * 16 );
 	char *data; /* Pointer in ROM */
 	char *temp; /* For decompression */
 	char *use;  /* Points to one of the above */
@@ -131,14 +131,14 @@ void gzrt_wdecompress_routine ( struct _gzrt_wdecompress * i )
 	int update_counter = 0;
 	
 	/* Allocate memory */
-	if( !(temp = malloc(GZRT_WDECOMPRESS_MAX) ) )
+	if( !(temp = gzrt_malloc(GZRT_WDECOMPRESS_MAX) ) )
 		gzrt_werror_show( "Error", "Out of memory.", 1 );
 	
 	/* Verify resources provided */
 	if( !can_write(out) )
 	{
 		gzrt_werror_show( "Error", "Cannot write to chosen file.", 0 );
-		free( file_table );
+		gzrt_free( file_table );
 		return;
 	}
 	else
@@ -210,7 +210,7 @@ void gzrt_wdecompress_routine ( struct _gzrt_wdecompress * i )
 	GZRTD_MESG( "Wrote new file table at 0x%08X (%u bytes).", i->mw->z->rstart, z64fs_num_entries( i->mw->z ) * 16 );
 	
 	/* Write some filler */
-	temp = calloc( 64 * 1024 * 1024 - fpos, 0 );
+	temp = gzrt_calloc( 64 * 1024 * 1024 - fpos );
 	fwrite( temp, 64 * 1024 * 1024 - fpos, 1, handle );
 	fclose( handle );
 	GZRTD_MESG( "Wrote %u bytes of filler.", 64 * 1024 * 1024 - fpos );

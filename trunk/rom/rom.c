@@ -15,7 +15,7 @@ N64ROM * n64rom_load ( char *filename )
 	N64ROM *ret = calloc( sizeof(N64ROM), 1 );
 	
 	/* File details */
-	ret->filename = malloc(strlen(filename) + 1);
+	ret->filename = gzrt_calloc(strlen(filename) + 1);
 	strcpy( ret->filename, filename );
 	if( !(ret->handle = fopen( filename, "rb+" )) )
 		N64ROM_ERR( "Unable to open file." );
@@ -108,7 +108,7 @@ int n64rom_read ( N64ROM *c, void (*cb)(int, int) )
 	int chunk_size = c->filesize / 32, i;
 	
 	/* Allocate memory */
-	if( !(c->data = malloc(c->filesize)) )
+	if( !(c->data = gzrt_malloc(c->filesize)) )
 		N64ROM_ERR( "Memory allocation error." );
 	
 	fseek( c->handle, 0, SEEK_SET );
@@ -131,8 +131,8 @@ int n64rom_read ( N64ROM *c, void (*cb)(int, int) )
 void n64rom_close ( N64ROM * h )
 {
 	if( h->data )
-		free( h->data );
-	free( h );
+		gzrt_free( h->data );
+	gzrt_free( h );
 }
 
 /* Mammoth byteswap routine */

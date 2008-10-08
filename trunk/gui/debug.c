@@ -58,13 +58,18 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	int len;
 	GtkTextIter st, en;
 	
+	#ifndef GZRT_DEBUG
+	 /* In case this somehow gets called */
+	 return;
+	#endif
+	
 	/* Navigate to the end */
 	gtk_text_buffer_get_bounds( GTK_TEXT_BUFFER(w->buffer), &st, &en );
 	gtk_text_buffer_place_cursor( GTK_TEXT_BUFFER(w->buffer), &en );
 	
 	/* Print time/file info */
 	snprintf( minbuffer, sizeof(minbuffer), "[%s:%04u:%.2f] ", file, line, time_since_start() );
-	len = snprintf( buffer, sizeof(buffer), "%-30s", minbuffer );
+	len = snprintf( buffer, sizeof(buffer), "%*s", GZRT_WDEBUG_I, minbuffer );
 	
 	/* Append */
 	gtk_text_buffer_insert_at_cursor( GTK_TEXT_BUFFER(w->buffer), buffer, len );

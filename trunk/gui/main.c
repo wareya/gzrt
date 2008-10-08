@@ -21,7 +21,7 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	/* Not allocated? */
 	if( !wmain_instances[0] )
 		for( int i = 0; i < GZRT_WMAIN_MAX; i++ )
-			wmain_instances[i] = calloc( sizeof(MAINWIN), 1 );
+			wmain_instances[i] = gzrt_calloc( sizeof(MAINWIN) );
 	
 	/* Is this ROM already loaded? */
 	for( int i = 0; i < window_amount; i++ )
@@ -601,7 +601,7 @@ static GtkWidget * get_object ( MAINWIN * w, char * name )
 /* Plugin action */
 void gzrt_wmain_plugin_action ( MAINWIN * w )
 {
-	struct PluginFileSpec * file = calloc( sizeof(struct PluginFileSpec), 1 );
+	struct PluginFileSpec * file = gzrt_calloc( sizeof(struct PluginFileSpec) );
 	int	id =  gzrt_select_file_id(w);
 	char  * name;
 	int		i;
@@ -624,7 +624,7 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	strncpy( file->filename, k.cur, sizeof(file->filename) - 1 );
 	
 	/* Read the file */
-	file->file = malloc( (file->filesize = file->vend - file->vstart) );
+	file->file = gzrt_malloc( (file->filesize = file->vend - file->vstart) );
 	memcpy( file->file, w->c->data + file->start, file->vend - file->vstart );
 	
 	gzrt_call_plugin( file );
