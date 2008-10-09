@@ -24,26 +24,26 @@ static void gen_name ( char * dest, int id, MAINWIN * c )
 {
 	if( !c->t )
 	{
-		strcpy( dest, " " );
+		strcpy( dest, "-" );
 		return;
 	}
 	
 	sprintf(dest, "%s", c->t->cur );
 	z64nt_read_next( c->t );
 }
-
+typedef void (*COLGEN)(char *, int, void *);
 struct ColumnSpec
 {
 	char * title;
 	char * font;
-	void (*func)(char *, int, void *);
+	COLGEN func;
 }
 Cols[] = 
 {
-	{ "ID",		  FONT, gen_id     },
-	{ "Filename", NULL, gen_name   },
-	{ "Start",	  FONT, gen_vstart },
-	{ "End",	  FONT, gen_vend   }
+	{ "ID",		  FONT, (COLGEN)gen_id     },
+	{ "Filename", NULL, (COLGEN)gen_name   },
+	{ "Start",	  FONT, (COLGEN)gen_vstart },
+	{ "End",	  FONT, (COLGEN)gen_vend   }
 };
 
 /* Generate the tree view */
@@ -55,7 +55,8 @@ GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c )
 	/* Create columns */
 	for( int i = 0; i < sizeof(Cols) / sizeof(struct ColumnSpec); i++ )
 	{
-		GtkWidget * r = gtk_cell_renderer_text_new(), * col;
+		GtkCellRenderer * r = gtk_cell_renderer_text_new();
+		GtkTreeViewColumn * col;
 		
 		/* Font? */
 		if( Cols[i].font )
