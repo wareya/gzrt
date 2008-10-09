@@ -12,10 +12,15 @@ static struct _gzrt_wdebug * w = &gzrt_wdebug;
 /* Initialize the debug box and show it */
 void gzrt_gui_debug_create ( void )
 {
+	GtkWidget * vbox;
+	
 	/* Create a new window */
 	w->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_widget_set_size_request( w->window, GZRT_WDEBUG_W, GZRT_WDEBUG_H );
 	gtk_window_set_title( GTK_WINDOW(w->window), GZRT_WDEBUG_T );
+	
+	/* Create vertical box */
+	vbox = gtk_vbox_new( FALSE, 0 );
 	
 	/* Set icon */
 	gtk_window_set_icon_from_file( GTK_WINDOW(w->window), GZRT_WDEBUG_ICO, NULL );
@@ -43,8 +48,18 @@ void gzrt_gui_debug_create ( void )
 	/* Attach text box to scroll window */
 	gtk_container_add( GTK_CONTAINER(w->scroll), w->text );
 	
-	/* Attach scroll to window */
-	gtk_container_add( GTK_CONTAINER(w->window), w->scroll );
+	/* Pack */
+	gtk_box_pack_start( GTK_BOX(vbox), w->scroll, TRUE, TRUE, 0 );
+	
+	/* Create status bar */
+	w->bar = gtk_statusbar_new();
+	gtk_box_pack_start( GTK_BOX(vbox), w->bar, FALSE, FALSE, 0 );
+	
+	/* Create timer */
+	gtk_timeout_add( 500, gzrt_gui_debug_mem, NULL );
+	
+	/* Attach box to window */
+	gtk_container_add( GTK_CONTAINER(w->window), vbox );
 	
 	/* Show all */
 	gtk_widget_show_all( w->window );
@@ -87,4 +102,25 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	 g_print( "[%s:%04u:%.2f] %s", file, line, time_since_start(), buffer );
 	 fflush( stdout );
 	#endif
+}
+
+/* Update memory usage every 0.5 seconds */
+void gzrt_gui_debug_mem ( void )
+{
+	char buffer[64];
+	int mid;
+	static int init;
+	
+	/* Prepare buffer */
+	sprintf( buffer, "Mem: %u", gzrt_mem_use() );
+	
+	/* Remove old? */
+	if( init )
+		gtk_statusbar_pop( w->bar, 0 );
+	
+	/* Push the new message */
+	gtk_statusbar_push( w->bar, 0, buffer );
+	
+	/* Update */
+	init++;
 }

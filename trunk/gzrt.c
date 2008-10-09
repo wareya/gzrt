@@ -7,7 +7,7 @@ int main ( int argc, char **argv )
 {
 	gtk_init( &argc, &argv );
 	gzrt_init( argc, argv );
-	gtk_main(  );
+	gtk_main( );
 }
 
 /* Initialize the application */

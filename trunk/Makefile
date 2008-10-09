@@ -8,7 +8,7 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS += -I. `pkg-config --cflags gtk+-2.0` -O3 --std=gnu99 -funsigned-char
+CFLAGS += -I. `pkg-config --cflags gtk+-2.0 gthread-2.0` -O3 --std=gnu99 -funsigned-char
 
 # Error control flags
 CFLAGS += -Wfatal-errors
@@ -45,7 +45,7 @@ ifeq ($(WIN32), 1)
 endif
 
 all: $(PARTS)
-	$(CC) $(CFLAGS) $(PARTS) `pkg-config --libs gtk+-2.0` -ldl -o $(PROJECT)
+	$(CC) $(CFLAGS) $(PARTS) `pkg-config --libs gtk+-2.0 gthread-2.0` -ldl -o $(PROJECT)
 	
 # For creating final Win32 package
 complete: all

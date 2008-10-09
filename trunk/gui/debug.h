@@ -14,15 +14,21 @@
 /* Data structure */
 struct _gzrt_wdebug 
 {
-	GtkWidget *window;
- 	GtkWidget *scroll;
-	GtkWidget *text;
-	GtkWidget *buffer;
+	GtkWidget * window;
+ 	GtkWidget * scroll;
+	GtkWidget * text;
+	GtkWidget * buffer;
+	
+	/* Memory usage */
+	GtkWidget * bar;;
+	GError    * err;
+	GThread   * thread;
 };
  
 /* Function declarations */
 void gzrt_gui_debug_create ( void );
 void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... );
+void gzrt_gui_debug_mem ( void );
 
 /* Macros */
 #ifdef GZRT_DEBUG
