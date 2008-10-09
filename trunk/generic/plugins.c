@@ -85,7 +85,7 @@ GtkWidget * gzrt_plugins_menu ( void )
 			
 			/* Call the functions init function (if applicable) */
 			if( !init && p->meta->init )
-				p->meta->init();
+				p->meta->init( &functions );
 			
 			/* Seek to next */
 			p = p->next;
@@ -214,7 +214,7 @@ void gzrt_call_plugin ( void * file )
 		GZRTD_MESG( "Only one plugin present - \"%s\".", plugins.meta->short_name );
 		
 		/* Call handler */
-		plugins.meta->action( &functions, file );
+		plugins.meta->action( file );
 	}
 	else 
 	{
