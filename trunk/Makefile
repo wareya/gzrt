@@ -40,6 +40,10 @@ ifeq ($(MIMIC), 1)
 	CFLAGS += -DGZRT_DEBUG_CONSOLE_MIMIC
 endif
 
+ifeq ($(WIN32), 1)
+	CFLAGS += -DWin32
+endif
+
 all: $(PARTS)
 	$(CC) $(CFLAGS) $(PARTS) `pkg-config --libs gtk+-2.0` -ldl -o $(PROJECT)
 

@@ -4,6 +4,14 @@
 #ifndef __GZRT_PLUGINS_H
 #define __GZRT_PLUGINS_H
 
+/*
+ *
+*  NOTICE: This file is for use by both the GZRT utility and
+ * eventual plugins. Hence, function definitions and further
+*  includes only apply when compiling GZRT.
+ *
+*/
+
 #ifdef __GZRT_H
 
 #include <generic/mem.h>
@@ -45,8 +53,8 @@ struct Functions
 	unsigned   (*mused)  ( void     );
 	
 	/* Debug/error handling */
-	unsigned	reserved1;
-	unsigned	reserved2;
+	void	 * (*error)  ( int, int, char *, ... );
+	void	 * (*debug)  ( int, int, char *, ... );
 	unsigned	reserved3;
 	unsigned	reserved4;
 };
