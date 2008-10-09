@@ -283,7 +283,7 @@ void dasm_window_jump_to_address ( DASM * h )
     
     /* Set signal */
     g_signal_connect( G_OBJECT(Address_confirmation), "clicked", G_CALLBACK(dasm_jump_handle), h );
-    g_signal_connect( G_OBJECT(Jump_to_address), "destroyed", G_CALLBACK(dasm_window_close), NULL );
+    g_signal_connect( G_OBJECT(Jump_to_address), "destroy", G_CALLBACK(dasm_window_close), NULL );
     
     /* Show the window */
     gtk_widget_show_all( Jump_to_address );
@@ -584,5 +584,5 @@ int dasm ( struct PluginFileSpec * k )
 	h->f = k;
 	
 	/* Register cleanup handle */
-	g_signal_connect_swapped( G_OBJECT(h->window), "destroyed", G_CALLBACK(dasm_cleanup), h );
+	g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_cleanup), h );
 }
