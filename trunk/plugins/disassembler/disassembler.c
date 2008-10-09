@@ -426,7 +426,7 @@ void dasm_window_populate ( DASM * h )
 	char        buffer[128];
 	
 	/* Prepare title */
-	sprintf( buffer, "MIPS R4300 Disassembler - %s", h->f->filename );
+	sprintf( buffer, "MIPS R4300 Disassembler - \"%s\"", h->filename );
     
     /* Create the main window */
     h->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
@@ -517,7 +517,7 @@ DASM * dasm_new ( char * filename )
 }
 
 /* Create a new diassembler context from data */
-DASM * dasm_new_from_raw ( unsigned char * data, int len )
+DASM * dasm_new_from_raw ( char * filename, unsigned char * data, int len )
 {
     DASM * ret;
     FILE * h;
@@ -527,6 +527,9 @@ DASM * dasm_new_from_raw ( unsigned char * data, int len )
     if( !(ret = func->calloc( sizeof(DASM) )) )
         return NULL;
     
+	/* Set filename */
+	ret->filename = filename;
+	
     /* Create text buffers */
     for( i = 0; i < ASM_ROWS; i++ )
     {
@@ -584,8 +587,7 @@ void dasm_cleanup ( DASM * h )
 
 int dasm ( struct PluginFileSpec * k )
 {
-	DASM * h = dasm_new_from_raw( k->file, k->filesize );
-	h->f = k;
+	DASM * h = dasm_new_from_raw( k->filename, k->file, k->filesize );
 	
 	/* Register cleanup handle */
 	g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_cleanup), h );
