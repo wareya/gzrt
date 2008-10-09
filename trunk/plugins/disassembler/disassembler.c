@@ -5,7 +5,9 @@
 
 #include "gzrtplugin.h"
 
-int dasm ( const struct Functions * f, struct PluginFileSpec * k );
+/* Function declarations */
+int init ( const struct Functions * f );
+int dasm ( struct PluginFileSpec * k  );
 
 /* GZRT Inherited functions */
 static const struct Functions * func;
@@ -23,7 +25,7 @@ struct PluginMeta gzrt_plugin_info =
 	NULL,
 	
 	/* Init, menu & file action funcs */
-	NULL, NULL, dasm
+	init, NULL, dasm
 };
 
 /* Constants */
@@ -41,7 +43,7 @@ struct PluginMeta gzrt_plugin_info =
 
 /* Lookup connected data */
 #define LOOKUP( component, name )   \
-    g_object_get_data( component, name )
+    g_object_get_data( G_OBJECT(component), name )
     
 /* Text buffer container */
 struct DASMRowTextBuffers
@@ -67,6 +69,9 @@ typedef struct
     int                         filesize;
     char                      * filename;
     unsigned char             * data;
+	
+	/* Plugin stuff */
+	struct PluginFileSpec     * f;
 } 
 DASM;
     
@@ -371,7 +376,7 @@ GtkWidget * dasm_buttons_create ( DASM * h )
     GtkWidget * button;
     GtkWidget * image;
     GtkWidget * vbox;
-    GtkWidget * tooltips;
+    GtkTooltips * tooltips;
     
     int i;
     
@@ -552,11 +557,34 @@ DASM * dasm_new_from_raw ( unsigned char * data, int len )
 }
 
 /*
+** Init
+*/
+
+int init ( const struct Functions * f )
+{
+	/* Update function pointer */
+	func = f;
+}
+
+/*
 ** Disassemble a file
 */
 
-int dasm ( const struct Functions * f, struct PluginFileSpec * k )
+
+void dasm_cleanup ( DASM * h )
 {
-	func = f;
-	printf( "%08X\n", dasm_new_from_raw( k->file, k->filesize ) );
+	/* Free the plugin handle */
+	plugin_cleanup( func, h->f );
+	
+	/* Free handle */
+	func->free( &h );
+}
+
+int dasm ( struct PluginFileSpec * k )
+{
+	DASM * h = dasm_new_from_raw( k->file, k->filesize );
+	h->f = k;
+	
+	/* Register cleanup handle */
+	g_signal_connect_swapped( G_OBJECT(h->window), "destroyed", G_CALLBACK(dasm_cleanup), h );
 }
