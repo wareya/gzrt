@@ -4,25 +4,6 @@
 #ifndef __GZRT_PLUGINS_H
 #define __GZRT_PLUGINS_H
 
-/*
- *
-*  NOTICE: This file is for use by both the GZRT utility and
- * eventual plugins. Hence, function definitions and further
-*  includes only apply when compiling GZRT.
- *
-*/
-
-#ifdef __GZRT_H
-
-#include <generic/mem.h>
-
-void        gzrt_load_plugins  ( void        );
-GtkWidget * gzrt_plugins_menu  ( void        );
-int         gzrt_plugins_count ( void        );
-void        gzrt_call_plugin   ( void * file );
-
-#endif
-
 /* File spec */
 struct PluginFileSpec
 {
@@ -43,6 +24,16 @@ struct PluginFileSpec
 	FILE  * rom_handle;
 };
 
+/* Plugin transaction */
+struct PluginTransac
+{
+	/* Plugin target */
+	const void * plugin;
+	
+	/* File information */
+	struct PluginFileSpec * file;
+};
+
 /* GZRT inherited functions */
 struct Functions
 {
@@ -55,8 +46,12 @@ struct Functions
 	/* Debug/error handling */
 	void	 * (*error)  ( int, int, char *, ... );
 	void	 * (*debug)  ( int, int, char *, ... );
-	unsigned	reserved3;
-	unsigned	reserved4;
+	void     *	reserved1;
+	void     *	reserved2;
+	
+	/* Plugin ending */
+	void     * (*close)  ( struct PluginTransac * );
+	void     *	reserved3;
 };
 
 /* Plugin information header */
@@ -75,15 +70,27 @@ struct PluginMeta
 	/* Functions */
 	int (*init)     ( const struct Functions * ); 
 	int (*menu_bar)	( void                     );
-	int (*action)	( struct PluginFileSpec *  );
+	int (*action)	( struct PluginTransac *   );
 };
 
-/* Free a plugin */
-static inline void 
-plugin_cleanup ( const struct Functions * f, struct PluginFileSpec * s )
-{
-	f->free( &s->file );
-	f->free( &s       );
-}
+/*
+ *
+*  NOTICE: This file is for use by both the GZRT utility and
+ * eventual plugins. Hence, function definitions and further
+*  includes only apply when compiling GZRT.
+ *
+*/
+
+#ifdef __GZRT_H
+
+#include <generic/mem.h>
+
+void        gzrt_load_plugins   ( void                     );
+GtkWidget * gzrt_plugins_menu   ( void                     );
+int         gzrt_plugins_count  ( void                     );
+void        gzrt_call_plugin    ( void * file              );
+void        gzrt_plugin_cleanup ( struct PluginTransac * t );
+
+#endif
 
 #endif /* __GZRT_PLUGINS_H */

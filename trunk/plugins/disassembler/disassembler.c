@@ -7,7 +7,7 @@
 
 /* Function declarations */
 int init ( const struct Functions * f );
-int dasm ( struct PluginFileSpec * k  );
+int dasm ( struct PluginTransac * t   );
 
 /* GZRT Inherited functions */
 static const struct Functions * func;
@@ -71,7 +71,7 @@ typedef struct
     unsigned char             * data;
 	
 	/* Plugin stuff */
-	struct PluginFileSpec     * f;
+	struct PluginTransac      * transac;
 } 
 DASM;
     
@@ -578,16 +578,17 @@ int init ( const struct Functions * f )
 void dasm_cleanup ( DASM * h )
 {
 	/* Free the plugin handle */
-	plugin_cleanup( func, h->f );
+	func->close( h->transac );
 	
 	/* Free handle */
-	func->free( &h );
+	func->free( h );
 }
 
-int dasm ( struct PluginFileSpec * k )
+int dasm ( struct PluginTransac * t )
 {
+	struct PluginFileSpec * k = t->file;
 	DASM * h = dasm_new_from_raw( k->filename, k->file, k->filesize );
-	h->f = k;
+	h->transac = t;
 	
 	/* Register cleanup handle */
 	g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_cleanup), h );

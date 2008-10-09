@@ -13,17 +13,14 @@
 static const struct Functions 
 functions =
 {
-	/* Malloc */
-	gzrt_malloc,
+	/* Memory management */
+	gzrt_malloc, gzrt_calloc, gzrt_free, gzrt_mem_use,
 	
-	/* Calloc */
-	gzrt_calloc,
+	/* Debugging / error handling */
+	NULL, NULL, NULL, NULL,
 	
-	/* Free */
-	gzrt_free,
-	
-	/* Memory usage */
-	gzrt_mem_use
+	/* Plugin cleanup */
+	gzrt_plugin_cleanup, NULL
 };
 
 /* Plugin list */
@@ -47,8 +44,9 @@ typedef struct
 PLUGINS;
 
 /* List */
-static PLUGINS  plugins;	/* List of plugins          */
-static int	    total;		/* Total number of plugins	*/
+static PLUGINS   plugins;				/* List of plugins          */
+static PLUGINS * selected = &plugins;	/* Selected plugin			*/
+static int	     total;					/* Total number of plugins	*/
 
 /* Get amount of plugins */
 int gzrt_plugins_count ( void )
@@ -206,9 +204,10 @@ void gzrt_load_plugins ( void )
 }
 
 /* Call plugin */
-void gzrt_call_plugin ( void * file )
+void __gzrt_call_plugin ( void * file )
 {
 	struct PluginFileSpec * F = file;
+	struct PluginTransac  * T = gzrt_calloc( sizeof(struct PluginTransac) );
 	GList * result;
 	GZRTD_MESG( "Plugin action requested.", PLUGINS_DIR );
 	
@@ -229,9 +228,9 @@ void gzrt_call_plugin ( void * file )
 		}
 		else
 		{
-			/* It's already open */
+			/* It's already open 
 			GZRTD_MESG( "File \"%s\" already open.", F->filename );
-			plugin_cleanup( &functions, F );
+			plugin_cleanup( &functions, F );*/
 		}
 	}
 	else 
@@ -245,4 +244,50 @@ void gzrt_call_plugin ( void * file )
 	
 	/* Done */
 	GZRTD_MESG( "Plugin request serviced." );
+}
+
+/* Call a plugin using the default */
+void gzrt_call_plugin ( void * file )
+{
+	struct PluginTransac *  transaction;
+	struct PluginFileSpec * filedata = file;
+	GList * result;
+	
+	/* Quick check */
+	if( !total )
+		return;
+	
+	/* Check for duplicate instance of this plugin & file */
+	if( (result = g_list_find_custom( selected->files, 
+		filedata->filename, (GCompareFunc)strcmp )) )
+	{
+		GZRTD_MESG( "File \"%s\" is already open.", filedata->filename );
+		return;
+	}
+	
+	/* Store the name in the list */
+	selected->files = g_list_append( selected->files, filedata->filename );
+	
+	/* Prepare transaction information */
+	transaction			= gzrt_calloc( sizeof(struct PluginTransac) );
+	transaction->file	= filedata;
+	transaction->plugin = selected;
+	
+	/* Call the plugin */
+	selected->meta->action( transaction );
+}
+
+/* Plugin cleanup */
+void gzrt_plugin_cleanup ( struct PluginTransac * t )
+{
+	/* Remove the file from the file list */
+	((PLUGINS*)t->plugin)->files = g_list_remove( ((PLUGINS*)t->plugin)->files, t->file->filename );
+	
+	/* Debug */
+	GZRTD_MESG( "File \"%s\" closed.", t->file->filename );
+	
+	/* Free file data */
+	gzrt_free( t->file->file );
+	gzrt_free( t->file       );
+	gzrt_free( t             );
 }

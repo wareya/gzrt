@@ -46,6 +46,10 @@ endif
 
 all: $(PARTS)
 	$(CC) $(CFLAGS) $(PARTS) `pkg-config --libs gtk+-2.0` -ldl -o $(PROJECT)
+	
+# For creating final Win32 package
+complete: all
+	cp -v $(PROJECT).exe /c/GZRT/resources/bin
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files

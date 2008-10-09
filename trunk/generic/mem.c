@@ -108,16 +108,15 @@ static int find_malloc_block ( MEM * h, void * a )
 }
 
 /* Free a memory block */
-void gzrt_free ( void * j )
+void gzrt_free ( void * pass )
 {
-	void ** pass = j;
 	GList * result;
 	MEM * k;
 	
-	if( !*pass )
+	if( !pass )
 		return;
 	
-	result = g_list_find_custom( blocks, *pass, (GCompareFunc)find_malloc_block );
+	result = g_list_find_custom( blocks, pass, (GCompareFunc)find_malloc_block );
 	
 	if( !result ) {
 		return;

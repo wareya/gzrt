@@ -7,7 +7,7 @@
 /* Functions */
 void   * gzrt_malloc  ( unsigned size );
 void   * gzrt_calloc  ( unsigned size );
-void     gzrt_free    ( void * j      );
+void     gzrt_free    ( void * pass   );
 unsigned gzrt_mem_use ( void          );
 
 #endif /* __GZRT_MEM_H */
