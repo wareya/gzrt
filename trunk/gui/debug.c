@@ -69,7 +69,7 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	
 	/* Print time/file info */
 	snprintf( minbuffer, sizeof(minbuffer), "[%s:%04u:%.2f] ", file, line, time_since_start() );
-	len = snprintf( buffer, sizeof(buffer), "%*s", GZRT_WDEBUG_I, minbuffer );
+	len = snprintf( buffer, sizeof(buffer), "%-34s", minbuffer );
 	
 	/* Append */
 	gtk_text_buffer_insert_at_cursor( GTK_TEXT_BUFFER(w->buffer), buffer, len );

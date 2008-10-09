@@ -9,7 +9,7 @@
 # define GZRT_WDEBUG_H		300
 # define GZRT_WDEBUG_T		"Debug Console" 
 # define GZRT_WDEBUG_ICO	GZRT_GUI_ICON_DIR "icodebug.png"
-# define GZRT_WDEBUG_I		(-34)
+# define GZRT_WDEBUG_I		((int)-34)
  
 /* Data structure */
 struct _gzrt_wdebug 
