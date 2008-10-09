@@ -9,7 +9,7 @@ PIECES=$(PRGRM).o
 CC=gcc
 
 CFLAGS=-O3 -g `pkg-config --cflags gtk+-2.0` -Idasm -fPIC
-LDFLAGS=-shared -W1,-soname,lib$(PRGRM).so
+LDFLAGS=-shared -W1,-soname,lib$(PRGRM).so `pkg-config --libs gtk+-2.0`
 
 DEST=..
 
