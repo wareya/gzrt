@@ -5,7 +5,7 @@
 
 #include "gzrtplugin.h"
 
-int dasm ( struct PluginFileSpec * k );
+int dasm ( const struct Functions * f, struct PluginFileSpec * k );
 
 /* Plugin information */
 struct PluginMeta gzrt_plugin_info =
@@ -552,7 +552,7 @@ DASM * dasm_new_from_raw ( unsigned char * data, int len )
 ** Disassemble a file
 */
 
-int dasm ( struct PluginFileSpec * k )
+int dasm ( const struct Functions * f, struct PluginFileSpec * k )
 {
 	printf( "%08X\n", dasm_new_from_raw( k->file, k->filesize ) );
 }
