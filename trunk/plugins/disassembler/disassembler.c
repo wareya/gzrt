@@ -297,9 +297,7 @@ void dasm_window_close ( GtkWidget * w )
 /* Create the text fields containing info - returned in an alignment */
 GtkWidget * dasm_window_fields_create ( DASM * h )
 {
-    GtkWidget * label;
     GtkWidget * align;
-    
     GtkWidget * disasm_and_buttons;
     GtkWidget * headsep;
     GtkWidget * headers;
@@ -327,7 +325,7 @@ GtkWidget * dasm_window_fields_create ( DASM * h )
         int         k;
         
         /* Set label alignment */
-        gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.5f );
+        gtk_misc_set_alignment( GTK_MISC(name), 0.0f, 0.5f );
         
         /* Append the col name to box */
         gtk_box_pack_start( GTK_BOX(col), name, TRUE, FALSE, 0 );
