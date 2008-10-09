@@ -614,8 +614,6 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	file->start		= U32( &w->z->fs_table[id * 16 + 8]  );
 	file->end		= U32( &w->z->fs_table[id * 16 + 12] );
 	
-	printf( "%u,%08X,%08X\n", id, file->vstart, file->vend );
-	
 	/* Get filename */
 	for( i = 0; i < id; i++ )
 		z64nt_read_next( &k );

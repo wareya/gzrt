@@ -120,11 +120,8 @@ void gzrt_free ( void * j )
 	result = g_list_find_custom( blocks, *pass, (GCompareFunc)find_malloc_block );
 	
 	if( !result ) {
-		printf("Not found %08X\n", *pass );
 		return;
 	}
-	else 
-		printf("Found.\n");
 	
 	k = result->data;
 	

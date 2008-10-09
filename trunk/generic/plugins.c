@@ -38,14 +38,17 @@ typedef struct
 	/* Filename */
 	char * fn;
 	
+	/* List of file open */
+	GList * files;
+	
 	/* Next plugin */
 	void * next;
 }
 PLUGINS;
 
 /* List */
-static PLUGINS		plugins;
-static int			total;
+static PLUGINS  plugins;	/* List of plugins          */
+static int	    total;		/* Total number of plugins	*/
 
 /* Get amount of plugins */
 int gzrt_plugins_count ( void )
@@ -74,7 +77,7 @@ GtkWidget * gzrt_plugins_menu ( void )
 		while( p )
 		{
 			/* Create menu entry */
-			item = gtk_image_menu_item_new_with_mnemonic( "ok" );
+			item = gtk_image_menu_item_new_with_mnemonic( p->meta->short_name );
 			gtk_widget_show( item );
 			
 			/* Add it to menu */
@@ -205,6 +208,8 @@ void gzrt_load_plugins ( void )
 /* Call plugin */
 void gzrt_call_plugin ( void * file )
 {
+	struct PluginFileSpec * F = file;
+	GList * result;
 	GZRTD_MESG( "Plugin action requested.", PLUGINS_DIR );
 	
 	/* Check the plugin total */
@@ -213,8 +218,21 @@ void gzrt_call_plugin ( void * file )
 		/* Only one */
 		GZRTD_MESG( "Only one plugin present - \"%s\".", plugins.meta->short_name );
 		
-		/* Call handler */
-		plugins.meta->action( file );
+		/* Check that this plugin does not have this file open already */
+		if( !(result = g_list_find_custom( plugins.files, F->filename, strcmp )) )
+		{
+			/* Append it */
+			plugins.files = g_list_append( plugins.files, strdup(F->filename) );
+			
+			/* Call handler */
+			plugins.meta->action( file );
+		}
+		else
+		{
+			/* It's already open */
+			GZRTD_MESG( "File \"%s\" already open.", F->filename );
+			plugin_cleanup( &functions, F );
+		}
 	}
 	else 
 	{
