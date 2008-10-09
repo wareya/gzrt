@@ -16,7 +16,7 @@ void gzrt_werror_show ( char *t, char *s, ERRLEVEL errlevel )
 	w->win = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	
 	/* Debug */
-	GZRTD_MESG(" New notice box: \"%s\", \"%s\", %u.", t, s, errlevel );
+	GZRTD_MESG("New notice box: \"%s\", \"%s\", %u.", t, s, errlevel );
 	
 	/* Set attributes */
 	gtk_window_set_position(     GTK_WINDOW(w->win), GTK_WIN_POS_CENTER         );
