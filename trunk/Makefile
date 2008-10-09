@@ -8,7 +8,7 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS += -DMALLOC_CHECK_ -I. `pkg-config --cflags gtk+-2.0` -O3 --std=gnu99 -funsigned-char
+CFLAGS += -I. `pkg-config --cflags gtk+-2.0` -O3 --std=gnu99 -funsigned-char
 
 # Error control flags
 CFLAGS += -Wfatal-errors
