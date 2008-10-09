@@ -124,7 +124,7 @@ void gzrt_free ( void * j )
 	if( !*p )
 	{
 		/* Not good */
-		GZRTD_MESG( "CRITICAL: NULL passed to gzrt_free()! Fix this!" );
+		ERROR( "CRITICAL: NULL passed to gzrt_free()! Fix this!" );
 		return;
 	}
 	
