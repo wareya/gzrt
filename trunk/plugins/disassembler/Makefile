@@ -15,7 +15,7 @@ DEST=..
 
 lib$(PRGRM).so: $(PIECES)
 	make -C dasm
-	$(CC) $(LDFLAGS) -o lib$(PRGRM).so $(PIECES) dasm/libr4kdis.a
+	$(CC) -o lib$(PRGRM).so $(PIECES) dasm/libr4kdis.a $(LDFLAGS)
 	cp -v lib$(PRGRM).so $(DEST)
 
 clean:
