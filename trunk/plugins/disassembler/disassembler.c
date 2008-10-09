@@ -470,7 +470,7 @@ DASM * dasm_new ( char * filename )
     int i;
     
     /* Allocate space for struct */
-    if( !(ret = calloc( sizeof(DASM), 1 )) )
+    if( !(ret = func->calloc( sizeof(DASM) )) )
         return NULL;
     
     /* Read the file in */
@@ -571,9 +571,6 @@ int init ( const struct Functions * f )
 
 void dasm_cleanup ( DASM * h )
 {
-	printf( "%08X\n", h );
-	fflush( stdout );
-	
 	/* Free the plugin handle */
 	plugin_cleanup( func, h->f );
 	

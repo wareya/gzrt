@@ -73,9 +73,9 @@ struct PluginMeta
 	char * desc;
 	
 	/* Functions */
-	int (*init)     ( void                                              );
-	int (*menu_bar)	( void                                              );
-	int (*action)	( const struct Functions *, struct PluginFileSpec * );
+	int (*init)     ( const struct Functions * ); 
+	int (*menu_bar)	( void                     );
+	int (*action)	( struct PluginFileSpec *  );
 };
 
 /* Free a plugin */

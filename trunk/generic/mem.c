@@ -4,12 +4,10 @@
 #include <gzrt.h>
 #include <errno.h>
 
-typedef struct MemDB
+typedef struct
 {
-	unsigned	   size;
-	void 	     * ptr;
-	struct MemDB * prev;
-	struct MemDB * next;
+	unsigned size;
+	void   * addr;
 }
 MEM;
 
@@ -22,36 +20,19 @@ MEM;
 #define ERROR(x, ...)	{ fprintf( stderr, "[%s:%4u] " x "\n", __FILE__, __LINE__,  ##__VA_ARGS__ ); fflush(stderr); }
 
 /* Storage */
-static MEM        initial;
-static MEM      * last;
-static unsigned   mem_use;
+static GList  * blocks;
+static int	    init;
+static unsigned mem_use;
 
 /* Store a memory entry */
-static void gzrt_mem_store ( unsigned size, void * addr )
+static inline void gzrt_mem_store ( unsigned size, void * addr )
 {
-	MEM * tmp = &initial;
+	MEM * d = malloc( sizeof(MEM) );
+	d->size = size;
+	d->addr = addr;
 	
-	/* Find end of list or empty entry */
-	while( tmp->next )
-		tmp = tmp->next;
-	
-	/* Initialized? */
-	if( tmp->size )
-	{
-		/* Create new */
-		tmp->next = calloc( sizeof(MEM), 1 );
-		tmp->next->prev = tmp;
-		
-		/* Transfer */
-		tmp = tmp->next;
-	}
-	
-	/* Set values */
-	tmp->ptr  = addr;
-	tmp->size = size;
-	
-	/* Store last used */
-	last = tmp;
+	/* Append element to the list */
+	blocks = g_list_append( blocks, d );
 }
 
 /* Allocate memory, but store usage info */
@@ -114,54 +95,46 @@ void * gzrt_calloc ( unsigned size )
 	return a;
 }
 
+/* Find a malloc()'d block in the list */
+static int find_malloc_block ( MEM * h, void * a )
+{
+	if( !h )
+		return -1;
+	
+	if( h->addr == a )
+		return 0;
+	else
+		return -1;
+}
+
 /* Free a memory block */
 void gzrt_free ( void * j )
 {
-	MEM * tmp = last;
-	void ** p = j;
+	void ** pass = j;
+	GList * result;
+	MEM * k;
 	
-	/* Are we being passed a NULL pointer? */
-	if( !*p )
-	{
-		/* Not good */
-		ERROR( "CRITICAL: NULL passed to gzrt_free()! Fix this!" );
+	if( !*pass )
+		return;
+	
+	result = g_list_find_custom( blocks, *pass, (GCompareFunc)find_malloc_block );
+	
+	if( !result ) {
+		printf("Not found %08X\n", *pass );
 		return;
 	}
+	else 
+		printf("Found.\n");
 	
-	/* Uninitialize stored entry */
-	while( tmp->ptr != *p )
-		
-		/* Seek to previous */
-		if( tmp->prev ) tmp = tmp->prev;
-		
-	/* Did we find it? */
-	if( tmp->ptr == *p )
-	{
-		MEM * a = tmp->prev, * b = tmp->next;
-		unsigned i;
-		
-		/* Free the pointer */
-		free( *p );
-		
-		/* Update size */
-		mem_use -= (i = tmp->size);
-		
-		/* Unlink entry */
-		if( tmp != &initial ) 
-		{
-			/* Repoint the previous one */
-			a->next = b;
-			
-			/* Free the old one */
-			free( tmp );
-		}
+	k = result->data;
 	
-		/* Debug message */
-		GZRT_MEMORY_DEBUG( "0x%08X: released, freeing %u bytes. Total is now %u.", *p, i, gzrt_mem_use() );
-		
-		/* Set pointer to zero */
-		*p = NULL;
-	}
+	mem_use -= k->size;
+	
+	free( k->addr );
+	
+	blocks = g_list_remove( blocks, k );
+	
+	free( k );
 }
 
 /* Return the amount of memory currently allocated */
