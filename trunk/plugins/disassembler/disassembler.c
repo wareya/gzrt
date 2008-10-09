@@ -423,12 +423,16 @@ void dasm_window_populate ( DASM * h )
     GtkWidget * winrows;
     GtkWidget * winstatus;
     GtkWidget * panel;
+	char        buffer[128];
+	
+	/* Prepare title */
+	sprintf( buffer, "MIPS R4300 Disassembler - %s", h->f->filename );
     
     /* Create the main window */
     h->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
     
     /* Set the title */
-    gtk_window_set_title( GTK_WINDOW(h->window), "MIPS R4000 Disassembler" );
+    gtk_window_set_title( GTK_WINDOW(h->window), buffer );
     
     /* Create window separator and add it to window */
     winrows = gtk_vbox_new( FALSE, 0 );
