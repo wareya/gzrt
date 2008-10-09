@@ -575,7 +575,6 @@ int init ( const struct Functions * f )
 ** Disassemble a file
 */
 
-
 void dasm_cleanup ( DASM * h )
 {
 	/* Free the plugin handle */
@@ -588,6 +587,7 @@ void dasm_cleanup ( DASM * h )
 int dasm ( struct PluginFileSpec * k )
 {
 	DASM * h = dasm_new_from_raw( k->filename, k->file, k->filesize );
+	h->f = k;
 	
 	/* Register cleanup handle */
 	g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_cleanup), h );
