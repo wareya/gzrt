@@ -4,12 +4,22 @@
 #ifndef __GZRT_PLUGINS_H
 #define __GZRT_PLUGINS_H
 
+/*
+ *
+*  NOTICE: This file is for use by both the GZRT utility and
+ * eventual plugins. Hence, function definitions and further
+*  includes only apply when compiling GZRT.
+ *
+*/
+
 #ifdef __GZRT_H
 
-void        gzrt_load_plugins  ( void );
-GtkWidget * gzrt_plugins_menu  ( void );
-int         gzrt_plugins_count ( void );
-void gzrt_call_plugin ( void * file );
+#include <generic/mem.h>
+
+void        gzrt_load_plugins  ( void        );
+GtkWidget * gzrt_plugins_menu  ( void        );
+int         gzrt_plugins_count ( void        );
+void        gzrt_call_plugin   ( void * file );
 
 #endif
 
@@ -33,6 +43,22 @@ struct PluginFileSpec
 	FILE  * rom_handle;
 };
 
+/* GZRT inherited functions */
+struct Functions
+{
+	/* Memory management */
+	void     * (*malloc) ( unsigned );
+	void     * (*calloc) ( unsigned );
+	void       (*free)   ( void *   );
+	unsigned   (*mused)  ( void     );
+	
+	/* Debug/error handling */
+	void	 * (*error)  ( int, int, char *, ... );
+	void	 * (*debug)  ( int, int, char *, ... );
+	unsigned	reserved3;
+	unsigned	reserved4;
+};
+
 /* Plugin information header */
 struct PluginMeta
 {
@@ -47,9 +73,17 @@ struct PluginMeta
 	char * desc;
 	
 	/* Functions */
-	int (*init)     ( void                    );
-	int (*menu_bar)	( void                    );
-	int (*action)	( struct PluginFileSpec * );
+	int (*init)     ( void                                              );
+	int (*menu_bar)	( void                                              );
+	int (*action)	( const struct Functions *, struct PluginFileSpec * );
 };
+
+/* Free a plugin */
+static inline void 
+plugin_cleanup ( const struct Functions * f, struct PluginFileSpec * s )
+{
+	f->free( &s->file );
+	f->free( &s       );
+}
 
 #endif /* __GZRT_PLUGINS_H */

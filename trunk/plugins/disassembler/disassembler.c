@@ -7,6 +7,9 @@
 
 int dasm ( const struct Functions * f, struct PluginFileSpec * k );
 
+/* GZRT Inherited functions */
+static const struct Functions * func;
+
 /* Plugin information */
 struct PluginMeta gzrt_plugin_info =
 {
@@ -486,7 +489,7 @@ DASM * dasm_new ( char * filename )
     fseek( h, 0, SEEK_END );
     ret->filesize = ftell(h);
     fseek( h, 0, SEEK_SET );
-    ret->data = malloc( ret->filesize );
+    ret->data = func->malloc( ret->filesize );
     fread( ret->data, ret->filesize, 1, h );
     fclose( h );
     
@@ -514,7 +517,7 @@ DASM * dasm_new_from_raw ( unsigned char * data, int len )
     int i;
     
     /* Allocate space for struct */
-    if( !(ret = calloc( sizeof(DASM), 1 )) )
+    if( !(ret = func->calloc( sizeof(DASM) )) )
         return NULL;
     
     /* Create text buffers */
