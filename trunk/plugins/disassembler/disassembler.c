@@ -555,7 +555,7 @@ DASM * dasm_new_from_raw ( unsigned char * data, int len )
 ** Disassemble a file
 */
 
-int dasm ( struct Functions * f, struct PluginFileSpec * k )
+int dasm ( const struct Functions * f, struct PluginFileSpec * k )
 {
 	func = f;
 	printf( "%08X\n", dasm_new_from_raw( k->file, k->filesize ) );
