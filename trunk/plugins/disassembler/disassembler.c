@@ -7,6 +7,7 @@
 
 /* Function declarations */
 int init ( const struct Functions * f );
+int menu_bar ( void );
 int dasm ( struct PluginTransac * t   );
 
 /* GZRT Inherited functions */
@@ -25,7 +26,7 @@ struct PluginMeta gzrt_plugin_info =
 	NULL,
 	
 	/* Init, menu & file action funcs */
-	init, NULL, dasm
+	init, menu_bar, dasm
 };
 
 /* Constants */
@@ -480,6 +481,9 @@ DASM * dasm_new ( char * filename )
     /* Read the file in */
     if( !(h = fopen(filename, "rb") ) )
         return NULL;
+	
+	/* Set filename */
+	ret->filename = filename;
     
     /* Create text buffers */
     for( i = 0; i < ASM_ROWS; i++ )
@@ -561,6 +565,21 @@ DASM * dasm_new_from_raw ( char * filename, unsigned char * data, int len )
     return ret;
 }
 
+void dasm_file_cleanup ( DASM * h )
+{
+	func->free( h->data );
+	func->free( h       );
+}
+
+void dasm_cleanup ( DASM * h )
+{
+	/* Free the plugin handle */
+	func->close( h->transac );
+	
+	/* Free handle */
+	func->free( h );
+}
+
 /*
 ** Init
 */
@@ -572,17 +591,47 @@ int init ( const struct Functions * f )
 }
 
 /*
-** Disassemble a file
+** Disassemble a regular file
 */
 
-void dasm_cleanup ( DASM * h )
+int menu_bar ( void )
 {
-	/* Free the plugin handle */
-	func->close( h->transac );
+	static char fn[1024];
+	DASM * h;
+	GtkWidget * dialog = gtk_file_chooser_dialog_new
+	( 
+		"Choose a file to disassemble", NULL,
+		GTK_FILE_CHOOSER_ACTION_OPEN, 
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
+		NULL
+	);
+	gtk_widget_show_all( dialog );
 	
-	/* Free handle */
-	func->free( h );
+	/* Wait for filename */
+	switch( gtk_dialog_run( GTK_DIALOG(dialog) ) )
+	{
+		/* Yes */
+		case GTK_RESPONSE_ACCEPT:
+		 strcpy(fn, gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
+		 gtk_widget_destroy( dialog );
+		 h = dasm_new( fn );
+		 
+		 /* Register cleanup handle */
+	     g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_file_cleanup), h );
+		break;
+		
+		/* None given? Cancel */
+		default:
+		 return FALSE;
+	}
+	
+	return TRUE;
 }
+
+/*
+** Disassemble a file from OoT
+*/
 
 int dasm ( struct PluginTransac * t )
 {
