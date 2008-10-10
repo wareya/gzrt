@@ -52,11 +52,9 @@ all: $(PARTS)
 	
 # For creating final Win32 package
 win32: $(PARTS)
-	echo '101 ICON DISCARDABLE "resources/icon.ico"' > resources/gzrt.rc
-	windres resources/gzrt.rc resources/gzrt.obj
-	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) resources/gzrt.obj -o $(PROJECT)
+	make -C launcher
+	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
-	rm -fv resources/gzrt.rc resources/gzrt.obj
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files
