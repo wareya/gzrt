@@ -3,7 +3,6 @@
 *********************/
 #include <gzrt.h>
 #include <dirent.h>
-#include <dlfcn.h>
 
 /* Constants */
 #define PLUGINS_DIR			"plugins"
@@ -36,7 +35,7 @@ functions =
 typedef struct
 {
 	/* Dynamic library context */
-	void * dl;
+	GModule * dl;
 	
 	/* Metadata */
 	struct PluginMeta * meta;
@@ -270,11 +269,11 @@ load_plugin ( char * name )
 	void * p, * t;
 	
 	/* Open */
-	if( !(p = dlopen(name, RTLD_LOCAL | RTLD_NOW)) )
+	if( !(p = g_module_open(name, G_MODULE_BIND_LOCAL)) )
 		return NULL;
 	
 	/* Check if there is plugin metadata */
-	if( !(t = dlsym( p, PLUGIN_META_NAME )) )
+	if( !g_module_symbol(p, PLUGIN_META_NAME, &t) )
 		return NULL;
 	
 	/* Loaded - append to list */
@@ -323,7 +322,7 @@ void gzrt_load_plugins ( void )
 		
 		/* Load it */
 		if( !(data = load_plugin( buffer )) )
-			GZRTD_MESG( "Error: %s", dlerror() );
+			GZRTD_MESG( "Error: %s", g_module_error() );
 		else
 			GZRTD_MESG( "Loaded plugin \"%s\".", data->long_name );
 	}

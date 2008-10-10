@@ -8,13 +8,13 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS += -I. `pkg-config --cflags gtk+-2.0 gthread-2.0` -O3 --std=gnu99 -funsigned-char
+CFLAGS += -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` -O3 --std=gnu99 -funsigned-char
 
 # Error control flags
 CFLAGS += -Wfatal-errors
 
 # Linker flags
-LDFLAGS += `pkg-config --libs gtk+-2.0 gthread-2.0` -ldl
+LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0`
 
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
