@@ -25,7 +25,7 @@ functions =
 	gzrt_malloc, gzrt_calloc, gzrt_free, gzrt_mem_use,
 	
 	/* Debugging / error handling */
-	NULL, NULL, NULL, NULL,
+	NULL, NULL, gzrt_notice, NULL,
 	
 	/* Plugin cleanup */
 	gzrt_plugin_cleanup, NULL

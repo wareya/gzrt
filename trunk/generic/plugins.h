@@ -46,7 +46,7 @@ struct Functions
 	/* Debug/error handling */
 	void	 * (*error)  ( int, int, char *, ... );
 	void	 * (*debug)  ( int, int, char *, ... );
-	void     *	reserved1;
+	void     * (*notice) ( char *, char *        );
 	void     *	reserved2;
 	
 	/* Plugin ending */
