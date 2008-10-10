@@ -70,7 +70,7 @@ void gzrt_werror_show ( char *t, char *s, ERRLEVEL errlevel )
 void gzrt_notice ( char * t, char * s )
 {
 	GtkWidget * d = gtk_dialog_new_with_buttons( t, NULL, GTK_DIALOG_MODAL, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
-	GtkWidget * a = gtk_dialog_get_content_area( GTK_DIALOG(d) );
+	GtkWidget * a = GTK_DIALOG(d)->vbox;
 	GtkWidget * l = gtk_label_new( s );
 	
 	gtk_misc_set_padding( GTK_MISC(l), 12, 12 );
