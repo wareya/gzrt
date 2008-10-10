@@ -41,7 +41,7 @@ ifeq ($(MIMIC), 1)
 endif
 
 ifeq ($(WIN32), 1)
-	CFLAGS += -DWIN32
+	CFLAGS += -DWIN32 -mwindows -mms-bitfields
 endif
 
 all: $(PARTS)
