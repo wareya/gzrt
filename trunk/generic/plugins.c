@@ -60,6 +60,7 @@ GtkWidget * gzrt_plugins_menu ( void )
 	GtkWidget * menu_head;
 	GtkWidget * menu;
 	GtkWidget * item;
+	GtkWidget * sep;
 	PLUGINS   * p = &plugins;
 	static int  init;
 	
@@ -76,7 +77,6 @@ GtkWidget * gzrt_plugins_menu ( void )
 		{
 			/* Create menu entry */
 			item = gtk_image_menu_item_new_with_mnemonic( p->meta->short_name );
-			gtk_widget_show( item );
 			
 			/* Add it to menu */
 			gtk_container_add( GTK_CONTAINER(menu), item );
@@ -92,8 +92,19 @@ GtkWidget * gzrt_plugins_menu ( void )
 			p = p->next;
 		}
 	
+	/* Create menu seperator */
+	sep = gtk_separator_menu_item_new();
+	gtk_container_add( GTK_CONTAINER(menu), sep );
+	
+	/* Create plugin preferences entry */
+	item = gtk_menu_item_new_with_mnemonic( "Preferences" );
+	gtk_container_add( GTK_CONTAINER(menu), item );
+	
 	/* Initialized */
 	init++;
+	
+	/* Show all */
+	gtk_widget_show_all( menu );
 	
 	/* Return final product */
 	return menu_head;
