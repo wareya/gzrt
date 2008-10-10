@@ -56,6 +56,7 @@ win32: $(PARTS)
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
 	cp -v launcher/$(PROJECT).exe /c/GZRT/GZRT.exe
+	cp -v plugins/libdisassembler.so /c/GZRT/plugins/disassembler.dll
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files

@@ -249,7 +249,7 @@ void __gzrt_call_plugin ( void * file )
 /* Call a plugin using the default */
 void gzrt_call_plugin ( void * file )
 {
-	struct PluginTransac *  transaction;
+	struct PluginTransac  * transaction;
 	struct PluginFileSpec * filedata = file;
 	GList * result;
 	
@@ -262,6 +262,8 @@ void gzrt_call_plugin ( void * file )
 		filedata->filename, (GCompareFunc)strcmp )) )
 	{
 		GZRTD_MESG( "File \"%s\" is already open.", filedata->filename );
+		gzrt_free( filedata->file );
+		gzrt_free( filedata       );
 		return;
 	}
 	
