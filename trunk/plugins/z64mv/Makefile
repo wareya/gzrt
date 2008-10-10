@@ -26,7 +26,7 @@ ifeq ($(WIN32), 1)
 	TARGET = ../$(PRGRM).dll
 else
 	LDFLAGS += -lGL -lGLU
-	TARGET = $(PRGRM).so
+	TARGET = ../$(PRGRM).so
 endif
 	
 $(TARGET): $(PIECES) depend

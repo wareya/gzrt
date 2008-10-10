@@ -54,6 +54,7 @@ void z64mv_draw_loop ( Z64MV * h )
 	/* Quit */
 	if( key_status[SDLK_q] )
 	{
+		memset( key_status, 0, sizeof(key_status) );
 		SDL_Quit( );
 		SDL_KillThread( h->proc );
 	}

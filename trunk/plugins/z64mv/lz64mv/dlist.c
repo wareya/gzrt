@@ -37,7 +37,7 @@ void z64mv_dlist_process ( Z64MV *h, u8 *data, u32 size, u32 start )
 			 if( ZGFX_BANK( instruction ) != 0x06 && ZGFX_BANK( instruction ) != 0x03 )
 			 {
 				 Z64MV_MESSAGE( h, "Cannot load dlist from bank 0x%02X.", ZGFX_BANK( instruction ) );
-				 continue;
+				goto endloop;
 			 }
 			 
 			 /* Everything looks ok, process */
@@ -89,6 +89,8 @@ void z64mv_dlist_process ( Z64MV *h, u8 *data, u32 size, u32 start )
 			 printf("Unknown instruction: [%02llX]%014llX\n", 
 			 ZGFX_INSTR( instruction ), instruction & 0xFFFFFFFFFFFFFF ); */
 		}
+		
+		endloop:;
 	}
 }
 
