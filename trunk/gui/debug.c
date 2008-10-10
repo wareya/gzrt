@@ -18,6 +18,7 @@ void gzrt_gui_debug_create ( void )
 	w->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_widget_set_size_request( w->window, GZRT_WDEBUG_W, GZRT_WDEBUG_H );
 	gtk_window_set_title( GTK_WINDOW(w->window), GZRT_WDEBUG_T );
+	gtk_window_set_deletable( GTK_WINDOW(w->window), FALSE );
 	
 	/* Create vertical box */
 	vbox = gtk_vbox_new( FALSE, 0 );

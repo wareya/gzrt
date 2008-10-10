@@ -623,6 +623,7 @@ int menu_bar ( void )
 		
 		/* None given? Cancel */
 		default:
+		 gtk_widget_destroy( dialog );
 		 return FALSE;
 	}
 	

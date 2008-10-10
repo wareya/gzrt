@@ -39,7 +39,7 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
 	
 	/* Key press */
 	g_signal_connect( G_OBJECT(w->window), "destroy", G_CALLBACK(gzrt_wsplash_handler), NULL );
-	g_signal_connect( G_OBJECT(w->window), "key-press-event", G_CALLBACK(gzrt_wsplash_handler), NULL );
+	g_signal_connect( G_OBJECT(w->window), "key-press-event", G_CALLBACK(gzrt_wsplash_close), NULL );
 	
 	/* Set handler (if any) */
 	w->handler = handler;
@@ -68,10 +68,6 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
  		g_usleep( 1000000 * 0.0125 );
  	}
  	
- 	/* Set signal */
- 	if( w->handler )
- 		g_signal_connect( G_OBJECT(w->window), "key-press-event", G_CALLBACK(gzrt_wsplash_handler), NULL );
- 	
  	/* Return false to stop timeout */
  	return FALSE;
  }
@@ -80,6 +76,13 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
 /* Close the splash window */
 void gzrt_wsplash_close ( void )
 {
+	static int called;
+	
+	if( called )
+		return;
+	else
+		called++;
+	
 	gtk_widget_destroy( w->window );
 }
 
