@@ -6,7 +6,7 @@
 #include <sys/time.h>
 
 /* Storage of key statuses */
-static int	key_status[SDLK_z - SDLK_a];
+static int	key_status[256];
 
 /*
 ** Main draw loop
