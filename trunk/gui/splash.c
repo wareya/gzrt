@@ -22,34 +22,30 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
 	gtk_window_set_deletable(    GTK_WINDOW(w->window), FALSE                             );
 	gtk_window_set_type_hint(    GTK_WINDOW(w->window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN );
 	
-	/* Opacity (only windows) */
+	/* Invisible & fade */
 	#ifdef WIN32
 	 gtk_window_set_opacity( GTK_WINDOW(w->window), 0.00 );
-	#else
-	 gtk_widget_show( w->window );
+	 g_timeout_add( 500, (GSourceFunc)gzrt_wsplash_fade, NULL );
 	#endif
+	
+	/* Timeout */
+	g_timeout_add( 3000, (GSourceFunc)gzrt_wsplash_close, NULL );
 	
 	/* Load image */
 	w->image = gtk_image_new_from_file( GRT_SPLASH_IMAGE );
-	SHOW( w->image );
 	
 	/* Add image to window */
 	gtk_container_add( GTK_CONTAINER(w->window), w->image );
 	
-	/* If Windows, fade in */
-	#ifdef WIN32
-	 g_timeout_add( 100, (GSourceFunc)gzrt_wsplash_fade, NULL );
-	#else /* Otherwise, just display */
-	 SHOW(    w->window );
-	 PRESENT( w->window );
-	 
-	 /* Key event */
-	 g_signal_connect( G_OBJECT(w->window), "key-press-event", 
-		 G_CALLBACK(gzrt_wsplash_handler), NULL );
-	#endif
+	/* Key press */
+	g_signal_connect( G_OBJECT(w->window), "destroy", G_CALLBACK(gzrt_wsplash_handler), NULL );
+	g_signal_connect( G_OBJECT(w->window), "key-press-event", G_CALLBACK(gzrt_wsplash_handler), NULL );
 	
 	/* Set handler (if any) */
 	w->handler = handler;
+	
+	/* Show all */
+	gtk_widget_show_all( w->window );
 }
 
 /* Fade the window into view */
@@ -57,25 +53,19 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
 int gzrt_wsplash_fade ( void )
 {
 	double	f;
-	clock_t	s;
-	
-	/* Unhide window */
-	SHOW( w->window );
-	PRESENT( w->window );
 	
 	/* Fade loop */
 	for( f = 0.0; f < 1.05; f += 0.05 )
 	{
 		/* Update window attrs */
 		gtk_window_set_opacity( GTK_WINDOW(w->window), f );
-		gtk_main_iteration_do( FALSE );
+		
+		/* Update */
+		while( gtk_events_pending() )
+			gtk_main_iteration();
 		
 		/* Wait a little */
-		s = clock();
-		while
-		( 
-		  (double)(clock() - s)/CLOCKS_PER_SEC < 0.0125  
-		);
+		g_usleep( 1000000 * 0.0125 );
 	}
 	
 	/* Set signal */
