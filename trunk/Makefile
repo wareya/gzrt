@@ -19,7 +19,7 @@ LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0`
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
 	gui/main.o gui/pbar.o gui/about.o gui/extract.o gui/decomp.o gui/crc.o \
-	gui/byteswap.o gui/mwi.o gui/list.o
+	gui/byteswap.o gui/mwi.o gui/list.o gui/replace.o
 
 # Parts - Zelda 64
 PARTS += z64/z_actortable.o z64/z_scenetable.o z64/z_filesystem.o \
@@ -45,13 +45,16 @@ endif
 
 ifeq ($(WIN32), 1)
 	CFLAGS += -DWIN32 -mwindows -mms-bitfields
+	ACTION = "WIN32=1"
 endif
 
 all: $(PARTS)
+	make -C plugins $(ACTION)
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	
 # For creating final Win32 package
 win32: $(PARTS)
+	make -C plugins $(ACTION)
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin

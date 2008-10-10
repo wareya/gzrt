@@ -75,5 +75,6 @@ extern int window_amount;
 #include <gui/crc.h>
 #include <gui/decomp.h>
 #include <gui/byteswap.h>
+#include <gui/replace.h>
 
 #endif
