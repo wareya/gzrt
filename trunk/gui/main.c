@@ -506,7 +506,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, f1l5, "f1l5");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_label, "Frame_1_label");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_alignment, "Frame_2_alignment");
-	GLADE_HOOKUP_OBJECT (Main_Window, Filesystem_info, "Filesystem_info");
+	GLADE_HOOKUP_OBJECT (Main_Window, Filesystem_info, "Filesystem_Info");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_label_alignment, "Frame_2_label_alignment");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_label_seperator, "Frame_2_label_seperator");
 	GLADE_HOOKUP_OBJECT (Main_Window, f2l1, "f2l1");
@@ -751,7 +751,7 @@ static GtkWidget * create_rom_info_frame ( MAINWIN * c )
 	frame = gtk_frame_new( NULL );
 	
 	/* Set name */
-	name = gtk_label_new( "<b>ROM Info</b>" );
+	name = gtk_label_new( "<b>ROM info</b>" );
 	gtk_label_set_use_markup( GTK_LABEL(name), TRUE );
 	gtk_frame_set_label_widget( GTK_FRAME(frame), name );
 	
@@ -801,7 +801,7 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	frame = gtk_frame_new( NULL );
 	
 	/* Set name */
-	name = gtk_label_new( "<b>Filesystem Info</b>" );
+	name = gtk_label_new( "<b>Filesystem info</b>" );
 	gtk_label_set_use_markup( GTK_LABEL(name), TRUE );
 	gtk_frame_set_label_widget( GTK_FRAME(frame), name );
 	
