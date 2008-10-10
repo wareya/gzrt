@@ -66,6 +66,26 @@ void gzrt_werror_show ( char *t, char *s, ERRLEVEL errlevel )
 		g_signal_connect( G_OBJECT(w->okb), "clicked", G_CALLBACK( gzrt_werror_destroy ), NULL );
 }
 
+/* New notice dialog */
+void gzrt_notice ( char * t, char * s )
+{
+	GtkWidget * d = gtk_dialog_new_with_buttons( t, NULL, GTK_DIALOG_MODAL, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
+	GtkWidget * a = gtk_dialog_get_content_area( GTK_DIALOG(d) );
+	GtkWidget * l = gtk_label_new( s );
+	
+	gtk_misc_set_padding( GTK_MISC(l), 12, 12 );
+	
+	gtk_container_add( GTK_CONTAINER(a), l );
+	
+	gtk_widget_show_all(a);
+	
+	switch( gtk_dialog_run( GTK_DIALOG(d) ) )
+	{
+		default:
+		 gtk_widget_destroy( d );
+	}
+}
+
 /* Destroy any existing error window */
 void gzrt_werror_destroy ( void )
 {

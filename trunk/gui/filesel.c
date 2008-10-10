@@ -53,7 +53,7 @@ void gzrt_wfilesel_check ( GtkWidget *wd, GtkFileSelection *fs )
 	
 	/* Initialize ROM context */
 	if( !(ctx = n64rom_load(filename)) )
-		gzrt_werror_show( "Error occured!", n64rom_error(), 0 );
+		gzrt_notice( "Error occured!", n64rom_error() );
 	else {
 		status++;
 		if( gzrt_wmain_create_new( ctx ) )

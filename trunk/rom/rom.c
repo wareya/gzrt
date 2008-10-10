@@ -51,7 +51,7 @@ N64ROM * n64rom_load ( char *filename )
 		
 		/* Not sure */
 		default:
-		 N64ROM_ERR( "Unknown identifier \"0x%08X\".", N64ROM_U32(b) );
+		 N64ROM_ERR( "Unknown identifier \"0x%08X\".", N64ROM_U32(ret->header) );
 	}
 	
 	/* Trim name */

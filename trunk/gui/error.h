@@ -27,5 +27,6 @@ typedef enum _gzrt_errlevel
 /* Functions */
 void gzrt_werror_show    ( char *t, char *s, ERRLEVEL errlevel );
 void gzrt_werror_destroy ( void );
+void gzrt_notice         ( char * t, char * s );
 
 #endif /* __GZRT_WERROR_H */
