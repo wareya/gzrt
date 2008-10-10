@@ -50,31 +50,31 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
 
 /* Fade the window into view */
 #ifdef WIN32
-int gzrt_wsplash_fade ( void )
-{
-	double	f;
-	
-	/* Fade loop */
-	for( f = 0.0; f < 1.05; f += 0.05 )
-	{
-		/* Update window attrs */
-		gtk_window_set_opacity( GTK_WINDOW(w->window), f );
-		
-		/* Update */
-		while( gtk_events_pending() )
-			gtk_main_iteration();
-		
-		/* Wait a little */
-		g_usleep( 1000000 * 0.0125 );
-	}
-	
-	/* Set signal */
-	if( w->handler )
-		g_signal_connect( G_OBJECT(w->window), "key-press-event", G_CALLBACK(gzrt_wsplash_handler), NULL );
-	
-	/* Return false to stop timeout */
-	return FALSE;
-}
+ int gzrt_wsplash_fade ( void )
+ {
+ 	double	f;
+ 	
+ 	/* Fade loop */
+ 	for( f = 0.0; f < 1.05; f += 0.05 )
+ 	{
+ 		/* Update window attrs */
+ 		gtk_window_set_opacity( GTK_WINDOW(w->window), f );
+ 		
+ 		/* Update */
+ 		while( gtk_events_pending() )
+ 			gtk_main_iteration();
+ 		
+ 		/* Wait a little */
+ 		g_usleep( 1000000 * 0.0125 );
+ 	}
+ 	
+ 	/* Set signal */
+ 	if( w->handler )
+ 		g_signal_connect( G_OBJECT(w->window), "key-press-event", G_CALLBACK(gzrt_wsplash_handler), NULL );
+ 	
+ 	/* Return false to stop timeout */
+ 	return FALSE;
+ }
 #endif
 
 /* Close the splash window */
