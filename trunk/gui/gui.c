@@ -56,9 +56,9 @@ void gzrt_gui_init ( int argc, char **argv )
 		{
 			gzrt_wsplash_init( gzrt_wfilesel_show );
 			return;
-		}/*
+		}
 		else if( !(gzrt_wmain_create_new( ctx )) )
-				gzrt_wfilesel_show();*/
+				gzrt_wfilesel_show();
 	}
 }
 

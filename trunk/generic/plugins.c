@@ -9,6 +9,15 @@
 #define PLUGINS_DIR			"plugins"
 #define PLUGIN_META_NAME	"gzrt_plugin_info"
 
+/* Connect data to a widget */
+#define HOOKUP( component, widget, name )                       \
+    g_object_set_data_full( G_OBJECT(component), name,          \
+    gtk_widget_ref(widget), (GDestroyNotify)gtk_widget_unref )
+
+/* Lookup connected data */
+#define LOOKUP( component, name )   \
+    g_object_get_data( G_OBJECT(component), name )
+
 /* Inherited functions struct */
 static const struct Functions 
 functions =
@@ -82,7 +91,8 @@ GtkWidget * gzrt_plugins_menu ( void )
 			gtk_container_add( GTK_CONTAINER(menu), item );
 			
 			/* Set handler */
-			g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(p->meta->menu_bar), NULL );
+			if( p->meta->menu_bar )
+				g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(p->meta->menu_bar), NULL );
 			
 			/* Call the functions init function (if applicable) */
 			if( !init && p->meta->init )
@@ -98,6 +108,7 @@ GtkWidget * gzrt_plugins_menu ( void )
 	
 	/* Create plugin preferences entry */
 	item = gtk_menu_item_new_with_mnemonic( "Preferences" );
+	g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(gzrt_plugins_preferences), NULL );
 	gtk_container_add( GTK_CONTAINER(menu), item );
 	
 	/* Initialized */
@@ -108,6 +119,114 @@ GtkWidget * gzrt_plugins_menu ( void )
 	
 	/* Return final product */
 	return menu_head;
+}
+
+/* Preferences menu */
+GtkWidget * gzrt_plugins_preferences ( int action )
+{
+	GtkWidget * window;
+	GtkWidget * frame;
+	GtkWidget * label;
+	GtkWidget * hbox;
+	GtkWidget * vbox;
+	GtkWidget * align;
+	GtkWidget * select;
+	GtkWidget * ok;
+	PLUGINS   * p = &plugins;
+	static int  init;
+	
+	/* Are we just cleaning up? */
+	if( action ) {
+		init = 0;
+		return NULL;
+	}
+	
+	/* Already init'd */
+	if( init )
+		return NULL;
+	
+	/* Create window */
+	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+	gtk_window_set_title( GTK_WINDOW(window), "Plugin preferences" );
+	gtk_container_set_border_width( GTK_CONTAINER(window), 12 );
+	
+	/* Create vertical organizer */
+	vbox = gtk_vbox_new( FALSE, 8 );
+	
+	/* Create "default plugin" frame */
+	frame = gtk_frame_new( NULL );
+	label = gtk_label_new("<b>Default plugin</b>");
+	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
+	gtk_frame_set_label_widget( GTK_FRAME(frame), label );
+	
+	/* Create frame alignment */
+	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 12, 12 );
+	gtk_container_add( GTK_CONTAINER(frame), align );
+	
+	/* Create horizontal box for contents */
+	hbox = gtk_hbox_new( FALSE, 8 );
+	gtk_container_add( GTK_CONTAINER(align), hbox );
+	
+	/* Create combo box */
+	select = gtk_combo_box_entry_new_text();
+	
+	/* Populate */
+	while( p )
+	{
+		/* Append */
+		gtk_combo_box_append_text( GTK_COMBO_BOX(select), p->meta->long_name );
+		
+		/* Next */
+		p = p->next;
+	}
+	
+	/* Create confirm button */
+	ok = gtk_button_new_with_label( "Apply" );
+	
+	/* Pack everything */
+	gtk_box_pack_start( GTK_BOX(hbox), select, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(hbox), ok,     TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), frame,  TRUE, TRUE, 0 );
+	gtk_container_add( GTK_CONTAINER(window), vbox );
+	
+	/* Signals */
+	g_signal_connect_swapped( G_OBJECT(ok), "clicked", G_CALLBACK(gzrt_set_default_plugin), (gpointer)window );
+	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(gzrt_plugins_preferences), (gpointer)1 );
+	
+	/* Show everything */
+	gtk_widget_show_all( window );
+	
+	/* Hookup data */
+	HOOKUP( window, select, "select-box" );
+	
+	/* Set init status */
+	init = 1;
+	
+	/* Return it */
+	return window;
+}
+
+/* Set default plugin */
+void gzrt_set_default_plugin ( GtkWidget * window )
+{
+	GtkWidget * select = LOOKUP( window, "select-box" );
+	PLUGINS   * p = &plugins;
+    char * text = gtk_combo_box_get_active_text( GTK_COMBO_BOX(select) );
+	
+	while( p )
+	{
+		if( !strcmp( p->meta->long_name, text ) )
+		{
+			selected = p;
+			GZRTD_MESG( "Default plugin set to \"%s\".", text );
+			gtk_widget_destroy( window );
+			return;
+		}
+		
+		p = p->next;
+	}
+	
 }
 
 /* Add a plugin to list */

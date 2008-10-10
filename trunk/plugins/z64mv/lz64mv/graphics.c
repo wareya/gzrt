@@ -46,7 +46,7 @@ void z64mv_draw_loop ( Z64MV * h )
 			else if( h->event.key.keysym.sym == SDLK_z )
 			{
 				SDL_Quit( );
-				exit( 1 );
+				SDL_KillThread( h->proc );
 			}
 		}
 		else

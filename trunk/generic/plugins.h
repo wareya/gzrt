@@ -85,11 +85,13 @@ struct PluginMeta
 
 #include <generic/mem.h>
 
-void        gzrt_load_plugins   ( void                     );
-GtkWidget * gzrt_plugins_menu   ( void                     );
-int         gzrt_plugins_count  ( void                     );
-void        gzrt_call_plugin    ( void * file              );
-void        gzrt_plugin_cleanup ( struct PluginTransac * t );
+void        gzrt_load_plugins        ( void                     );
+GtkWidget * gzrt_plugins_menu        ( void                     );
+int         gzrt_plugins_count       ( void                     );
+void        gzrt_call_plugin         ( void * file              );
+void        gzrt_plugin_cleanup      ( struct PluginTransac * t );
+GtkWidget * gzrt_plugins_preferences ( int action               );
+void        gzrt_set_default_plugin  ( GtkWidget * window       );
 
 #endif
 

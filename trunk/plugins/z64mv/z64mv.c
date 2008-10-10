@@ -4,7 +4,7 @@
 
 #include "gzrtplugin.h"
 
-int view ( struct PluginFileSpec * k );
+int view ( struct PluginTransac * t   );
 
 /* Plugin information */
 struct PluginMeta gzrt_plugin_info =
@@ -22,7 +22,8 @@ struct PluginMeta gzrt_plugin_info =
 	NULL, NULL, view
 };
 
-int view ( struct PluginFileSpec * k )
+int view ( struct PluginTransac * t )
 {
+	struct PluginFileSpec * k = t->file;
 	printf( "%08X\n", z64mv_create_from_bin( k->file, k->filesize ) );
 }
