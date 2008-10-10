@@ -161,8 +161,10 @@ void z64mv_display_resize ( Z64MV * handle, int w, int h )
     glLoadIdentity( );
 	
 	/* We want ctrl-c to work */
-	signal( SIGINT,  SIG_DFL );
-    signal( SIGQUIT, SIG_DFL );
+	#ifndef WIN32
+	 signal( SIGINT,  SIG_DFL );
+     signal( SIGQUIT, SIG_DFL );
+	#endif
 }
 
 /*

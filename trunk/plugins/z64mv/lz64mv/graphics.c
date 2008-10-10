@@ -3,15 +3,15 @@
 **********************/
 #include <z64mv.h>
 #include <signal.h>
-#include <time.h>
+#include <sys/time.h>
 
 /*
 ** Main draw loop
 */
 void z64mv_draw_loop ( Z64MV * h )
 {
-	double start, diff;
-	struct timespec t;
+	double   start, diff;
+	unsigned stime;
 	static double i = 0.0;
 	static double scale = 1.0, zoom = -6.0;
 	
@@ -101,9 +101,8 @@ void z64mv_draw_loop ( Z64MV * h )
     SDL_GL_SwapBuffers( );
 	
 	/* Put thread to sleep for FPS lock */
-	t.tv_nsec = ((1.0 / h->fps_cap) - (time_sec( h ) - start)) * 1000000000.0; 
-	t.tv_sec  = 0;
-	nanosleep( &t, NULL );
+	stime = ((1.0 / h->fps_cap) - (time_sec( h ) - start)) * 1000.0; 
+	SDL_Delay( stime );
 	
 	/* Loop again */
 	goto mainloop;
