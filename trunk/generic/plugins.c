@@ -3,10 +3,16 @@
 *********************/
 #include <gzrt.h>
 #include <dirent.h>
+#include <string.h>
 
 /* Constants */
 #define PLUGINS_DIR			"plugins"
 #define PLUGIN_META_NAME	"gzrt_plugin_info"
+#ifdef WIN32
+# define PLUGIN_EXT ".dll"
+#else
+# define PLUGIN_EXT ".so"
+#endif
 
 /* Connect data to a widget */
 #define HOOKUP( component, widget, name )                       \
@@ -308,6 +314,10 @@ void gzrt_load_plugins ( void )
 		
 		/* No "." or ".." */
 		if( !strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") )
+			continue;
+		
+		/* Proper prefix */
+		if( !strstr(ent->d_name, PLUGIN_EXT) )
 			continue;
 		
 		/* Concatenate */

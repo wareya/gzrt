@@ -5,6 +5,9 @@
 #include <signal.h>
 #include <sys/time.h>
 
+/* Storage of key statuses */
+static int	key_status[SDLK_z - SDLK_a];
+
 /*
 ** Main draw loop
 */
@@ -12,16 +15,14 @@ void z64mv_draw_loop ( Z64MV * h )
 {
 	double   start, diff;
 	unsigned stime;
+	
+	/* The rotation (in degrees) of the object -
+	   calculated based on framerate and how many degrees
+	   to turn per sec */
 	static double i = 0.0;
+
+	/* Constant scale/zoom values for camera */
 	static double scale = 1.0, zoom = -6.0;
-	
-	double zoom_val = 0;
-	double scale_val = 1;
-	
-	double rot_x = 0.0, rot_y = 0.0, rot_z = 0.0;
-	double rvl_x = 0.0, rvl_y = 0.0, rvl_z = 0.0;
-	
-	glDisable ( GL_CULL_FACE );
 	
 	mainloop:
 		
@@ -33,52 +34,29 @@ void z64mv_draw_loop ( Z64MV * h )
 	{
 		/* Keyboard input */
 		if( h->event.type == SDL_KEYDOWN )
-		{
-			/* Quit */
-			if( h->event.key.keysym.sym == SDLK_w )
-				scale_val = 0.90;
-			else if( h->event.key.keysym.sym == SDLK_s )
-				scale_val = 1 / 0.90;
-			else if( h->event.key.keysym.sym == SDLK_a )
-				zoom_val = 1.0;
-			else if( h->event.key.keysym.sym == SDLK_d )
-				zoom_val = -1.0;
-			else if( h->event.key.keysym.sym == SDLK_z )
-			{
-				SDL_Quit( );
-				SDL_KillThread( h->proc );
-			}
-		}
-		else
-			
-		/* Keys released */
-		if( h->event.type == SDL_KEYUP )
-		{
-			if( h->event.key.keysym.sym == SDLK_w )
-				scale_val = 1;
-			else if( h->event.key.keysym.sym == SDLK_s )
-				scale_val = 1;
-			else if( h->event.key.keysym.sym == SDLK_a )
-				zoom_val = 0;
-			else if( h->event.key.keysym.sym == SDLK_d )
-				zoom_val = 0;
-		}
-		else
-			
-		/* Mouse input */
-		if( h->event.type == SDL_MOUSEBUTTONDOWN  )
-		{
-			/* Zoom in */
-			if( h->event.button.button == SDL_BUTTON_LEFT )
-				zoom_val = 1.0;
-			else if( h->event.button.button == SDL_BUTTON_RIGHT )
-				zoom_val -= 1.0;
-		}
+		
+			/* Store it */
+			key_status[h->event.key.keysym.sym] = TRUE;
+		
+		/* Key released */
+		else if( h->event.type == SDL_KEYUP )
+		
+			/* Store it */
+			key_status[h->event.key.keysym.sym] = FALSE;
 	}
 	
 	/* Update zoom & scale */
-	zoom += zoom_val * 0.5;
-	scale *= scale_val;
+	if( key_status[SDLK_w] )
+		scale *= 0.75;
+	if( key_status[SDLK_s] )
+		scale /= 0.75;
+	
+	/* Quit */
+	if( key_status[SDLK_q] )
+	{
+		SDL_Quit( );
+		SDL_KillThread( h->proc );
+	}
 	
 	/* Clear the window */
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

@@ -28,12 +28,14 @@ else
 	LDFLAGS += -lGL -lGLU
 	TARGET = $(PRGRM).so
 endif
-
-$(TARGET): $(PIECES)
-	make -C lz64mv
+	
+$(TARGET): $(PIECES) depend
 	$(CC) -o lib$(PRGRM).so $(PIECES) lz64mv/libz64mv.a $(LDFLAGS)
 	cp -v lib$(PRGRM).so $(TARGET)
 	rm -v lib$(PRGRM).so
+
+depend:
+	make -C lz64mv
 
 clean:
 	rm *.o *.so *~ -vf
