@@ -8,8 +8,7 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS += -I. -O3 --std=gnu99 -funsigned-char -mwindows -mms-bitfields
-
+CFLAGS += -DWIN32 -I. -Os -s --std=gnu99 -funsigned-char -mwindows -mms-bitfields
 
 # Parts
 PARTS=$(PROJECT).o
