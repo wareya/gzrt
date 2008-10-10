@@ -36,8 +36,11 @@ void z64mv_dlist_process ( Z64MV *h, u8 *data, u32 size, u32 start )
 			 /* Check bank */
 			 if( ZGFX_BANK( instruction ) != 0x06 && ZGFX_BANK( instruction ) != 0x03 )
 			 {
-				 Z64MV_MESSAGE( h, "Cannot load dlist from bank 0x%02X.", ZGFX_BANK( instruction ) );
-				goto endloop;
+				 static int shown;
+				 
+				 if( !shown++ )
+					 Z64MV_MESSAGE( h, "Cannot load dlist from bank 0x%02X.", ZGFX_BANK( instruction ) );
+				 goto endloop;
 			 }
 			 
 			 /* Everything looks ok, process */
