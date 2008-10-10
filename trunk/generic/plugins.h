@@ -81,10 +81,12 @@ struct PluginMeta
  *
 */
 
-#ifdef __GZRT_H
+#ifdef IN_GZRT
 
+/* Mem management */
 #include <generic/mem.h>
 
+/* Function declarations */
 void        gzrt_load_plugins        ( void                     );
 GtkWidget * gzrt_plugins_menu        ( void                     );
 int         gzrt_plugins_count       ( void                     );
