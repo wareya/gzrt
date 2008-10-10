@@ -18,3 +18,4 @@ all: $(PARTS)
 	echo '101 ICON DISCARDABLE "../resources/icon.ico"' > gzrt.rc
 	windres gzrt.rc gzrt.obj
 	$(CC) -o $(PROJECT) $(CFLAGS) $(PARTS) gzrt.obj
+	rm gzrt.rc gzrt.obj
