@@ -327,6 +327,9 @@ void gzrt_load_plugins ( void )
 			GZRTD_MESG( "Loaded plugin \"%s\".", data->long_name );
 	}
 	
+	/* Close directory */
+	closedir(handle);
+	
 	/* Did we load any plugins? */
 	if( !plugins.dl )
 		GZRTD_MESG( "No plugins found." );
