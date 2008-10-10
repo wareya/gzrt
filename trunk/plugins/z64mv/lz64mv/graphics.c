@@ -19,10 +19,10 @@ void z64mv_draw_loop ( Z64MV * h )
 	/* The rotation (in degrees) of the object -
 	   calculated based on framerate and how many degrees
 	   to turn per sec */
-	static double i = 0.0;
+	double i = 0.0;
 
 	/* Constant scale/zoom values for camera */
-	static double scale = 1.0, zoom = -6.0;
+	double scale = 1.0, zoom = -6.0;
 	
 	mainloop:
 		
