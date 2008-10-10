@@ -15,7 +15,7 @@ CFLAGS += -I. -O3 --std=gnu99 -funsigned-char -mwindows -mms-bitfields
 PARTS=$(PROJECT).o
 
 all: $(PARTS)
-	echo '101 ICON DISCARDABLE "../resources/icon.ico"' > gzrt.rc
+	echo '101 ICON DISCARDABLE "icon.ico"' > gzrt.rc
 	windres gzrt.rc gzrt.obj
 	$(CC) -o $(PROJECT) $(CFLAGS) $(PARTS) gzrt.obj
 	rm gzrt.rc gzrt.obj

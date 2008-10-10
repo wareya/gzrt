@@ -55,6 +55,7 @@ win32: $(PARTS)
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
+	cp -v launcher/$(PROJECT).exe /c/GZRT
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files
