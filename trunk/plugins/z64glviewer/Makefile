@@ -30,7 +30,7 @@ ifeq ($(WIN32), 1)
 	CFLAGS	+=	-mwindows -mms-bitfields -DWIN32 
 	LDFLAGS	+=	-lmingw32 -lglu32 -lglew32 -lopengl32
 else
-	LDFLAGS += -lGL -lGLU -lglew
+	LDFLAGS += -lGL -lGLU -lGLEW
 endif
 
 # Application pieces
