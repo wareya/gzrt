@@ -85,8 +85,7 @@ typedef struct
 	/* Viewer config */
 	struct timeval	  invoke;
 	float			  fps_cap;
-	u32				  entry;
-	int				  vtx_source;
+	GList			* verts;
 	
 	/* File information */
 	struct PluginFileSpec * data;

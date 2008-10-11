@@ -5,6 +5,30 @@
 
 void z64mv_dlist_tri1 ( VERTEX * vtx, u8 i1, u8 i2, u8 i3 );
 
+/* Vertex data storage */
+struct Zelda64Vertex
+{
+	/* Coordinates */
+	short	x;
+	short	y;
+	short	z;
+	
+	/* Vertex lighting info */
+	u8		r;
+	u8		g;
+	u8		b;
+	u8		a;
+};
+
+/*
+** Preload a display list
+*/
+void z64mv_dlist_preload ( Z64MV * h )
+{
+	u8	* data = h->data->file;
+	u32	  size = h->data->filesize;
+
+
 /*
 ** Process display list
 */
