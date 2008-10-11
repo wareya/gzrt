@@ -38,6 +38,7 @@ redim shared as short zverts(0 to 1)
 redim shared as short rverts(0 to 1)
 redim shared as short gverts(0 to 1)
 redim shared as short bverts(0 to 1)
+redim shared as short averts(0 to 1)
 
 dim shared as ulongint address
 dim shared as ulongint taddress
@@ -59,12 +60,13 @@ const piover180 = 0.0174532925f
 ''------------------------------------------------------------------------------
 '' Types used by the model
 type VERTEX                      '' Build Our Vertex Structure called VERTEX
-	x as single                  '' 3D Coordinates (x, y, z)
-	y as single
-	z as single
-    r as single
-    g as single
-    b as single
+	x as short                  '' 3D Coordinates (x, y, z)
+	y as short
+	z as short
+    r as ubyte
+    g as ubyte
+    b as ubyte
+    a as ubyte
     u as single
     v as single
 end type
@@ -102,9 +104,10 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	dim y_m as single
 	dim z_m as single
     
-    dim r_m as single            '' Floating Point For Temp X, Y, Z, U And V Vertices
+    dim r_m as single
 	dim g_m as single
 	dim b_m as single
+	dim a_m as single
 	
 	dim xtrans as single         '' Used For Player Translation
 	dim ztrans as single         '' Used For Player Translation
@@ -157,28 +160,31 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 			glBegin GL_TRIANGLES                          '' Start Drawing Triangles
             
 				glNormal3f 0.0, 0.0, 1.0                  '' Normal Pointing Forward
-				r_m = triangles(loop_m).v(0).r         '' X Vertex Of 1st Point
-				g_m = triangles(loop_m).v(0).g         '' Y Vertex Of 1st Point
-				b_m = triangles(loop_m).v(0).b         '' Z Vertex Of 1st Point
-                glcolor3ub r_m, g_m, b_m
+				r_m = triangles(loop_m).v(0).r
+				g_m = triangles(loop_m).v(0).g
+				b_m = triangles(loop_m).v(0).b
+				a_m = triangles(loop_m).v(0).a
+                glcolor4ub r_m, g_m, b_m, a_m
 				x_m = triangles(loop_m).v(0).x         '' X Vertex Of 1st Point
 				y_m = triangles(loop_m).v(0).y         '' Y Vertex Of 1st Point
 				z_m = triangles(loop_m).v(0).z         '' Z Vertex Of 1st Point
 			    glVertex3f x_m, y_m, z_m
                 
-				r_m = triangles(loop_m).v(1).r         '' X Vertex Of 1st Point
-				g_m = triangles(loop_m).v(1).g         '' Y Vertex Of 1st Point
-				b_m = triangles(loop_m).v(1).b         '' Z Vertex Of 1st Point
-                glcolor3ub r_m, g_m, b_m
+				r_m = triangles(loop_m).v(1).r
+				g_m = triangles(loop_m).v(1).g
+				b_m = triangles(loop_m).v(1).b
+				a_m = triangles(loop_m).v(1).a
+                glcolor4ub r_m, g_m, b_m, a_m
 				x_m = triangles(loop_m).v(1).x         '' X Vertex Of 2nd Point
 				y_m = triangles(loop_m).v(1).y         '' Y Vertex Of 2nd Point
 				z_m = triangles(loop_m).v(1).z         '' Z Vertex Of 2nd Point
 			    glVertex3f x_m, y_m, z_m
                 
-				r_m = triangles(loop_m).v(2).r         '' X Vertex Of 1st Point
-				g_m = triangles(loop_m).v(2).g         '' Y Vertex Of 1st Point
-				b_m = triangles(loop_m).v(2).b         '' Z Vertex Of 1st Point
-                glcolor3ub r_m, g_m, b_m
+				r_m = triangles(loop_m).v(2).r
+				g_m = triangles(loop_m).v(2).g
+				b_m = triangles(loop_m).v(2).b
+				a_m = triangles(loop_m).v(2).a
+                glcolor4ub r_m, g_m, b_m, a_m
 				x_m = triangles(loop_m).v(2).x         '' X Vertex Of 3rd Point
 				y_m = triangles(loop_m).v(2).y         '' Y Vertex Of 3rd Point
 				z_m = triangles(loop_m).v(2).z         '' Z Vertex Of 3rd Point
@@ -380,6 +386,7 @@ while ( address < filesize )
             redim rverts(0 to len01)
             redim gverts(0 to len01)
             redim bverts(0 to len01)
+            redim averts(0 to len01)
             redim tris(0 to len01/16*3)
             taddress = spot01 + 1
             which = 0
@@ -417,7 +424,10 @@ while ( address < filesize )
                 taddress += 1
                 Get #1, taddress + spot01, tbyte
                 bverts(which) = tbyte
-                taddress += 2
+                taddress += 1
+                Get #1, taddress + spot01, tbyte
+                averts(which) = tbyte
+                taddress += 1
                 
                 
                 
@@ -434,14 +444,15 @@ while ( address < filesize )
             Print ", "; zverts(tri051 / 2);
             Print "; "; rverts(tri051 / 2);
             Print ", "; gverts(tri051 / 2);
-            Print ", "; bverts(tri051 / 2)
+            Print ", "; bverts(tri051 / 2);
+            Print ", "; averts(tri051 / 2)
             triangles(curt).v(curv).x = xverts(tri051 / 2)
             triangles(curt).v(curv).y = yverts(tri051 / 2)
             triangles(curt).v(curv).z = zverts(tri051 / 2)
             triangles(curt).v(curv).r = rverts(tri051 / 2)
             triangles(curt).v(curv).g = gverts(tri051 / 2)
             triangles(curt).v(curv).b = bverts(tri051 / 2)
-            
+            triangles(curt).v(curv).a = averts(tri051 / 2)
             taddress += 1
             curv = 1
             
@@ -451,13 +462,15 @@ while ( address < filesize )
             Print ", "; zverts(tri052 / 2);
             Print "; "; rverts(tri052 / 2);
             Print ", "; gverts(tri052 / 2);
-            Print ", "; bverts(tri052 / 2)
+            Print ", "; bverts(tri052 / 2);
+            Print ", "; averts(tri052 / 2)
             triangles(curt).v(curv).x = xverts(tri052 / 2)
             triangles(curt).v(curv).y = yverts(tri052 / 2)
             triangles(curt).v(curv).z = zverts(tri052 / 2)
             triangles(curt).v(curv).r = rverts(tri052 / 2)
             triangles(curt).v(curv).g = gverts(tri052 / 2)
             triangles(curt).v(curv).b = bverts(tri052 / 2)
+            triangles(curt).v(curv).a = averts(tri052 / 2)
             
             
             taddress += 1
@@ -469,13 +482,15 @@ while ( address < filesize )
             Print ", "; zverts(tri053 / 2);
             Print "; "; rverts(tri053 / 2);
             Print ", "; gverts(tri053 / 2);
-            Print ", "; bverts(tri053 / 2)
+            Print ", "; bverts(tri053 / 2);
+            Print ", "; averts(tri053 / 2)
             triangles(curt).v(curv).x = xverts(tri053 / 2)
             triangles(curt).v(curv).y = yverts(tri053 / 2)
             triangles(curt).v(curv).z = zverts(tri053 / 2)
             triangles(curt).v(curv).r = rverts(tri053 / 2)
             triangles(curt).v(curv).g = gverts(tri053 / 2)
             triangles(curt).v(curv).b = bverts(tri053 / 2)
+            triangles(curt).v(curv).a = averts(tri053 / 2)
             
 
             
@@ -489,13 +504,15 @@ while ( address < filesize )
             Print ", "; zverts(tri061 / 2);
             Print "; "; rverts(tri061 / 2);
             Print ", "; gverts(tri061 / 2);
-            Print ","; bverts(tri061 / 2)
+            Print ", "; bverts(tri061 / 2);
+            Print ", "; averts(tri061 / 2)
             triangles(curt).v(curv).x = xverts(tri061 / 2)
             triangles(curt).v(curv).y = yverts(tri061 / 2)
             triangles(curt).v(curv).z = zverts(tri061 / 2)
             triangles(curt).v(curv).r = rverts(tri061 / 2)
             triangles(curt).v(curv).g = gverts(tri061 / 2)
             triangles(curt).v(curv).b = bverts(tri061 / 2)
+            triangles(curt).v(curv).a = averts(tri061 / 2)
             
             
             taddress += 1
@@ -507,13 +524,15 @@ while ( address < filesize )
             Print ", "; zverts(tri062 / 2);
             Print "; "; rverts(tri062 / 2);
             Print ", "; gverts(tri062 / 2);
-            Print ", "; bverts(tri062 / 2)
+            Print ", "; bverts(tri062 / 2);
+            Print ", "; averts(tri062 / 2)
             triangles(curt).v(curv).x = xverts(tri062 / 2)
             triangles(curt).v(curv).y = yverts(tri062 / 2)
             triangles(curt).v(curv).z = zverts(tri062 / 2)
             triangles(curt).v(curv).r = rverts(tri062 / 2)
             triangles(curt).v(curv).g = gverts(tri062 / 2)
             triangles(curt).v(curv).b = bverts(tri062 / 2)
+            triangles(curt).v(curv).a = averts(tri062 / 2)
             
             
             taddress += 1
@@ -525,13 +544,15 @@ while ( address < filesize )
             Print ", "; zverts(tri063 / 2);
             Print "; "; rverts(tri063 / 2);
             Print ", "; gverts(tri063 / 2);
-            Print ", "; bverts(tri063 / 2)
+            Print ", "; bverts(tri063 / 2);
+            Print ", "; averts(tri063 / 2)
             triangles(curt).v(curv).x = xverts(tri063 / 2)
             triangles(curt).v(curv).y = yverts(tri063 / 2)
             triangles(curt).v(curv).z = zverts(tri063 / 2)
             triangles(curt).v(curv).r = rverts(tri063 / 2)
             triangles(curt).v(curv).g = gverts(tri063 / 2)
             triangles(curt).v(curv).b = bverts(tri063 / 2)
+            triangles(curt).v(curv).a = averts(tri063 / 2)
 
             
             curv = 0
@@ -548,12 +569,17 @@ while ( address < filesize )
             Print "1: "; xverts(tri051 / 2);
             Print ", "; yverts(tri051 / 2);
             Print ", "; zverts(tri051 / 2)
+            Print "; "; rverts(tri051 / 2);
+            Print ", "; gverts(tri051 / 2);
+            Print ", "; bverts(tri051 / 2);
+            Print ", "; averts(tri051 / 2)
             triangles(curt).v(curv).x = xverts(tri051 / 2)
             triangles(curt).v(curv).y = yverts(tri051 / 2)
             triangles(curt).v(curv).z = zverts(tri051 / 2)
             triangles(curt).v(curv).r = rverts(tri051 / 2)
             triangles(curt).v(curv).g = gverts(tri051 / 2)
             triangles(curt).v(curv).b = bverts(tri051 / 2)
+            triangles(curt).v(curv).a = averts(tri051 / 2)
             
 
             taddress += 1
@@ -563,12 +589,17 @@ while ( address < filesize )
             Print "2: "; xverts(tri052 / 2);
             Print ", "; yverts(tri052 / 2);
             Print ", "; zverts(tri052 / 2)
+            Print "; "; rverts(tri052 / 2);
+            Print ", "; gverts(tri052 / 2);
+            Print ", "; bverts(tri052 / 2);
+            Print ", "; averts(tri052 / 2)
             triangles(curt).v(curv).x = xverts(tri052 / 2)
             triangles(curt).v(curv).y = yverts(tri052 / 2)
             triangles(curt).v(curv).z = zverts(tri052 / 2)
             triangles(curt).v(curv).r = rverts(tri052 / 2)
             triangles(curt).v(curv).g = gverts(tri052 / 2)
             triangles(curt).v(curv).b = bverts(tri052 / 2)
+            triangles(curt).v(curv).a = averts(tri052 / 2)
             
 
             taddress += 1
@@ -577,13 +608,18 @@ while ( address < filesize )
             Get #1, taddress, tri053
             Print "3: "; xverts(tri053 / 2);
             Print ", "; yverts(tri053 / 2);
-            Print ", "; zverts(tri053 / 2)
+            Print ", "; zverts(tri053 / 2);
+            Print "; "; rverts(tri053 / 2);
+            Print ", "; gverts(tri053 / 2);
+            Print ", "; bverts(tri053 / 2);
+            Print ", "; averts(tri053 / 2)
             triangles(curt).v(curv).x = xverts(tri053 / 2)
             triangles(curt).v(curv).y = yverts(tri053 / 2)
             triangles(curt).v(curv).z = zverts(tri053 / 2)
             triangles(curt).v(curv).r = rverts(tri053 / 2)
             triangles(curt).v(curv).g = gverts(tri053 / 2)
             triangles(curt).v(curv).b = bverts(tri053 / 2)
+            triangles(curt).v(curv).a = averts(tri053 / 2)
             
             
             taddress += 1
@@ -595,7 +631,11 @@ while ( address < filesize )
     address += 8
     taddress = address
     
-wend  
+wend
 
 print "Loaded."
+print "Preliminary Vertex Alpha."
+Print ""
+Print "Version: GZRT Plug 0.8A"
+
 end sub
