@@ -45,16 +45,15 @@ endif
 
 ifeq ($(WIN32), 1)
 	CFLAGS += -DWIN32 -mwindows -mms-bitfields
-	ACTION = "WIN32=1"
 endif
 
 all: $(PARTS)
-	make -C plugins $(ACTION)
+	make -C plugins
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	
 # For creating final Win32 package
 win32: $(PARTS)
-	make -C plugins $(ACTION)
+	make -C plugins
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin

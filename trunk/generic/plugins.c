@@ -31,7 +31,7 @@ functions =
 	gzrt_malloc, gzrt_calloc, gzrt_free, gzrt_mem_use,
 	
 	/* Debugging / error handling */
-	NULL, NULL, gzrt_notice, NULL,
+	NULL, gzrt_gui_debug_add, gzrt_notice, NULL,
 	
 	/* Plugin cleanup */
 	gzrt_plugin_cleanup, NULL
