@@ -3,6 +3,8 @@
 **********************************/
 #include <z64mv.h>
 
+extern struct Functions * GZRT_FUNC;
+
 /*
 ** Process display list
 */
@@ -26,7 +28,7 @@ void z64mv_dlist_process ( Z64MV *h, u8 *data, u32 size, u32 start )
 		{
 			/* End of display list */
 			case ZGFX_ENDDL:
-			 Z64MV_DEBUG( h, "End of dlist 0x%06X reached.", start );
+			 /* Z64MV_DEBUG( "End of dlist 0x%06X reached.", start ); */
 			 return;
 			break;
 			
@@ -38,13 +40,13 @@ void z64mv_dlist_process ( Z64MV *h, u8 *data, u32 size, u32 start )
 			 {
 				 static int shown;
 				 
-				 if( !shown++ )
-					 Z64MV_MESSAGE( h, "Cannot load dlist from bank 0x%02X.", ZGFX_BANK( instruction ) );
+				 /* if( !shown++ )
+					 Z64MV_MESSAGE( "Cannot load dlist from bank 0x%02X.", ZGFX_BANK( instruction ) ); */
 				 goto endloop;
 			 }
 			 
-			 /* Everything looks ok, process */
-			 Z64MV_DEBUG( h, "Recursing into dlist 0x%06X.", ZGFX_ADDR( instruction ) );
+			 /* Everything looks ok, process 
+			 Z64MV_DEBUG( "Recursing into dlist 0x%06X.", ZGFX_ADDR( instruction ) ); */
 			 z64mv_dlist_process( h, data, size, ZGFX_ADDR( instruction ) );
 			break;
 
