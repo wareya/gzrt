@@ -63,6 +63,10 @@ int z64v_init ( const struct Functions * f )
 	/* Set function pointer */
 	GZRT_FUNC = (void*)f;
 	
+	/* Memory */
+	extern unsigned char * databuffer;
+	databuffer=malloc(8*1024*1024);
+	
 	/* Init notice */
 	DEBUG( "Z64Viewer plugin wrapper initialized." );
 }

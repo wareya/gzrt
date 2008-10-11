@@ -476,8 +476,6 @@ void draw_from_data ( struct Data * k )
   
   GLenum err = glewInit();
   
-  databuffer=malloc(8*1024*1024);
-  
   memset(databuffer,0, 8*1024*1024);
       
   entrypoint = k->ep;
