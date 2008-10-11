@@ -1,43 +1,41 @@
-################################
-# Zelda 64 Model Viewer Plugin #
-################################
+#
+# N64 Raw binary disassembler
+#
 
-# Plugin name
-PROJECT = z64mv
+PRGRM=z64mv
 
-# Target
-ifeq ($(WIN32), 1)
-	TARGET = $(PROJECT).dll
-else
-	TARGET = $(PROJECT).so
-endif
+# Compiler
+CC=gcc
 
-# Environment
-CC = gcc
+# Application pieces
+PIECES=$(PRGRM).o
 
-# Utils flags
-CFLAGS	= -I. -O3 -g -fPIC `sdl-config --cflags` `pkg-config --cflags glib-2.0`
-LDFLAGS = -shared -W1,-soname,$(TARGET) `sdl-config --libs` `pkg-config --libs glib-2.0` -lm
+# C compiler flags
+CFLAGS=-O3 -g `sdl-config --cflags` -Ilz64mv -fPIC 
+
+# Linker flags
+LDFLAGS = `sdl-config --libs` -shared -W1,-soname,lib$(PRGRM).so
 
 # Lib destination
-DEST	= ..
+DEST=..
 
 # Win32 options
 ifeq ($(WIN32), 1)
-	CFLAGS	+=	-mwindows -mms-bitfields
-	LDFLAGS	+=	-lopengl32 -lglu32
+	CFLAGS += -DWIN32 -mwindows -mms-bitfields
+	LDFLAGS += -lopengl32 -lglu32
+	TARGET = ../$(PRGRM).dll
 else
 	LDFLAGS += -lGL -lGLU
+	TARGET = ../$(PRGRM).so
 endif
-
-# Application pieces
-PIECES	= $(PROJECT).o dlist.o graphics.o
-
-# Make lib
-$(DEST)/$(TARGET): $(PIECES)
-	$(CC) -o $(TARGET) $(PIECES) $(LDFLAGS)
-	cp -v $(TARGET) $(DEST)
 	
-# Cleanup
+$(TARGET): $(PIECES) depend
+	$(CC) -o lib$(PRGRM).so $(PIECES) lz64mv/libz64mv.a $(LDFLAGS)
+	cp -v lib$(PRGRM).so $(TARGET)
+	rm -v lib$(PRGRM).so
+
+depend:
+	make -C lz64mv
+
 clean:
-	rm -vf $(DEST)/$(TARGET) $(TARGET) *.o *.dll *.so *~
+	rm *.o *.so *~ -vf
