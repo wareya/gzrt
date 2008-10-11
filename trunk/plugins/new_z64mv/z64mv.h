@@ -11,6 +11,7 @@
 #include <GL/glu.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <gzrtplugin.h>
 #include "SDL.h"
 #include "SDL_ttf.h"
 
@@ -67,9 +68,6 @@ typedef char				 s8;
 #define U16(x)	((x)[0]<<8  | (x)[1])
 #define F16(x)	((float)((short)((x)[0]<<8|(x)[1])))
 
-/* Local includes */
-#include <dlist.h>
-
 /* Error handling function */
 typedef void (*z64mv_errh)( void * h, char *file, int line, char *fmt, ... );
 
@@ -110,13 +108,15 @@ Z64MV;
 
 /* Globals */
 extern int sdlstatus;	/* We don't want to initialize sdl twice */
+extern struct Functions * GZRT_FUNC;
+
+/* Local includes */
+#include <dlist.h>
 
 /* Functions for managing instances */
 Z64MV * z64mv_create_from_file  ( char *filename          ); 
 Z64MV * z64mv_create_from_bin   ( u8 *file, u32 size      );
 void    z64mv_destroy           ( Z64MV * handle          );
-
-
 
 /* Functions */
 void z64mv_dlist_process ( Z64MV *h, u8 *data, u32 size, u32 start );
