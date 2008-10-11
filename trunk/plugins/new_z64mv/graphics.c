@@ -72,6 +72,7 @@ void z64mv_draw_loop ( Z64MV * h )
 	/*  Use rotations */
 	glRotatef(udrot, 1.0, 0,0);
 	glRotatef(yrot, 0, 1.0, 0);
+	glScaled(0.25, 0.25, 0.25);
 	
 	/* Use translations */
 	

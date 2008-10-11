@@ -15,14 +15,11 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 
-/* Constants */
-enum { FALSE, TRUE };
-
 /* Defaults */
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 #define SCREEN_BPP		16
-#define SCREEN_FPS		15.0	/* Initial FPS limit */
+#define SCREEN_FPS		30.0	/* Initial FPS limit */
 
 /* Inherited function storage */
 #define GZRT_FUNC	__functions
@@ -34,8 +31,7 @@ enum { FALSE, TRUE };
 /* Throw error */
 #define Z64MV_ERROR( x, ... ) \
 	(GZRT_FUNC)->error( __FILE__, __LINE__, x "\n", ##__VA_ARGS__ )
-	
-	
+
 /* Close filespec */
 #define Z64MV_TRANSAC_CLOSE( x ) \
 	(GZRT_FUNC)->close( x )

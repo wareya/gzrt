@@ -19,6 +19,8 @@ int z64mv_init ( const struct Functions * f )
 	
 	/* Debug */
 	Z64MV_DEBUG( "Z64MV init'd." );
+	
+	/* _ */
 }
 
 /*

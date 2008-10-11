@@ -3,7 +3,7 @@
 ################################
 
 # Plugin name
-PROJECT = z64mv
+PROJECT = z64v
 
 # Target
 ifeq ($(WIN32), 1)
@@ -15,29 +15,32 @@ endif
 # Environment
 CC = gcc
 
+# Lib settings 
+LDFLAGS += -shared -W1,-soname,$(TARGET) 
+
 # Utils flags
-CFLAGS	= -I. -O3 -g -fPIC `sdl-config --cflags` `pkg-config --cflags glib-2.0`
-LDFLAGS = -shared -W1,-soname,$(TARGET) `sdl-config --libs` `pkg-config --libs glib-2.0` -lm
+CFLAGS  += -O3 -I. -g `sdl-config --cflags` `pkg-config --cflags gtk+-2.0`
+LDFLAGS += -L. `pkg-config --libs gtk+-2.0` `sdl-config --libs` -lpthread
 
 # Lib destination
 DEST	= ..
 
 # Win32 options
 ifeq ($(WIN32), 1)
-	CFLAGS	+=	-mwindows -mms-bitfields
-	LDFLAGS	+=	-lopengl32 -lglu32
+	CFLAGS	+=	-mwindows -mms-bitfields -DWIN32 
+	LDFLAGS	+=	-lmingw32 -lglu32 -lglew32 -lopengl32
 else
 	LDFLAGS += -lGL -lGLU
 endif
 
 # Application pieces
-PIECES	= $(PROJECT).o dlist.o graphics.o rdp.o
+PIECES	= zglv-plugin.o dlist.o z64viewer.o
 
 # Make lib
 $(DEST)/$(TARGET): $(PIECES)
 	$(CC) -o $(TARGET) $(PIECES) $(LDFLAGS)
 	cp -v $(TARGET) $(DEST)
-	
+
 # Cleanup
 clean:
-	rm -vf $(DEST)/$(TARGET) $(TARGET) *.o *.dll *.so *~
+	rm -vf $(DEST)/$(TARGET) $(TARGET) *.o 
