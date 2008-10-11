@@ -239,11 +239,11 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
  		end if
         
         if MULTIKEY(FB.SC_R) then
-			ypos = ypos + 0.25
+			ypos = ypos + camspeed
  		end if
         
         if MULTIKEY(FB.SC_F) then
-			ypos = ypos - 0.25
+			ypos = ypos - camspeed
         end if
 
 
