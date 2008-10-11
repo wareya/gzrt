@@ -132,6 +132,8 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	glLoadIdentity                                 '' Reset The Modelview Matrix
 
 	'' All Setup For OpenGL Goes Here
+    glEnable GL_BLEND
+    glBlendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 	glShadeModel GL_SMOOTH                         '' Enable Smooth Shading
 	glClearColor 0.4, 0.6, 0.8, 0.5                       '' Black Background
 	glClearDepth 1.0                               '' Depth Buffer Setup
@@ -159,15 +161,15 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 		
 			glBegin GL_TRIANGLES                          '' Start Drawing Triangles
             
-				glNormal3f 0.0, 0.0, 1.0                  '' Normal Pointing Forward
+				glNormal3f 0.0, 0.0, 1.0
 				r_m = triangles(loop_m).v(0).r
 				g_m = triangles(loop_m).v(0).g
 				b_m = triangles(loop_m).v(0).b
 				a_m = triangles(loop_m).v(0).a
+				x_m = triangles(loop_m).v(0).x
+				y_m = triangles(loop_m).v(0).y
+				z_m = triangles(loop_m).v(0).z
                 glcolor4ub r_m, g_m, b_m, a_m
-				x_m = triangles(loop_m).v(0).x         '' X Vertex Of 1st Point
-				y_m = triangles(loop_m).v(0).y         '' Y Vertex Of 1st Point
-				z_m = triangles(loop_m).v(0).z         '' Z Vertex Of 1st Point
 			    glVertex3f x_m, y_m, z_m
                 
 				r_m = triangles(loop_m).v(1).r
@@ -175,9 +177,9 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 				b_m = triangles(loop_m).v(1).b
 				a_m = triangles(loop_m).v(1).a
                 glcolor4ub r_m, g_m, b_m, a_m
-				x_m = triangles(loop_m).v(1).x         '' X Vertex Of 2nd Point
-				y_m = triangles(loop_m).v(1).y         '' Y Vertex Of 2nd Point
-				z_m = triangles(loop_m).v(1).z         '' Z Vertex Of 2nd Point
+				x_m = triangles(loop_m).v(1).x
+				y_m = triangles(loop_m).v(1).y
+				z_m = triangles(loop_m).v(1).z
 			    glVertex3f x_m, y_m, z_m
                 
 				r_m = triangles(loop_m).v(2).r
@@ -185,9 +187,9 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 				b_m = triangles(loop_m).v(2).b
 				a_m = triangles(loop_m).v(2).a
                 glcolor4ub r_m, g_m, b_m, a_m
-				x_m = triangles(loop_m).v(2).x         '' X Vertex Of 3rd Point
-				y_m = triangles(loop_m).v(2).y         '' Y Vertex Of 3rd Point
-				z_m = triangles(loop_m).v(2).z         '' Z Vertex Of 3rd Point
+				x_m = triangles(loop_m).v(2).x
+				y_m = triangles(loop_m).v(2).y
+				z_m = triangles(loop_m).v(2).z
                 glVertex3f x_m, y_m, z_m
 			glEnd
 		next
