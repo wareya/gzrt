@@ -104,6 +104,10 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	dim y_m as single
 	dim z_m as single
     
+    dim as single camspeed = 1.0
+    dim as byte pressedm = 0
+    dim as byte pressedp = 0
+    
     dim r_m as single
 	dim g_m as single
 	dim b_m as single
@@ -194,24 +198,44 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 			glEnd
 		next
 		'' Keyboard handlers
+        if MULTIKEY(FB.SC_PLUS) then
+            if (pressedp = 0) then
+                camspeed += .25
+                pressedp = 1
+            end if
+        else
+            pressedp = 0
+        end if
+        
+        if MULTIKEY(FB.SC_MINUS) then
+            if (pressedm = 0) then
+                camspeed -= .25
+                pressedm = 1
+            end if
+        else
+            pressedm = 0
+        end if
+        
+        if (camspeed <= 0) then camspeed =.25 end if
+        
 		if MULTIKEY(FB.SC_W) then
-			xpos = xpos - sin(heading*piover180) * 0.25    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos - cos(heading*piover180) * 0.25    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos - sin(heading*piover180) * camspeed    '' Move On The X-Plane Based On Player Direction
+			zpos = zpos - cos(heading*piover180) * camspeed    '' Move On The Z-Plane Based On Player Direction
         end if
 	
 		if MULTIKEY(FB.SC_S) then
-			xpos = xpos + sin(heading*piover180) * 0.25    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos + cos(heading*piover180) * 0.25    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos + sin(heading*piover180) * camspeed    '' Move On The X-Plane Based On Player Direction
+			zpos = zpos + cos(heading*piover180) * camspeed    '' Move On The Z-Plane Based On Player Direction
 		end if
 	
 		if MULTIKEY(FB.SC_A) then
-			xpos = xpos - sin(heading*piover180+(3.141592654/2)) * 0.25    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos - cos(heading*piover180+(3.141592654/2)) * 0.25    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos - sin(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The X-Plane Based On Player Direction
+			zpos = zpos - cos(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The Z-Plane Based On Player Direction
  		end if
 	
 		if MULTIKEY(FB.SC_D) then
-			xpos = xpos + sin(heading*piover180+(3.141592654/2)) * 0.25    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos + cos(heading*piover180+(3.141592654/2)) * 0.25    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos + sin(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The X-Plane Based On Player Direction
+			zpos = zpos + cos(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The Z-Plane Based On Player Direction
  		end if
         
         if MULTIKEY(FB.SC_R) then
