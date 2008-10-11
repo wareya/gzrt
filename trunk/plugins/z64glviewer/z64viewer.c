@@ -449,13 +449,15 @@ int _main(int argc, char *argv[])
 }
 
 
+  #ifdef LINUX
+  PFNGLGENPROGRAMSARBPROC __glewGenProgramsARB = NULL;
+  #endif
 
 
 
 
 void draw_from_data ( struct Data * k )
 {
-  PFNGLGENPROGRAMSARBPROC __glewGenProgramsARB = NULL;
   SDL_Surface *screen;
   int done;
   Uint8 *keys;
