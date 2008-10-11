@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <math.h>
+#include <glib.h>
 
 /* Storage of key statuses */
 static int	key_status[256];
