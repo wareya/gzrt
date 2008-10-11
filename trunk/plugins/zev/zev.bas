@@ -232,6 +232,10 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 		end if
         
         
+        if (lookupdown > 90) then lookupdown = 90
+        if (lookupdown < -90) then lookupdown = -90
+        
+        
 		if MULTIKEY(FB.SC_RIGHT) then
 			heading = heading - 0.25        '' Rotate The Scene To The Left
 			yrot = heading
