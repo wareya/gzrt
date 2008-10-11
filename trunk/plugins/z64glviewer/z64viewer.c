@@ -448,14 +448,6 @@ int _main(int argc, char *argv[])
   return 0;             /* ANSI C requires main to return int. */
 }
 
-
-  #ifdef LINUX
-  PFNGLGENPROGRAMSARBPROC __glewGenProgramsARB = NULL;
-  #endif
-
-
-
-
 void draw_from_data ( struct Data * k )
 {
   SDL_Surface *screen;
