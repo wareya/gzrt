@@ -19,7 +19,7 @@ CC = gcc
 LDFLAGS += -shared -W1,-soname,$(TARGET) 
 
 # Utils flags
-CFLAGS  += -O3 -I. -g `sdl-config --cflags` `pkg-config --cflags gtk+-2.0`
+CFLAGS  += -O3 -I. -g `sdl-config --cflags` `pkg-config --cflags gtk+-2.0` -fPIC
 LDFLAGS += -L. `pkg-config --libs gtk+-2.0` `sdl-config --libs` -lpthread
 
 # Lib destination
