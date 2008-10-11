@@ -38,7 +38,8 @@ void Log_Message (char * Message, ...) {
 }
 
 void Start_Log (void) {
-    logfile = NULL;
+       if(logfile==NULL)
+        logfile=fopen("dlist.log","w");   
 }
 
 void Stop_Log (void) {
