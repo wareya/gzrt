@@ -126,7 +126,7 @@ void z64mv_draw_loop ( Z64MV * h )
 		yrot = heading;
 	}
 	/* Display */
-	z64mv_dlist_process( h, h->data->file, h->data->filesize, h->entry );
+	z64mv_dlist_process( h, h->contents, h->filesize, h->entry );
 	
     /* Draw it to the screen */
     SDL_GL_SwapBuffers( );
