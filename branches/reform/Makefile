@@ -45,16 +45,19 @@ endif
 
 all: $(PARTS)
 	make -C plugins
+	make -C libs
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	
 # For creating final Win32 package
 win32: $(PARTS)
 	make -C plugins
+	make -C libs
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
 	cp -v launcher/$(PROJECT).exe /c/GZRT/GZRT.exe
 	cp -v plugins/*.dll /c/GZRT/plugins/
+	cp -v libs/*.dll /c/GZRT/resources/bin/
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files
