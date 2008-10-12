@@ -474,6 +474,8 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	int		i;
 	const Z64FSEntry * j = z64fs_file( w->z, id );
 	
+	GZRTD_MESG( "%08X %08X %u\n", ZFileRealStart(w->z, id), ftell(w->z->fhandle), id);
+	
 	/* Fill the file information struct */
 	file->id		= id;
 	file->vstart	= j->vstart;
@@ -482,11 +484,18 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	file->end		= j->end;
 	
 	/* Write filename */
-	strncpy( file->filename, z64nt_filename(w->t, id), sizeof(file->filename) - 1 );
+	if( w->t )
+		strncpy( file->filename, z64nt_filename(w->t, id), sizeof(file->filename) - 1 );
+	else
+		snprintf( file->filename, sizeof(file->filename), "0x%08X - 0x%08X",
+		j->vstart, j->vend );
 	
 	/* Read the file */
 	file->file = gzrt_malloc( (file->filesize = ZFileVirtSize(w->z, id)) );
 	z64fs_read_file( w->z, id, file->file );
+	
+	
+	GZRTD_MESG( "%08X %08X %u\n", ZFileRealStart(w->z, id), ftell(w->z->fhandle), id);
 	
 	gzrt_call_plugin( file );
 }

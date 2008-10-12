@@ -136,6 +136,8 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 	fseek( h->fhandle, ZFileRealStart(h, id), SEEK_SET );
 	fread( dest, ZFileRealSize(h, id), 1, h->fhandle );
 	
+	return;
+	
 	/* Do we need to decompress it? */
 	if( ZFileIsCompressed(h, id) && !strncmp( dest, "Yaz0", 4 ) )
 	{
