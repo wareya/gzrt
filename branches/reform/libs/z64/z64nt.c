@@ -52,8 +52,6 @@ z64nt_open ( FILE * handle )
 	{
 		free( buffer );
 		free( ret );
-		fclose( handle );
-		
 		return NULL;
 	}
 	
