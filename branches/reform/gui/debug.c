@@ -114,7 +114,13 @@ void gzrt_gui_debug_mem ( void )
 	static int init;
 	
 	/* Prepare buffer */
-	sprintf( buffer, "Mem: %u", gzrt_mem_use() );
+	#ifndef LINUX
+	 sprintf( buffer, "Mem: %u", gzrt_mem_use() );
+	#else
+     struct mallinfo info;
+	 info = mallinfo();
+	 sprintf( buffer, "Mem: %u", info.uordblks );
+	#endif
 	
 	/* Remove old? */
 	if( init )
