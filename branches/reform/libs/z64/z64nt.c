@@ -83,6 +83,49 @@ z64nt_open ( FILE * handle )
 	return ret;
 }
 
+/* Open a virtual name table */
+struct Zelda64NameTable *
+z64nt_open_virt ( char * filename )
+{
+	FILE * handle = fopen( filename, "r" );
+	Z64NT * ret = calloc( sizeof(Z64NT), 1 );
+	char name[64];
+	
+	if( !handle )
+	{
+		free( ret );
+		return NULL;
+	}
+	
+	if( !ret )
+	{
+		fclose( handle );
+		return NULL;
+	}
+	
+	/* Read from the input */
+	while( fscanf( handle, "%.*s", sizeof(name), name ) != EOF )
+		
+		/* Append the new filename to the list */
+		ret->names = g_list_append( ret->names, name );
+	
+	/* Close handle */
+	fclose( handle );
+	
+	/* Set count */
+	ret->amount = g_list_length( ret->names );
+	
+	/* Return it */
+	return ret;
+}
+
+/* Close */
+void z64nt_close ( Z64NT *  h )
+{
+	g_list_free( h->names );
+	free( h );
+}
+
 /* For the below function */
 static void print_entry ( gpointer * data, gpointer * user )
 {

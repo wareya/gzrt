@@ -8,8 +8,9 @@ PIECES=$(PRGRM).o
 
 CC=gcc
 
-CFLAGS=-O3 -g `pkg-config --cflags gtk+-2.0` -Idasm -fPIC
-LDFLAGS=-shared -W1,-soname,lib$(PRGRM).so `pkg-config --libs gtk+-2.0`
+CFLAGS=-O3 -g `pkg-config --cflags gtk+-2.0` -I../../libs/r4kdis -fPIC 
+LDFLAGS=-shared -W1,-soname,lib$(PRGRM).so `pkg-config --libs gtk+-2.0` \
+	-L../../libs -lr4kdis
 
 DEST=..
 
@@ -21,8 +22,7 @@ else
 endif
 
 $(TARGET): $(PIECES)
-	make -C dasm
-	$(CC) -o $(PRGRM).so $(PIECES) dasm/libr4kdis.a $(LDFLAGS)
+	$(CC) -o $(PRGRM).so $(PIECES) $(LDFLAGS)
 	cp -v $(PRGRM).so $(TARGET)
 
 clean:
