@@ -8,8 +8,7 @@
 #include <z64.h>
 
 /* Main windows */
-static GList 	* instances;
-static PROGRESS * d;
+static GList * instances;
 
 /* Create a new window */
 int gzrt_wmain_create_new ( N64Rom * rc )
@@ -19,13 +18,52 @@ int gzrt_wmain_create_new ( N64Rom * rc )
 	/* Store the ROM context */
 	cur->c = rc;
 	
+	/* Byteswapped? */
+	if( rc->endian != N64_ENDIAN_BIG )
+	{
+		GtkWidget * d = gtk_dialog_new_with_buttons
+		( 
+			"Notice", NULL, GTK_DIALOG_MODAL, 
+			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+			NULL 
+		);
+		GtkWidget * a = GTK_DIALOG(d)->vbox;
+		GtkWidget * l = gtk_label_new( "This ROM needs to be byteswapped." );
+		
+		gtk_misc_set_padding( GTK_MISC(l), 12, 12 );
+		gtk_container_add( GTK_CONTAINER(a), l );
+		gtk_widget_show_all(d);
+		
+		switch( gtk_dialog_run( GTK_DIALOG(d) ) )
+		{
+			/* No */
+			case GTK_RESPONSE_REJECT:	
+			  n64rom_close( rc );
+			  free( cur );
+			  gtk_widget_destroy( d );
+			  return FALSE;
+			break;
+			
+			/* Yes */
+			case GTK_RESPONSE_ACCEPT:
+			  gtk_widget_destroy( d );
+			  gzrt_wmain_byteswap( rc );
+			break;
+			
+			default:
+			  gtk_widget_destroy( d );
+		}
+	}
+	
 	/* Identify Zelda filesystem elements */
 	if( !(cur->z = z64fs_open( rc->handle )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
-		gzrt_werror_show( "Error", "Unable to find filesystem in ROM.", 0 );
+		gzrt_notice( "Error", "Unable to find filesystem in ROM." );
 		n64rom_close( rc );
-		exit( -1 );
+		free( cur );
+		return 0;
 	}
 	
 	/* Identify Zelda 64 name table elements */
@@ -50,6 +88,76 @@ int gzrt_wmain_create_new ( N64Rom * rc )
 	
 	/* We did it! */
 	return TRUE;
+}
+
+/* Byteswap a ROM */
+void gzrt_wmain_byteswap ( N64Rom * rc )
+{
+	GtkWidget * window;
+	GtkWidget * bar;
+	unsigned	chunksize, i;
+	char		buffer[64];
+	unsigned char * rom;
+	
+	/* Create window */
+	window = gtk_window_new( GTK_WINDOW_POPUP );
+	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS );
+	gtk_widget_set_size_request( window, 350, 30 );
+	gtk_window_set_keep_above( GTK_WINDOW(window), TRUE );
+	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
+	
+	/* Create progress bar */
+	bar = gtk_progress_bar_new();
+	
+	/* Pack it */
+	gtk_container_add( GTK_CONTAINER(window), bar );
+	
+	/* Show */
+	gtk_widget_show_all( window );
+	
+	/* Set updates */
+	chunksize = rc->filesize / 8;
+	
+	/* ROM storage */
+	rom = gzrt_malloc( chunksize );
+	
+	/* Loop */
+	for( i = 0; i < rc->filesize; i += chunksize )
+	{
+		/* Seek to current */
+		fseek( rc->handle, i, SEEK_SET );
+		
+		/* Read it in */
+		fread( rom, chunksize, 1, rc->handle );
+		
+		/* Swap it */
+		if( !n64_byteswap( rom, chunksize, N64_ENDIAN_BIG, rc->endian ) )
+			exit( -4 );
+		
+		/* Write */
+		fseek( rc->handle, i, SEEK_SET );
+		fwrite( rom, chunksize, 1, rc->handle );
+		
+		/* Update progress bar */
+		sprintf( buffer, "%.2f%%", (double)i/(double)rc->filesize * 100.0 );
+		gtk_progress_bar_set_text( GTK_PROGRESS_BAR(bar), buffer );
+		gtk_progress_bar_set_fraction( GTK_PROGRESS_BAR(bar), (double)i/(double)rc->filesize );
+		
+		/* Make sure it shows up */
+		while( gtk_events_pending() )
+			gtk_main_iteration();
+	}
+	
+	/* Final update */
+	sprintf( buffer, "%.2f%%", (double)i/(double)rc->filesize * 100.0 );
+	gtk_progress_bar_set_text( GTK_PROGRESS_BAR(bar), buffer );
+	gtk_progress_bar_set_fraction( GTK_PROGRESS_BAR(bar), (double)i/(double)rc->filesize );
+	
+	/* Done */
+	gzrt_notice( "Notice", "ROM successfully byteswapped." );
+	
+	/* Delete progress bar */
+	gtk_widget_destroy( bar );
 }
 
 /* Close a preexisting window */

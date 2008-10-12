@@ -20,14 +20,22 @@ N64Rom * n64rom_load ( char * filename )
 		return NULL;
 	
 	/* Open ROM */
-	if( !(ret->handle = fopen(filename, "rb")) )
+	if( !(ret->handle = fopen(filename, "rb+")) )
 	{
 		free( ret );
 		return NULL;
 	}
 	
+	/* Get filesize */
+	fseek( ret->handle, 0, SEEK_END );
+	ret->filesize = ftell( ret->handle );
+	fseek( ret->handle, 0, SEEK_SET );
+	
 	/* Read the file */
 	fread( ret->makerom, 1, sizeof(ret->makerom), ret->handle );
+	
+	/* Store original endian */
+	ret->endian = ret->makerom[0];
 	
 	/* What endian is it? Do we need to swap? */
 	if( ret->makerom[0] != N64_ENDIAN_BIG )

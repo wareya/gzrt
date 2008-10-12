@@ -30,6 +30,14 @@ typedef struct Nintendo64Header
 }
 N64Header;
 
+/* Endian types */
+enum N64Endian
+{
+	N64_ENDIAN_BIG    = 0x80,	/* ABCD */
+	N64_ENDIAN_LITTLE = 0x40,	/* DCBA */
+	N64_ENDIAN_V64    = 0x37	/* BADC */
+};
+
 /* N64 ROM context */
 typedef struct
 {
@@ -45,16 +53,11 @@ typedef struct
 	/* File information */
 	unsigned char * filename;
 	unsigned		filesize;
+	
+	/* Endian */
+	enum N64Endian	endian;
 }
 N64Rom;
-
-/* Endian types */
-enum N64Endian
-{
-	N64_ENDIAN_BIG    = 0x80,	/* ABCD */
-	N64_ENDIAN_LITTLE = 0x40,	/* DCBA */
-	N64_ENDIAN_V64    = 0x37	/* BADC */
-};
 
 /* Functions - swap.c */
 int          n64_byteswap     ( void * data, int size, enum N64Endian to, enum N64Endian from );
