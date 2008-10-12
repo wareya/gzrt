@@ -114,7 +114,7 @@ void gzrt_gui_debug_mem ( void )
 	static int init;
 	
 	/* Prepare buffer */
-	#ifndef __LINUX__
+	#ifndef __linux__
 	 sprintf( buffer, "Mem: %u", gzrt_mem_use() );
 	#else
      struct mallinfo info;
