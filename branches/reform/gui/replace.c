@@ -101,8 +101,8 @@ GtkWidget * gzrt_wreplace_create ( MAINWIN * c )
 	gtk_table_attach( GTK_TABLE(table), addr_end  , 1, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0 );
 	
 	/* Set defaults */
-	sprintf( addrs, "0x%08X", U32(&c->z->fs_table[fid*16])   );
-	sprintf( addre, "0x%08X", U32(&c->z->fs_table[fid*16+4]) );
+	sprintf( addrs, "0x%08X", ZFileRealStart(c->z, fid) );
+	sprintf( addre, "0x%08X", ZFileRealEnd(c->z, fid)   );
 	gtk_entry_set_text( GTK_ENTRY(addr_start), addrs );
 	gtk_entry_set_text( GTK_ENTRY(addr_end),   addre );
 	
