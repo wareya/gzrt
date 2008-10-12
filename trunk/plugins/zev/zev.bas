@@ -81,49 +81,49 @@ redim shared as TRIANGLE triangles(0 to 1)
 
 ''------------------------------------------------------------------------------
 declare sub Load()
-
+declare sub Rend()
 
 dim shared filter as uinteger                  '' Which Filter To Use
 dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	
-	dim blend as integer                    '' Blending OFF/ON?
-	dim fp as integer                       '' F Pressed?
-	dim bp as integer                       '' B Pressed?
+	dim shared blend as integer                    '' Blending OFF/ON?
+	dim shared fp as integer                       '' F Pressed?
+	dim shared bp as integer                       '' B Pressed?
 
-	dim heading as single              '' direction of movement
-	dim xpos as single                 '' X position
-	dim zpos as single                 '' Y position
-	dim ypos as single                 '' Y position
+	dim shared heading as single              '' direction of movement
+	dim shared xpos as single                 '' X position
+	dim shared zpos as single                 '' Y position
+	dim shared ypos as single                 '' Y position
 	
-	dim yrot as single                 '' Y Rotation = heading
-	dim walkbias as single             '' used with walkbiasangle for bouncing effect
-	dim walkbiasangle as single        '' used with walkbias for bouncing effect
-	dim lookupdown as single           '' View direction
+	dim shared yrot as single                 '' Y Rotation = heading
+	dim shared walkbias as single             '' used with walkbiasangle for bouncing effect
+	dim shared walkbiasangle as single        '' used with walkbias for bouncing effect
+	dim shared lookupdown as single           '' View direction
 	
-	dim x_m as single            '' Floating Point For Temp X, Y, Z, U And V Vertices
-	dim y_m as single
-	dim z_m as single
+	dim shared x_m as single            '' Floating Point For Temp X, Y, Z, U And V Vertices
+	dim shared y_m as single
+	dim shared z_m as single
     
-    dim as single camspeed = 1.0
-    dim as byte pressedm = 0
-    dim as byte pressedp = 0
-    dim as byte pressedu = 0
-    dim as byte pressedl = 0
-    dim as byte pressedd = 0
-    dim as byte pressedc = 0
+    dim shared as single camspeed = 1.0
+    dim shared as byte pressedm = 0
+    dim shared as byte pressedp = 0
+    dim shared as byte pressedu = 0
+    dim shared as byte pressedl = 0
+    dim shared as byte pressedd = 0
+    dim shared as byte pressedc = 0
     
-    dim r_m as single
-	dim g_m as single
-	dim b_m as single
-	dim a_m as single
+    dim shared r_m as single
+	dim shared g_m as single
+	dim shared b_m as single
+	dim shared a_m as single
 	
-	dim xtrans as single         '' Used For Player Translation
-	dim ztrans as single         '' Used For Player Translation
-	dim ytrans as single         '' Used For Bouncing Motion Up And Down
-	dim sceneroty as single      '' 360 Degree Angle For Player Direction
+	dim shared xtrans as single         '' Used For Player Translation
+	dim shared ztrans as single         '' Used For Player Translation
+	dim shared ytrans as single         '' Used For Bouncing Motion Up And Down
+	dim shared sceneroty as single      '' 360 Degree Angle For Player Direction
 
 	dim shared as integer numtriangles  '' Integer To Hold The Number Of Triangles
-	dim as integer loop_m        '' Loop counter
+	dim shared as integer loop_m        '' Loop counter
     
     
     Load()
@@ -149,7 +149,33 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	glDepthFunc GL_LEQUAL                          '' The Type Of Depth Testing To Do
 	glHint GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST    '' Really Nice Perspective Calculations
 
-	do
+
+dim as integer per10 = 0
+dim as double FrameTmr
+dim as integer framesec = 0
+do
+    framesec += 1
+    if (framesec = 40) then
+        framesec = 0
+    endif
+    
+    if inkey = chr(255) + "k" then
+        end
+    end if
+    
+    ''Wait fps                        !!@@Courtesy of Mysoft on Freebasic.net
+    if abs(timer-FrameTmr) > 1 then
+        FrameTmr = timer
+    else
+        while (timer-FrameTmr) < 1/40
+            sleep 1
+        wend
+        Rend()
+    end if 
+loop
+while inkey <> "": wend
+end
+sub Rend()
 		glClear GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT      '' Clear Screen And Depth Buffer
 		glLoadIdentity()                                        '' Reset The View
 		
@@ -315,14 +341,9 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
         end if
         
 		flip  '' flip or crash
-		if inkey = chr(255)+"k" then exit do
-	loop while MULTIKEY(FB.SC_ESCAPE) = 0
 
 	'' Empty keyboard buffer
-	while inkey <> "": wend
-    
-    end
-    
+end sub
 sub load
 chdir exepath
 
