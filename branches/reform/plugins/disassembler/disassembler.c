@@ -573,7 +573,7 @@ void dasm_file_cleanup ( DASM * h )
 
 void dasm_cleanup ( DASM * h )
 {
-	i = 0;
+	int i;
 	
 	/* Free the plugin handle */
 	func->close( h->transac );
