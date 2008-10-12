@@ -33,13 +33,7 @@ void gzrt_wdecompress_create ( MAINWIN *mw )
 	w->mw = mw;
 	
 	/* Initialize internal window */
-	if( window_amount )
-	{
-		sprintf(buffer, "%s - #%u", GZRT_WDECOMPRESS_T, mw->id + 1 );
-		w->win = gzrt_window_create( buffer, 0, 0, 0 );
-	}
-	else
-		w->win = gzrt_window_create( GZRT_WDECOMPRESS_T, 0, 0, 0 );
+	w->win = gzrt_window_create( GZRT_WDECOMPRESS_T, 0, 0, 0 );
 	
 	/* Layout elements */
 	w->vbox_outer = gtk_vbox_new( FALSE, 4 );

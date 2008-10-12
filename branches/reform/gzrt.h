@@ -46,8 +46,6 @@
 
 /* Zelda 64 library */
 #include <z64/z64lib.h>
-
-/* ROM */
 #include <rom/rom.h>
 
 /* GUI */

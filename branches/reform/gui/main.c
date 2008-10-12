@@ -5,16 +5,9 @@
 #include <stdarg.h>
 #include <glib.h>
 
-/*
-** No global struct here, since there can be several main windows
-** containing ROM information and the like.
-** SEE: main.h for limit
-*/
-
 /* Main windows */
 static GList 	* instances;
 static PROGRESS * d;
-int 		      window_amount = 0;
 
 /* Create a new window */
 int gzrt_wmain_create_new ( N64ROM * rc )
@@ -23,42 +16,15 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	
 	/* Set defaults */
 	cur->c = rc;
-		
-	/* Debug */
-	GZRTD_MESG( "Creating window %u.", window_amount + 1 );
 	
 	/* Load ROM */
 	d = gzrt_wpbar_new();
 	gzrt_wpbar_set( d , 0);
 	gzrt_wpbar_show( d );
-	if( !(n64rom_read( rc, pbu )) )
+	if( !(n64rom_read( rc, NULL )) )
 		gzrt_werror_show( "Error occured", n64rom_error(), 1 );
 	GZRTD_MESG( "Loaded ROM successfully." );
 	gzrt_wpbar_close( d );
-	
-	/* Byteswap the ROM if required */
-	if( rc->endian != N64_BIG )
-	{
-		/* Swap */
-		d = gzrt_wpbar_new();
-		if( rc->endian == N64_LITTLE )
-			n64rom_swap( rc, 32, 0, 32, 1 );
-		else if( rc->endian == N64_V64 )
-			n64rom_swap( rc, 16, 0, 32, 1 );
-		gzrt_wpbar_show( d );
-		
-		/* Write */
-		fseek( rc->handle, 0, SEEK_SET );
-		for( int i = 0; i < rc->filesize; i += rc->filesize / 32 )
-		{
-			fwrite( rc->data + i, rc->filesize / 32, 1, rc->handle );
-			gzrt_wpbar_set( d , (double)i / (double)rc->filesize );
-		}
-		gzrt_wpbar_close( d );
-		
-		/* Notice */
-		gzrt_werror_show( "Notice", "ROM was automatically byteswapped.", 0 );
-	}
 	
 	/* Identify Zelda filesystem elements */
 	if( !(cur->z = z64fs_init( rc->filename )) )
@@ -76,16 +42,13 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	/* Information */
 	GZRTD_MESG( "Name table p:  $%08X", cur->t );
 	GZRTD_MESG( "File table p:  $%08X", cur->z );
-	GZRTD_MESG( "ROM context p: $%08X", rc								  );
+	GZRTD_MESG( "ROM context p: $%08X", rc	   );
 	
 	/* Fill struct with GTK elements & update count */
 	gzrt_wmain_fill( cur );
 	
 	/* Set message */
 	gzrt_wmain_status_addmsg( cur, "Ready" );
-	
-	/* Update counter */
-	window_amount++;
 	
 	/* Append to list */
 	instances = g_list_append( instances, cur );
@@ -120,22 +83,6 @@ void gzrt_wmain_closed ( MAINWIN *w )
 {
 	w->window = NULL;
 	gzrt_wmain_close( w );
-}
-
-/* Focus changed */
-void gzrt_wmain_focus ( MAINWIN *w )
-{
-	GZRTD_MESG( "Window #%u.", w->id + 1 );
-}
-
-/* Update progress bar */
-void pbu ( int a, int b )
-{
-	gzrt_wpbar_text(d, "%.2f%%", (double)a / (double)b * 100.0 );
-	gzrt_wpbar_set( d, (double)a / (double)b );
-	gzrt_wpbar_show( d );
-	while( gtk_events_pending() )
-		gtk_main_iteration();
 }
 
 /* Set font of a widget */
@@ -387,9 +334,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	
 	/* Signals - help menu */
 	g_signal_connect_swapped( G_OBJECT(about1),"activate", G_CALLBACK(gzrt_wabout_show), NULL );
-	#ifdef GZRT_DEBUG
-	 g_signal_connect_swapped( G_OBJECT(wai1),"activate", G_CALLBACK(gzrt_wmain_focus), c );
-	#endif
 	
 	
 	/* Signals - window itself */
