@@ -51,4 +51,7 @@ void               z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
 #define ZFileVirtSize(h, id)		(ZFileVirtEnd(h, id) - ZFileVirtStart(h, id))
 #define ZFileIsCompressed(h, id)	((h)->files[id].end ? 1 : 0)
 
+/* Function macros */
+#define z64fs_entries(h)	(((h)->end-(h)->start)/16)
+
 #endif /* __LZ64_FILE_TABLE_H */

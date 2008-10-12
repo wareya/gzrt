@@ -41,6 +41,10 @@ typedef struct
 	
 	/* File handle */
 	FILE          * handle;
+	
+	/* File information */
+	unsigned char * filename;
+	unsigned		filesize;
 }
 N64Rom;
 

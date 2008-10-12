@@ -67,6 +67,10 @@ z64nt_open ( FILE * handle )
 	/* Free resources */
 	free( buffer );
 	
+	/* Store start and end */
+	ret->start = NAME_TABLE_START;
+	ret->end   = NAME_TABLE_END;
+	
 	/* Return handle */
 	return ret;
 }
@@ -107,4 +111,16 @@ int z64nt_id ( Z64NT * h, char * name )
 	GList * result = g_list_find_custom( h->names, name, (GCompareFunc)search_name );
 	
 	return g_list_position( h->names, result );
+}
+
+/* Return start of name table */
+unsigned z64nt_start ( Z64NT * h )
+{
+	return h->start;
+}
+
+/* Return end of name table */
+unsigned z64nt_end ( Z64NT * h )
+{
+	return h->end;
 }

@@ -16,7 +16,7 @@ static int status;
 void gzrt_wfilesel_show ( void )
 {
 	char * f;
-	N64ROM * ctx;
+	N64Rom * ctx;
 	GtkWidget * dialog = gtk_file_chooser_dialog_new
 	( 
 		"Load ROM", NULL,
@@ -44,7 +44,7 @@ void gzrt_wfilesel_show ( void )
 			  }
 			  else
 				/* Display error */
-				gzrt_notice( "Error occured!", n64rom_error() );
+				gzrt_notice( "Error occured!", " " );
 			break;
 			
 			/* Cancel */

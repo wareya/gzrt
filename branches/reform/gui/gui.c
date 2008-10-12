@@ -14,7 +14,7 @@ void gzrt_gui_quit ( void )
 void gzrt_gui_init ( int argc, char **argv )
 {
 	/* Set up icons */
-	N64ROM *ctx;
+	N64Rom *ctx;
 	GList *list = NULL;
 	char *icons[] =
 	{

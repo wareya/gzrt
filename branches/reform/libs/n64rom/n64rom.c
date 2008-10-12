@@ -56,6 +56,9 @@ N64Rom * n64rom_load ( char * filename )
 	memcpy( ret->head.code, ret->makerom + 0x3B, sizeof(ret->head.code) );
 	ret->head.Unknown4 = ret->makerom[0x3F];
 	
+	/* Store filename */
+	ret->filename = strdup( filename );
+	
 	/* Return it */
 	return ret;
 }
@@ -63,6 +66,7 @@ N64Rom * n64rom_load ( char * filename )
 /* Close */
 void n64rom_close ( N64Rom * h )
 {
+	free( h->filename );
 	fclose( h->handle );
 	free( h );
 }

@@ -44,10 +44,6 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
-/* Zelda 64 library */
-#include <z64/z64lib.h>
-#include <rom/rom.h>
-
 /* GUI */
 #include <gui/gui.h>
 

@@ -4,40 +4,36 @@
 #include <gzrt.h>
 #include <stdarg.h>
 #include <glib.h>
+#include <n64rom.h>
+#include <z64.h>
 
 /* Main windows */
 static GList 	* instances;
 static PROGRESS * d;
 
 /* Create a new window */
-int gzrt_wmain_create_new ( N64ROM * rc )
+int gzrt_wmain_create_new ( N64Rom * rc )
 {
 	MAINWIN * cur = gzrt_calloc( sizeof(MAINWIN) );
 	
-	/* Set defaults */
+	/* Store the ROM context */
 	cur->c = rc;
 	
-	/* Load ROM */
-	d = gzrt_wpbar_new();
-	gzrt_wpbar_set( d , 0);
-	gzrt_wpbar_show( d );
-	if( !(n64rom_read( rc, NULL )) )
-		gzrt_werror_show( "Error occured", n64rom_error(), 1 );
-	GZRTD_MESG( "Loaded ROM successfully." );
-	gzrt_wpbar_close( d );
-	
 	/* Identify Zelda filesystem elements */
-	if( !(cur->z = z64fs_init( rc->filename )) )
+	if( !(cur->z = z64fs_open( rc->handle )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
 		gzrt_werror_show( "Error", "Unable to find filesystem in ROM.", 0 );
 		n64rom_close( rc );
-		return FALSE;
+		exit( -1 );
 	}
 	
 	/* Identify Zelda 64 name table elements */
-	if( !(cur->t = z64nt_init( rc->filename )) )
+	if( !(cur->t = z64nt_open( rc->handle )) )
+	{
 		GZRTD_MESG( "No name table in this ROM." );
+		exit( -1 );
+	}
 	
 	/* Information */
 	GZRTD_MESG( "Name table p:  $%08X", cur->t );
@@ -211,7 +207,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	#else
 	 "",
 	#endif
-		c->c->filename, c->c->header + 0x20 );
+		c->c->filename, c->c->makerom + 0x20 );
 	Main_Window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (Main_Window), buffer );
 	gtk_window_set_default_size (GTK_WINDOW (Main_Window), 800, 480);
@@ -477,25 +473,21 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	int	id =  gzrt_select_file_id(w);
 	char  * name;
 	int		i;
-	Z64NT	k = { w->t->nt, w->t->nt, 0, w->t->len };
+	const Z64FSEntry * j = z64fs_file( w->z, id );
 	
 	/* Fill the file information struct */
 	file->id		= id;
-	file->vstart	= U32( &w->z->fs_table[id * 16] 	 );
-	file->vend		= U32( &w->z->fs_table[id * 16 + 4]  );
-	file->start		= U32( &w->z->fs_table[id * 16 + 8]  );
-	file->end		= U32( &w->z->fs_table[id * 16 + 12] );
-	
-	/* Get filename */
-	for( i = 0; i < id; i++ )
-		z64nt_read_next( &k );
+	file->vstart	= j->vstart;
+	file->vend		= j->vend;
+	file->start		= j->start;
+	file->end		= j->end;
 	
 	/* Write filename */
-	strncpy( file->filename, k.cur, sizeof(file->filename) - 1 );
+	strncpy( file->filename, z64nt_filename(w->t, id), sizeof(file->filename) - 1 );
 	
 	/* Read the file */
-	file->file = gzrt_malloc( (file->filesize = file->vend - file->vstart) );
-	memcpy( file->file, w->c->data + file->start, file->vend - file->vstart );
+	file->file = gzrt_malloc( (file->filesize = ZFileVirtSize(w->z, id)) );
+	z64fs_read_file( w->z, id, file->file );
 	
 	gzrt_call_plugin( file );
 }
@@ -638,22 +630,22 @@ static GtkWidget * create_rom_info_frame ( MAINWIN * c )
 	
 	/* Pack info */
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Name: %.24s", c->c->header + 0x20), 
+		create_label("Name: %.24s", c->c->makerom + 0x20), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Code: %.4s", c->c->header + 0x3B), 
+		create_label("Code: %.4s", c->c->makerom + 0x3B), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Size: %.2fMB (%.2fMBits)", (float)c->c->filesize / 1024.0 / 1024.0, (float)c->c->filesize / 1024.0 / 1024.0 * 8.0), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x10)), 
+		create_label("CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x10)), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x14)), 
+		create_label("CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x14)), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x08)), 
+		create_label("Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x08)), 
 	TRUE, TRUE, 0 );
 	
 	return frame;
@@ -689,26 +681,28 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	/* Pack info */
 	#define MONO(x) "<span font_desc=\"Courier\">", x, "</span>"
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->rstart)), 
+		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->start)), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->rend)), 
+		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->end)), 
 	TRUE, TRUE, 0 );
+	/*
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("File count: %u", z64fs_num_entries( c->z )), 
 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Total size: %.2fMB", (float)z64fs_calc_size_decompressed( c->z ) / 1024.0 / 1024.0), 
 	TRUE, TRUE, 0 );
+	*/
 	
 	/* Name table? */
 	if( c->t )
 	{
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table start: %s0x%08X%s", MONO(__NAME_TABLE_START)), 
+			create_label("Name table start: %s0x%08X%s", MONO(z64nt_start(c->t))), 
 		TRUE, TRUE, 0 );
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table end: %s0x%08X%s", MONO(__NAME_TABLE_END)), 
+			create_label("Name table end: %s0x%08X%s", MONO(z64nt_end(c->t))), 
 		TRUE, TRUE, 0 );
 	}
 	else
