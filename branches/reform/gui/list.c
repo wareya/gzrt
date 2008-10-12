@@ -17,7 +17,7 @@ static void gen_vstart ( char * dest, int id, MAINWIN * c )
 
 static void gen_vend ( char * dest, int id, MAINWIN * c )
 {
-	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z, id - 1) );
+	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z, id) );
 }
 
 static void gen_name ( char * dest, int id, MAINWIN * c )

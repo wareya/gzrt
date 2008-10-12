@@ -21,7 +21,7 @@ z64fs_open ( FILE * handle )
 {
 	unsigned char * buffer, * seek;
 	Z64FS		  * ret;
-	unsigned        i, count, tstart;
+	unsigned        i, count, tstart, k;
 	unsigned		dmad_start, dmad_end;
 	
 	/* Create return */
@@ -73,8 +73,13 @@ fs_found:
 	/* Copy it */
 	seek += sprintf( ret->date, "%s", seek );
 	
-	/* Table start is at next 16-byte align after date */
-	tstart = ((seek - buffer >> 4) + 1) << 4;
+	/* Discover entry */
+	for( k = ((seek - buffer >> 4) + 1) << 4; ; k += 16 )
+		if( U32(&buffer[k + 4]) == 0x00001060 )
+		{
+			tstart = k;
+			break;
+		}
 	
 	/* Read address of DMA data */
 	dmad_start = U32(buffer + tstart + 2 * 16);
@@ -84,7 +89,8 @@ fs_found:
 	ret->files = malloc( dmad_end - dmad_start );
 	
 	/* Set filecount */
-	ret->filecount = (dmad_end - dmad_start) / 16;
+	for( count = 1; U32(&buffer[tstart+count*16]); count++ );
+	ret->filecount = count;;
 	
 	/* Set address */
 	ret->start = dmad_start;
