@@ -573,18 +573,8 @@ void dasm_file_cleanup ( DASM * h )
 
 void dasm_cleanup ( DASM * h )
 {
-	int i;
-	
 	/* Free the plugin handle */
 	func->close( h->transac );
-	
-	/* Close text buffers */
-	for( i = 0; i < ASM_ROWS; i++ )
-	{
-		gtk_widget_destroy( h->Text[i].address );
-		gtk_widget_destroy( h->Text[i].raw );
-		gtk_widget_destroy( h->Text[i].disassembly );
-	}
 	
 	/* Free handle */
 	func->free( h );
