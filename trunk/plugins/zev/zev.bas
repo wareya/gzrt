@@ -104,7 +104,7 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	dim shared y_m as single
 	dim shared z_m as single
     
-    dim shared as single camspeed = 1.0
+    dim shared as single camspeed = 6.0
     dim shared as byte pressedm = 0
     dim shared as byte pressedp = 0
     dim shared as byte pressedu = 0
@@ -155,7 +155,7 @@ dim as double FrameTmr
 dim as integer framesec = 0
 do
     framesec += 1
-    if (framesec = 40) then
+    if (framesec = 60) then
         framesec = 0
     endif
     
@@ -164,10 +164,10 @@ do
     end if
     
     ''Wait fps                        !!@@Courtesy of Mysoft on Freebasic.net
-    if abs(timer-FrameTmr) > 1 then
+    if abs(timer-FrameTmr) > 1/60 then
         FrameTmr = timer
     else
-        while (timer-FrameTmr) < 1/40
+        while (timer-FrameTmr) < 1/60
             sleep 1
         wend
         Rend()
@@ -230,7 +230,7 @@ sub Rend()
 		'' Keyboard handlers
         if MULTIKEY(FB.SC_PLUS) then
             if (pressedu = 0) then
-                camspeed += .25
+                camspeed += 2.5
                 pressedu = 1
             end if
         else
@@ -239,7 +239,7 @@ sub Rend()
         
         if MULTIKEY(FB.SC_MINUS) then
             if (pressedl = 0) then
-                camspeed -= .25
+                camspeed -= 2.5
                 pressedl = 1
             end if
         else
@@ -266,14 +266,14 @@ sub Rend()
         
         if MULTIKEY(FB.SC_PERIOD) then
             if (pressedp = 0) then
-                camspeed = 1.0
+                camspeed = 2.0
                 pressedp = 1
             end if
         else
             pressedp = 0
         end if
         
-        if (camspeed <= 0) then camspeed =.25 end if
+        if (camspeed <= 0) then camspeed =.5 end if
         
 		if MULTIKEY(FB.SC_W) then
 			xpos = xpos - sin(heading*piover180) * camspeed    '' Move On The X-Plane Based On Player Direction
@@ -305,11 +305,11 @@ sub Rend()
 
 
 		if MULTIKEY(FB.SC_UP) then
-			lookupdown = lookupdown - 0.25  '' look up
+			lookupdown = lookupdown - 2.5  '' look up
 		end if
 
 		if MULTIKEY(FB.SC_DOWN) then
-			lookupdown = lookupdown + 0.25  '' look down
+			lookupdown = lookupdown + 2.5  '' look down
 		end if
         
         if (lookupdown > 90) then lookupdown = 90
@@ -317,12 +317,12 @@ sub Rend()
         
         
 		if MULTIKEY(FB.SC_RIGHT) then
-			heading = heading - 0.25        '' Rotate The Scene To The Left
+			heading = heading - 2.5        '' Rotate The Scene To The Left
 			yrot = heading
 		end if
 
 		if MULTIKEY(FB.SC_LEFT) then
-			heading = heading + 0.25        '' Rotate The Scene To The Right
+			heading = heading + 2.5        '' Rotate The Scene To The Right
 			yrot = heading
 		end if
         
