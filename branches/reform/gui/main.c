@@ -480,6 +480,7 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	file->vend		= j->vend;
 	file->start		= j->start;
 	file->end		= j->end;
+	file->filesize  = ZFileVirtSize(w->z,id);
 	
 	/* Write filename */
 	if( w->t )
@@ -489,7 +490,7 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 		j->vstart, j->vend );
 	
 	/* Read the file */
-	file->file = gzrt_malloc( (file->filesize = ZFileVirtSize(w->z, id)) );
+	file->file = gzrt_malloc( file->filesize );
 	z64fs_read_file( w->z, id, file->file );
 	
 	gzrt_call_plugin( file );

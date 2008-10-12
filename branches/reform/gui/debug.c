@@ -2,6 +2,7 @@
 * Debug Box GUI Element *
 ************************/
 #include <gzrt.h>
+#include <malloc.h>
 
 /* Structure */
 static struct _gzrt_wdebug gzrt_wdebug;

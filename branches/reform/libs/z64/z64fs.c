@@ -137,7 +137,7 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 	fread( dest, ZFileRealSize(h, id), 1, h->fhandle );
 	
 	/* Do we need to decompress it? */
-	if( ZFileIsCompressed(h, id) && !strncmp( dest, "Yaz0", 4 ) )
+	if( ZFileIsCompressed(h, id) )
 	{
 		unsigned char * tmp = malloc(ZFileVirtSize(h, id));
 		
