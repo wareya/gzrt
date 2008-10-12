@@ -17,13 +17,13 @@ DEST=..
 ifeq ($(WIN32), 1)
 	TARGET = ../$(PRGRM).dll
 else
-	TARGET = $(PRGRM).so
+	TARGET = ../$(PRGRM).so
 endif
 
-lib$(PRGRM).so: $(PIECES)
+$(TARGET): $(PIECES)
 	make -C dasm
-	$(CC) -o lib$(PRGRM).so $(PIECES) dasm/libr4kdis.a $(LDFLAGS)
-	cp -v lib$(PRGRM).so $(TARGET)
+	$(CC) -o $(PRGRM).so $(PIECES) dasm/libr4kdis.a $(LDFLAGS)
+	cp -v $(PRGRM).so $(TARGET)
 
 clean:
 	rm *.o $(PRGRM) *~ -vf
