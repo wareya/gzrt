@@ -11,7 +11,7 @@
 #define NAME_TABLE_START 	0x0000BE80UL
 #define NAME_TABLE_END		0x00012312UL
 #define SIZE				(NAME_TABLE_END - NAME_TABLE_START)
-#define COUNT				1532
+#define COUNT				(SIZE / 16)
 
 /* File entry */
 struct Zelda64FileEntry
@@ -46,6 +46,16 @@ z64nt_open ( FILE * handle )
 	
 	/* Read in the table */
 	fread( buffer, 1, SIZE, handle );
+	
+	/* Check! */
+	if( strncmp( buffer, "makerom", 7 ) )
+	{
+		free( buffer );
+		free( ret );
+		fclose( handle );
+		
+		return NULL;
+	}
 	
 	/* Copy each string to the hash table */
 	for( seek = buffer, i = 0; i < ret->amount; i++ )
@@ -92,7 +102,12 @@ void z64nt_dump ( Z64NT * h )
 /* Get filename by id */
 const char * z64nt_filename ( Z64NT * h, int id )
 {
-	GList * j = g_list_nth( h->names, id );
+	GList * j = NULL;
+	
+	if( id >= 0 && id < COUNT )
+		j = g_list_nth( h->names, id );
+	else
+		return NULL;
 	
 	return ((struct Zelda64FileEntry *)(j->data))->name;
 }

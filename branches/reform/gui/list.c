@@ -17,12 +17,22 @@ static void gen_vstart ( char * dest, int id, MAINWIN * c )
 
 static void gen_vend ( char * dest, int id, MAINWIN * c )
 {
-	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z, id) );
+	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z, id - 1) );
 }
 
 static void gen_name ( char * dest, int id, MAINWIN * c )
 {
-		strcpy( dest, "-" );
+		if( !c->t )
+		{
+			strcpy( dest, "-" );
+			return;
+		}
+		
+		char * s = z64nt_filename( c->t, id );
+		if( !s )
+			strcpy( dest, "-" );
+		else
+			sprintf( dest, "%s", s );
 		return;
 }
 typedef void (*COLGEN)(char *, int, void *);

@@ -32,7 +32,6 @@ int gzrt_wmain_create_new ( N64Rom * rc )
 	if( !(cur->t = z64nt_open( rc->handle )) )
 	{
 		GZRTD_MESG( "No name table in this ROM." );
-		exit( -1 );
 	}
 	
 	/* Information */
