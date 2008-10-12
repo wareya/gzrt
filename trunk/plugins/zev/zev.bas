@@ -107,6 +107,10 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
     dim as single camspeed = 1.0
     dim as byte pressedm = 0
     dim as byte pressedp = 0
+    dim as byte pressedu = 0
+    dim as byte pressedl = 0
+    dim as byte pressedd = 0
+    dim as byte pressedc = 0
     
     dim r_m as single
 	dim g_m as single
@@ -199,21 +203,48 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 		next
 		'' Keyboard handlers
         if MULTIKEY(FB.SC_PLUS) then
-            if (pressedp = 0) then
+            if (pressedu = 0) then
                 camspeed += .25
-                pressedp = 1
+                pressedu = 1
             end if
         else
-            pressedp = 0
+            pressedu = 0
         end if
         
         if MULTIKEY(FB.SC_MINUS) then
-            if (pressedm = 0) then
+            if (pressedl = 0) then
                 camspeed -= .25
+                pressedl = 1
+            end if
+        else
+            pressedl = 0
+        end if
+        
+        if MULTIKEY(FB.SC_MULTIPLY) then
+            if (pressedm = 0) then
+                camspeed *= 2
                 pressedm = 1
             end if
         else
             pressedm = 0
+        end if
+        
+        if MULTIKEY(FB.SC_SLASH) then
+            if (pressedd = 0) then
+                camspeed /= 2
+                pressedd = 1
+            end if
+        else
+            pressedd = 0
+        end if
+        
+        if MULTIKEY(FB.SC_PERIOD) then
+            if (pressedp = 0) then
+                camspeed = 1.0
+                pressedp = 1
+            end if
+        else
+            pressedp = 0
         end if
         
         if (camspeed <= 0) then camspeed =.25 end if
@@ -255,7 +286,6 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 			lookupdown = lookupdown + 0.25  '' look down
 		end if
         
-        
         if (lookupdown > 90) then lookupdown = 90
         if (lookupdown < -90) then lookupdown = -90
         
@@ -270,7 +300,20 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 			yrot = heading
 		end if
         
-
+        if MULTIKEY(FB.SC_COMMA) then
+            if (pressedc = 0) then
+                lookupdown = 0
+                heading = 0
+                yrot = 0
+                xpos = 0
+                ypos = 0
+                zpos = 0
+                pressedc = 1
+            end if
+        else
+            pressedc = 0
+        end if
+        
 		flip  '' flip or crash
 		if inkey = chr(255)+"k" then exit do
 	loop while MULTIKEY(FB.SC_ESCAPE) = 0
