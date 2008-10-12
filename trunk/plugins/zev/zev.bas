@@ -48,6 +48,7 @@ dim shared as uinteger trialo = 0
 dim shared as ubyte dlist = 0
 dim shared as uinteger entry = 0
 dim shared as uinteger curentry = 0
+dim shared as byte bank06 = 0
 
 dim shared as string filename
 
@@ -449,7 +450,13 @@ while ( address < filesize )
         dim as integer which = 0
         if dlist = 1 then
             
-            taddress += 1
+            taddress += 4
+            Get #1, taddress, tbyte
+            print "Bank: "; hex(tbyte)
+            print
+            if tbyte = 6 then
+            bank06=1
+            taddress -= 3
             Get #1, taddress, tbyte
             len01 = tbyte * 256
             taddress += 1
@@ -527,9 +534,15 @@ while ( address < filesize )
                 
                 which += 1
             wend
+            else
+                taddress += 4
+                bank06=0
+                print "Incompatible bank."
+            endif
         end if
     case 6
         if dlist = 1 then
+        if bank06 = 1 then
             taddress += 1
             print
             Get #1, taddress, tri051
@@ -651,12 +664,13 @@ while ( address < filesize )
             
             curv = 0
             curt += 1
-            
+        end if
         end if
         
         
     case 5
         if dlist = 1 then
+        if bank06 = 1 then
             taddress += 1
             
             Get #1, taddress, tri051
@@ -719,6 +733,7 @@ while ( address < filesize )
             taddress += 1
             curv = 0
             curt += 1
+        end if
         end if
     end select
     
