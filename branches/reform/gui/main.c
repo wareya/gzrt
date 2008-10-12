@@ -3,6 +3,7 @@
 *******************/
 #include <gzrt.h>
 #include <stdarg.h>
+#include <glib.h>
 
 /*
 ** No global struct here, since there can be several main windows
@@ -10,66 +11,21 @@
 ** SEE: main.h for limit
 */
 
-MAINWIN *wmain_instances[GZRT_WMAIN_MAX];
-int	window_amount = 0, close_called = 0, ram_use = 0;
-
-PROGRESS *d;
+/* Main windows */
+static GList 	* instances;
+static PROGRESS * d;
+int 		      window_amount = 0;
 
 /* Create a new window */
 int gzrt_wmain_create_new ( N64ROM * rc )
 {
-	/* Not allocated? */
-	if( !wmain_instances[0] )
-		for( int i = 0; i < GZRT_WMAIN_MAX; i++ )
-			wmain_instances[i] = gzrt_calloc( sizeof(MAINWIN) );
+	MAINWIN * cur = gzrt_calloc( sizeof(MAINWIN) );
 	
-	/* Is this ROM already loaded? */
-	for( int i = 0; i < window_amount; i++ )
-		if( !FILENAME_CMP( rc->filename, wmain_instances[i]->c->filename ) )
-		{
-			gzrt_werror_show( "Notice", "This ROM is already loaded.", 0 );
-			GZRTD_MESG( "ROM \"%s\" is already loaded.\n", rc->filename );
-			n64rom_close( rc );
-			return FALSE;
-		}
-	
-	/* Too many windows? */
-	if( window_amount >= GZRT_WMAIN_MAX )
-	{
-		GZRTD_MESG( "Cannot create more windows; limit reached (%u).", GZRT_WMAIN_MAX );
-		return FALSE;
-	}
-	
-	/* Keep menus in check */
-	if( window_amount + 1 == GZRT_WMAIN_MAX )
-	{
-		int i;
+	/* Set defaults */
+	cur->c = rc;
 		
-		/* Disable all 'Open's */
-		for( i = 0; i < window_amount; i++ )
-			gzrt_wmain_disable_item( wmain_instances[i], "open1" );
-		
-		/* Debug */
-		GZRTD_MESG( "Main window instances full; 'Open' disabled." );
-		GZRTD_MESG( "%u", i );
-	}
-	else
-	{
-		/* Make sure all 'Open's are enabled */
-		for( int i = 0; i < window_amount; i++ )
-			gzrt_wmain_enable_item( wmain_instances[i], "open1" );
-	}
-	
-	/* Set ID */
-	wmain_instances[window_amount]->id = window_amount;
-	
-	/* Store ROM context */
-	wmain_instances[window_amount]->c = rc;
-	
 	/* Debug */
-	GZRTD_MESG( "Creating window %u/%u (%08X).", window_amount + 1, GZRT_WMAIN_MAX, wmain_instances[window_amount + 1] );
-	GZRTD_MESG( "ROM storage: %.2f MB.", (float)(ram_use += rc->filesize) / 1024.0 / 1024.0 );
-	GZRTD_MESG( "Loading ROM \"%s\".", rc->filename );
+	GZRTD_MESG( "Creating window %u.", window_amount + 1 );
 	
 	/* Load ROM */
 	d = gzrt_wpbar_new();
@@ -105,7 +61,7 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	}
 	
 	/* Identify Zelda filesystem elements */
-	if( !(wmain_instances[window_amount]->z = z64fs_init( rc->filename )) )
+	if( !(cur->z = z64fs_init( rc->filename )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
 		gzrt_werror_show( "Error", "Unable to find filesystem in ROM.", 0 );
@@ -114,22 +70,25 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 	}
 	
 	/* Identify Zelda 64 name table elements */
-	if( !(wmain_instances[window_amount]->t = z64nt_init( rc->filename )) )
+	if( !(cur->t = z64nt_init( rc->filename )) )
 		GZRTD_MESG( "No name table in this ROM." );
 	
 	/* Information */
-	GZRTD_MESG( "Name table p:  $%08X", wmain_instances[window_amount]->t );
-	GZRTD_MESG( "File table p:  $%08X", wmain_instances[window_amount]->z );
+	GZRTD_MESG( "Name table p:  $%08X", cur->t );
+	GZRTD_MESG( "File table p:  $%08X", cur->z );
 	GZRTD_MESG( "ROM context p: $%08X", rc								  );
 	
 	/* Fill struct with GTK elements & update count */
-	gzrt_wmain_fill( wmain_instances[window_amount] );
+	gzrt_wmain_fill( cur );
 	
 	/* Set message */
-	gzrt_wmain_status_addmsg( wmain_instances[window_amount], "Ready" );
+	gzrt_wmain_status_addmsg( cur, "Ready" );
 	
 	/* Update counter */
 	window_amount++;
+	
+	/* Append to list */
+	instances = g_list_append( instances, cur );
 	
 	/* We did it! */
 	return TRUE;
@@ -139,48 +98,21 @@ int gzrt_wmain_create_new ( N64ROM * rc )
 void gzrt_wmain_close ( MAINWIN *w )
 {
 	void *tmp; int d, i = w->id;
-	GZRTD_MESG( "Closing window #%u...", i + 1 );
-	
-	/* Is this the last window? If so, we can just quit */
-	if( !(window_amount - 1) )
-		gzrt_gui_quit();
-		
-	/* Update memory usage */
-	ram_use -= w->c->filesize;
+	GZRTD_MESG( "Closing window #%u.", i + 1 );
 		
 	/* Free associated ROM context */
 	GZRTD_MESG( "Freeing ROM context...", i + 1 );
 	n64rom_close( w->c );
 	
-	/* Destroy window widget */
-	if( w->window )
-	{
-		GZRTD_MESG( "Disconnecting destroy signal handler from window...", i + 1 );
-		g_signal_handler_disconnect( wmain_instances[i]->window,  (int)wmain_instances[i]->hid );
-		gtk_widget_destroy( wmain_instances[i]->window );
-	}
+	/* Is this the last window? If so, we can just quit */
+	if( g_list_length( instances ) == 1 )
+		gzrt_gui_quit();
 	
-	/* Store original memory location */
-	tmp = wmain_instances[i];
+	/* Destroy the window */
+	gtk_widget_destroy( w->window );
 	
-	/* Shift down the rest of the windows */
-	for( d = 0; d < window_amount - i; d++ )
-	{
-		wmain_instances[i + d] = wmain_instances[i + d + 1];
-		if( wmain_instances[i + d]->id )
-			wmain_instances[i + d]->id--;
-	}
-	
-	/* Restore original */
-	wmain_instances[i + d + 1] = tmp;
-	
-	/* Update counter */
-	window_amount--;
-	
-	/* Debug */
-	GZRTD_MESG( "Deleted window #%u, shifted rest down %u positions.", i, window_amount - i );
-	GZRTD_MESG( "ROM storage: %.2f", (float)ram_use / 1024.0 / 1024.0 );
-	GZRTD_MESG( "Windows status: %u/%u", window_amount, GZRT_WMAIN_MAX );
+	/* Remove it from the list */
+	instances = g_list_remove( instances, w );
 }
 
 /* Closed */
@@ -305,10 +237,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	#ifdef GZRT_DEBUG
 	 GtkWidget *wai1;
 	#endif
-	
-	/* Debug */
-	GZRTD_MESG( "Filling struct wmain_instances[%u] (0x%08X).",
-		c->id, &wmain_instances[ c->id ] );
 	
 	/* Variables */
 	char buffer[256];

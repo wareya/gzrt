@@ -59,3 +59,10 @@ N64Rom * n64rom_load ( char * filename )
 	/* Return it */
 	return ret;
 }
+
+/* Close */
+void n64rom_close ( N64Rom * h )
+{
+	fclose( h->handle );
+	free( h );
+}
