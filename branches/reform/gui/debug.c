@@ -119,7 +119,7 @@ void gzrt_gui_debug_mem ( void )
 	#else
      struct mallinfo info;
 	 info = mallinfo();
-	 sprintf( buffer, "Mem: %u", info.uordblks );
+	 sprintf( buffer, "Mem: %gmb", (double)info.uordblks/1024.0/1024.0 );
 	#endif
 	
 	/* Remove old? */
