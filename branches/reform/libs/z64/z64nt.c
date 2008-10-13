@@ -89,7 +89,7 @@ z64nt_open_virt ( char * filename )
 {
 	FILE * handle = fopen( filename, "r" );
 	Z64NT * ret = calloc( sizeof(Z64NT), 1 );
-	char name[64];
+	char name[256];
 	
 	if( !handle )
 	{
@@ -104,10 +104,15 @@ z64nt_open_virt ( char * filename )
 	}
 	
 	/* Read from the input */
-	while( fscanf( handle, "%.*s", sizeof(name), name ) != EOF )
+	while( fgets( name, sizeof(name), handle ) != EOF )
+	{
+		/* Comment? */
+		if( buffer[0] == '#' )
+			continue;
 		
 		/* Append the new filename to the list */
 		ret->names = g_list_append( ret->names, name );
+	}
 	
 	/* Close handle */
 	fclose( handle );
