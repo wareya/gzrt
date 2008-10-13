@@ -2,7 +2,7 @@
 * GZRT GUI Globals *
 *******************/
 #include <gzrt.h>
-#include <generic/settings.h>
+#include <app/settings.h>
 
 /* GUI quit handler */
 void gzrt_gui_quit ( void )

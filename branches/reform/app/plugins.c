@@ -340,7 +340,8 @@ void gzrt_load_plugins ( void )
 			GZRTD_MESG( "Loaded plugin \"%s\".", data->long_name );
 		
 		/* Default? */
-		if( strcmp(ent->d_name, GZRTConfig.default_plugin) )
+		if( GZRTConfig.default_plugin )
+		if( !strcmp(ent->d_name, GZRTConfig.default_plugin) )
 		{
 			PLUGINS * t = &plugins;
 			
@@ -348,6 +349,8 @@ void gzrt_load_plugins ( void )
 				t = t->next;
 			
 			selected = t;
+			
+			GZRTD_MESG( "Plugin set as default." );
 		}
 	}
 	
