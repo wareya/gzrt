@@ -83,6 +83,25 @@ z64nt_open ( FILE * handle )
 	return ret;
 }
 
+/* Read until newline or EOF */
+static int
+read_text ( unsigned char * store, size_t len, FILE * h )
+{
+	int next, count = 0;
+	
+	/* No newlines or EOF */
+	while( (next = fgetc(h)) != EOF && next != '\n' && count < len - 1 )
+	
+		/* Store it */
+		store[count++] = next;
+	
+	/* Null terminate */
+	store[count] = 0;
+	
+	/* Return amount of characters read */
+	return (next == EOF ? EOF : count);
+}
+
 /* Open a virtual name table */
 struct Zelda64NameTable *
 z64nt_open_virt ( char * filename )
@@ -104,10 +123,10 @@ z64nt_open_virt ( char * filename )
 	}
 	
 	/* Read from the input */
-	while( fgets( name, sizeof(name), handle ) != EOF )
+	while( read_text( name, sizeof(name), handle ) != EOF )
 	{
 		/* Comment? */
-		if( buffer[0] == '#' )
+		if( name[0] == '#' )
 			continue;
 		
 		/* Append the new filename to the list */

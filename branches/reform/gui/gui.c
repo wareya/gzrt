@@ -2,6 +2,7 @@
 * GZRT GUI Globals *
 *******************/
 #include <gzrt.h>
+#include <generic/settings.h>
 
 /* GUI quit handler */
 void gzrt_gui_quit ( void )
@@ -32,23 +33,35 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Set default icon */
 	gtk_window_set_default_icon_list( list );
 	
-	/* Init about window */
-	gzrt_wabout_init();
-	
 	/* Show debug window */
 	#ifdef GZRT_DEBUG
 	 gzrt_gui_debug_create();
 	#endif
+	
+	/* Load configuration */
+	gzrt_config_load();
 	
 	/* Load plugins */
 	gzrt_load_plugins();
 	
 	gzrt_wextract_init();
 	
-	/* Notice */
-	GZRTD_MESG( "Debug console created." );
+	/* Is the default file set? */
+	if( GZRTConfig.default_rom )
+	{
+		
+		/* Yep, try it */
+		if( ctx = n64rom_load(GZRTConfig.default_rom) )
+			
+			/* Goes */
+			if( !gzrt_wmain_create_new( ctx ) )
+				
+				/* File selection */
+				gzrt_wfilesel_show();
+	}
+	else
 	
-	/* Show splash - after, open file */
+	/* No, try command line arguments */
 	if( argc == 1 )
 		gzrt_wsplash_init( gzrt_wfilesel_show );
 	else {

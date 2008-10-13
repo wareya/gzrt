@@ -28,6 +28,7 @@ PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
 PARTS += generic/generic.o
 PARTS += generic/plugins.o
 PARTS += generic/mem.o
+PARTS += generic/settings.o
 
 # Debug!
 ifeq ($(DEBUG), 1)

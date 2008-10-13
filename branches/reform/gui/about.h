@@ -10,18 +10,9 @@
 #define GZRT_WABOUT_TITLE	"About"
 #define GZRT_WABOUT_MSG		"By ZZT32\nhttp://www.64.vg/"
 
-/* Struct */
-struct _gzrt_wabout
-{
-	GtkWidget *window;
-	GtkWidget *label;
-	GtkWidget *button;
-	GtkWidget *vbox;
-};
-
 /* Function definitions */
-void gzrt_wabout_init ( void );
-void gzrt_wabout_show ( void );
-void gzrt_wabout_hide ( void );
+void gzrt_wabout_show   ( void          );
+void gzrt_wabout_closed ( void          );
+void gzrt_wabout_close  ( GtkWidget * w );
 
 #endif /* __GZRT_WABOUT_H */
