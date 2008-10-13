@@ -48,9 +48,9 @@
 #include <gui/gui.h>
 
 /* Other */
-#include <generic/generic.h>
-#include <generic/plugins.h>
-#include <generic/mem.h>
+#include <app/generic.h>
+#include <app/plugins.h>
+#include <app/mem.h>
 
 /* Application globals */
 extern struct timeval program_start;

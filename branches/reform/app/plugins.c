@@ -4,7 +4,7 @@
 #include <gzrt.h>
 #include <dirent.h>
 #include <string.h>
-#include <generic/settings.h>
+#include <app/settings.h>
 
 /* Constants */
 #define PLUGINS_DIR			"plugins"

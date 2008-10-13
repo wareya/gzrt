@@ -44,9 +44,9 @@ struct Functions
 	unsigned   (*mused)  ( void     );
 	
 	/* Debug/error handling */
-	void	 * (*error)  ( int, int, char *, ... );
-	void	 * (*debug)  ( int, int, char *, ... );
-	void     *	reserved1;
+	void	 * (*error)  ( char *, int, char *, ... );
+	void	 * (*debug)  ( char *, int, char *, ... );
+	void     * (*notice) ( char *, char *           );
 	void     *	reserved2;
 	
 	/* Plugin ending */
@@ -81,15 +81,19 @@ struct PluginMeta
  *
 */
 
-#ifdef __GZRT_H
+#ifdef IN_GZRT
 
-#include <generic/mem.h>
+/* Mem management */
+#include <app/mem.h>
 
-void        gzrt_load_plugins   ( void                     );
-GtkWidget * gzrt_plugins_menu   ( void                     );
-int         gzrt_plugins_count  ( void                     );
-void        gzrt_call_plugin    ( void * file              );
-void        gzrt_plugin_cleanup ( struct PluginTransac * t );
+/* Function declarations */
+void        gzrt_load_plugins        ( void                     );
+GtkWidget * gzrt_plugins_menu        ( void                     );
+int         gzrt_plugins_count       ( void                     );
+void        gzrt_call_plugin         ( void * file              );
+void        gzrt_plugin_cleanup      ( struct PluginTransac * t );
+GtkWidget * gzrt_plugins_preferences ( int action               );
+void        gzrt_set_default_plugin  ( GtkWidget * window       );
 
 #endif
 

@@ -84,7 +84,7 @@ struct PluginMeta
 #ifdef IN_GZRT
 
 /* Mem management */
-#include <generic/mem.h>
+#include <app/mem.h>
 
 /* Function declarations */
 void        gzrt_load_plugins        ( void                     );

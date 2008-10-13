@@ -25,10 +25,10 @@ PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
 	gui/byteswap.o gui/list.o gui/replace.o gui/debug.o
 
 # Parts - other
-PARTS += generic/generic.o
-PARTS += generic/plugins.o
-PARTS += generic/mem.o
-PARTS += generic/settings.o
+PARTS += app/generic.o
+PARTS += app/plugins.o
+PARTS += app/mem.o
+PARTS += app/settings.o
 
 # Debug!
 ifeq ($(DEBUG), 1)
@@ -58,6 +58,7 @@ win32: $(PARTS)
 	cp -v launcher/$(PROJECT).exe /c/GZRT/GZRT.exe
 	cp -v plugins/*.dll /c/GZRT/plugins/
 	cp -v libs/*.dll /c/GZRT/resources/bin/
+	cp -v resources/gzrt.ini /c/GZRT/resources/
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files
