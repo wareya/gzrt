@@ -48,9 +48,6 @@ typedef struct _gzrt_wmain
 	/* Status stack */
 	int sstack;
 	
-	/* Progress bar */
-	PROGRESS *pbar; 
-	
 	/* ROM Context */
 	N64Rom *c;
 	

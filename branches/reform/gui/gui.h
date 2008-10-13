@@ -64,7 +64,6 @@ extern int window_amount;
 
 /* Local headers */
 #include <gui/debug.h>
-#include <gui/pbar.h>
 #include <gui/main.h>
 #include <gui/splash.h>
 #include <gui/error.h>
