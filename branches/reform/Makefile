@@ -21,7 +21,7 @@ LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0` -Llibs -lz64 -ln64rom
 
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o gui/main.o \
-	gui/about.o gui/extract.o gui/decomp.o gui/crc.o gui/conf.o gui/byteswap.o \
+	gui/about.o gui/extract.o gui/decomp.o gui/crc.o gui/byteswap.o \
 	gui/list.o gui/replace.o gui/debug.o 
 
 # Parts - other
