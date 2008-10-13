@@ -234,7 +234,10 @@ init(int argc, char *argv[])
   printf("entry point : %x\n",entrypoint);
 
   LoadResourceZ(argv[1],0,0);
-  LoadResourceZ("gameplay_keep.zdata", 1024*1024, 4);
+  LoadResourceZ(
+	  "resources/gameplay_keep.zdata"
+	  , 
+	  1024*1024, 4);
   
   if (argc > 3 && strcmp(argv[3], "-glinfo")==0) {
      printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));

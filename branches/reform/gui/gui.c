@@ -63,7 +63,7 @@ void gzrt_gui_init ( int argc, char **argv )
 		else {
 			
 			gzrt_notice( "Notice!", "There was a default ROM specified, but it wasn't found.\nPlease fix this!" );
-			gzrt_wfilesel_show();
+			gzrt_wsplash_init( gzrt_wfilesel_show );
 		}
 	}
 	else

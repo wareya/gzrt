@@ -107,7 +107,7 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 }
 
 /* Update memory usage every 0.5 seconds */
-void gzrt_gui_debug_mem ( void )
+int gzrt_gui_debug_mem ( void )
 {
 	char buffer[64];
 	int mid;
@@ -131,4 +131,7 @@ void gzrt_gui_debug_mem ( void )
 	
 	/* Update */
 	init++;
+	
+	/* Yes */
+	return TRUE;
 }
