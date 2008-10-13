@@ -44,7 +44,7 @@ void gzrt_wfilesel_show ( void )
 			  }
 			  else
 				/* Display error */
-				gzrt_notice( "Error occured!", " " );
+				gzrt_notice( "Error occured!", n64rom_error() );
 			break;
 			
 			/* Cancel */

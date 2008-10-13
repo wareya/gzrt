@@ -52,12 +52,19 @@ void gzrt_gui_init ( int argc, char **argv )
 		
 		/* Yep, try it */
 		if( ctx = n64rom_load(GZRTConfig.default_rom) )
+		{
 			
 			/* Goes */
 			if( !gzrt_wmain_create_new( ctx ) )
 				
 				/* File selection */
 				gzrt_wfilesel_show();
+		}
+		else {
+			
+			gzrt_notice( "Notice!", "There was a default ROM specified, but it wasn't found.\nPlease fix this!" );
+			gzrt_wfilesel_show();
+		}
 	}
 	else
 	

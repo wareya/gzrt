@@ -64,5 +64,7 @@ int          n64_byteswap     ( void * data, int size, enum N64Endian to, enum N
 N64Rom *     n64rom_load      ( char * filename  );
 void         n64rom_close     ( N64Rom * h       );
 const char * n64rom_strendian ( enum N64Endian e );
+void         n64rom_error_set ( char * fmt, ...  );
+const char * n64rom_error     ( void             );
 
 #endif /* __LN64ROM_H */
