@@ -33,5 +33,6 @@ void gzrt_wdecompress_create ( MAINWIN *mw );
 void gzrt_wdecompress_close ( struct _gzrt_wdecompress * i );
 void gzrt_wdecompress_routine ( struct _gzrt_wdecompress * i );
 void gzrt_wdecompress_closed ( struct _gzrt_wdecompress * i );
+void gzrt_wdecomp_show ( MAINWIN * c );
 
 #endif /* __GZRT_WDECOMPRESS_H */

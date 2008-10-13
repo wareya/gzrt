@@ -38,6 +38,7 @@ Z64FS;
 Z64FS *            z64fs_open      ( FILE * handle                           );
 const Z64FSEntry * z64fs_file      ( Z64FS * h, int id                       );
 void               z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
+void			   z64fs_close	   ( Z64FS * h                               );
 
 /* Macros */
 #define ZFileStart(h, id)			((h)->files[id].start)
@@ -50,6 +51,7 @@ void               z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
 #define ZFileVirtEnd(h, id)			((h)->files[id].vend)
 #define ZFileVirtSize(h, id)		(ZFileVirtEnd(h, id) - ZFileVirtStart(h, id))
 #define ZFileIsCompressed(h, id)	((h)->files[id].end ? 1 : 0)
+#define ZFileExists(h, id)			((~(h)->files[id].end)|(~(h)->files[id].start))
 
 /* Function macros */
 #define z64fs_entries(h)	(((h)->filecount))

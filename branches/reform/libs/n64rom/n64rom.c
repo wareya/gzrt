@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <errno.h>
 
 /* Load a word from a byte array */
 #define U32(x)	((x)[0]<<24 | (x)[1]<<16 | (x)[2]<<8 | (x)[3])
@@ -21,12 +22,16 @@ N64Rom * n64rom_load ( char * filename )
 	
 	/* Allocate memory */
 	if( !(ret = malloc( sizeof(N64Rom) )) )
+	{
+		n64rom_error_set( "Memory allocation error." );
 		return NULL;
+	}
 	
 	/* Open ROM */
 	if( !(ret->handle = fopen(filename, "rb+")) )
 	{
 		free( ret );
+		n64rom_error_set( "File read error: %s", strerror(errno) );
 		return NULL;
 	}
 	

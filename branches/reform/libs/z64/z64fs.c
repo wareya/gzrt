@@ -152,3 +152,11 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 	}
 }
 
+/* Close a handle */
+void z64fs_close ( Z64FS * h )
+{
+	fclose( h->fhandle );
+	free( h->files );
+	free( h );
+}
+

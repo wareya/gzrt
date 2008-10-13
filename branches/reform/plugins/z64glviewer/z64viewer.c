@@ -479,7 +479,10 @@ void draw_from_data ( struct Data * k )
   entrypoint = k->ep;
 
   LoadResourceZ_bin(k->data, k->size, 0, 0);
-  LoadResourceZ("C:\\gzrt-trunk\\plugins\\z64glviewer\\gameplay_keep.zdata", 1024*1024, 4);
+  LoadResourceZ(
+	  "resources/gameplay_keep.zdata"
+	  
+	  , 1024*1024, 4);
   
 
     camera[0] = 1; camera[1]=0; camera[2]=0; camera[3]=0; // Forward

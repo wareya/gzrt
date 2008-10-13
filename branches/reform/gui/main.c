@@ -163,29 +163,29 @@ void gzrt_wmain_byteswap ( N64Rom * rc )
 /* Close a preexisting window */
 void gzrt_wmain_close ( MAINWIN *w )
 {
-	void *tmp; int d, i = w->id;
-	GZRTD_MESG( "Closing window #%u.", i + 1 );
-		
-	/* Free associated ROM context */
-	GZRTD_MESG( "Freeing ROM context...", i + 1 );
-	n64rom_close( w->c );
-	
-	/* Is this the last window? If so, we can just quit */
-	if( g_list_length( instances ) == 1 )
-		gzrt_gui_quit();
-	
 	/* Destroy the window */
 	gtk_widget_destroy( w->window );
-	
-	/* Remove it from the list */
-	instances = g_list_remove( instances, w );
 }
 
 /* Closed */
 void gzrt_wmain_closed ( MAINWIN *w )
 {
-	w->window = NULL;
-	gzrt_wmain_close( w );
+	/* Close ROM context */
+	n64rom_close( w->c );
+	
+	/* Close filesystem context */
+	z64fs_close( w->z );
+	
+	/* Close name table context, if applicable */
+	if( w->t )
+		z64nt_close( w->t );
+	
+	/* Is this the last window? If so, we can just quit */
+	if( g_list_length( instances ) == 1 )
+		gzrt_gui_quit();
+	
+	/* Remove it from the list */
+	instances = g_list_remove( instances, w );
 }
 
 /* Set font of a widget */
@@ -431,7 +431,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	/* Signals - operations menu */
 	//g_signal_connect_swapped( G_OBJECT(file_search1),    "activate", G_CALLBACK(), c );
 	g_signal_connect_swapped( G_OBJECT(extract_files1),  "activate", G_CALLBACK(gzrt_wextract_show),      c );
-	g_signal_connect_swapped( G_OBJECT(decompress_rom1), "activate", G_CALLBACK(gzrt_wdecompress_create), c );
+	g_signal_connect_swapped( G_OBJECT(decompress_rom1), "activate", G_CALLBACK(gzrt_wdecomp_show), c );
 	g_signal_connect_swapped( G_OBJECT(byteswap_rom1),   "activate", G_CALLBACK(gzrt_wbyteswap_create),   c );
 	g_signal_connect_swapped( G_OBJECT(fix_crc1),        "activate", G_CALLBACK(create_CRC_Checker),      c );
 	
@@ -581,6 +581,15 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	char  * name;
 	int		i;
 	const Z64FSEntry * j = z64fs_file( w->z, id );
+	
+	/* Check */
+	if( !ZFileExists(w->z, id) )
+	{
+		gzrt_notice("Notice", "This file does not physically exist within the ROM.\n"
+		"No operation can be performed on it." );
+		gzrt_free( file );
+		return;
+	}
 	
 	/* Fill the file information struct */
 	file->id		= id;
@@ -743,22 +752,22 @@ static GtkWidget * create_rom_info_frame ( MAINWIN * c )
 	/* Pack info */
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Name: %.24s", c->c->makerom + 0x20), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Code: %.4s", c->c->makerom + 0x3B), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Size: %.2fMB (%.2fMBits)", (float)c->c->filesize / 1024.0 / 1024.0, (float)c->c->filesize / 1024.0 / 1024.0 * 8.0), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x10)), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x14)), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x08)), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	
 	return frame;
 }
@@ -794,34 +803,41 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	#define MONO(x) "<span font_desc=\"Courier\">", x, "</span>"
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->start)), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->end)), 
-	TRUE, TRUE, 0 );
-	/*
+	FALSE, TRUE, 0 );
+	
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("File count: %u", z64fs_num_entries( c->z )), 
-	TRUE, TRUE, 0 );
+		create_label("File count: %u", z64fs_entries( c->z )), 
+	FALSE, TRUE, 0 );
+	/*
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Total size: %.2fMB", (float)z64fs_calc_size_decompressed( c->z ) / 1024.0 / 1024.0), 
 	TRUE, TRUE, 0 );
 	*/
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Creator: %s%s%s", MONO(c->z->creator) ), 
+	FALSE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Date: %s%s%s", MONO(c->z->date) ), 
+	FALSE, TRUE, 0 );
 	
 	/* Name table? */
 	if( c->t )
 	{
 		gtk_box_pack_start( GTK_BOX(vbox), 
 			create_label("Name table start: %s0x%08X%s", MONO(z64nt_start(c->t))), 
-		TRUE, TRUE, 0 );
+		FALSE, TRUE, 0 );
 		gtk_box_pack_start( GTK_BOX(vbox), 
 			create_label("Name table end: %s0x%08X%s", MONO(z64nt_end(c->t))), 
-		TRUE, TRUE, 0 );
+		FALSE, TRUE, 0 );
 	}
 	else
 	{
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table end: %s%s%s", MONO("no")), 
-		TRUE, TRUE, 0 );
+			create_label("Name table: %s%s%s", MONO("no")), 
+		FALSE, TRUE, 0 );
 	}
 	
 	return frame;
