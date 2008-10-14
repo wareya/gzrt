@@ -21,7 +21,6 @@ MEM;
 
 /* Storage */
 static GList  * blocks;
-static int	    init;
 static unsigned mem_use;
 
 /* Store a memory entry */
@@ -48,7 +47,7 @@ void * gzrt_malloc ( unsigned size )
 	if( !(a = malloc( size )) )
 	{
 		/* Not good */
-		ERROR( "Unable to allocate %u bytes of memory. Error:\n%s", strerror(errno) );
+		ERROR( "Unable to allocate %u bytes of memory. Error:\n%s", size, strerror(errno) );
 		return NULL;
 	}
 	
@@ -78,7 +77,7 @@ void * gzrt_calloc ( unsigned size )
 	if( !(a = calloc( size, 1 )) )
 	{
 		/* Not good */
-		ERROR( "Unable to allocate %u bytes of memory. Error:\n%s", strerror(errno) );
+		ERROR( "Unable to allocate %u bytes of memory. Error:\n%s", size, strerror(errno) );
 		return NULL;
 	}
 	

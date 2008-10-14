@@ -90,7 +90,7 @@ fs_found:
 		ret->filecount = count;
 	
 	/* Set address */
-	ret->start = seek + tstart;
+	ret->start = (seek - buffer) + tstart;
 	ret->end   = ret->start + count * 16;
 	
 	/* Allocate memory for final storage */
