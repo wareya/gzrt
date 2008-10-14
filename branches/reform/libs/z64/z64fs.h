@@ -52,6 +52,8 @@ void			   z64fs_close	   ( Z64FS * h                               );
 #define ZFileVirtSize(h, id)		(ZFileVirtEnd(h, id) - ZFileVirtStart(h, id))
 #define ZFileIsCompressed(h, id)	((h)->files[id].end ? 1 : 0)
 #define ZFileExists(h, id)			((~(h)->files[id].end)|(~(h)->files[id].start))
+#define ZFSStart(h)					((h)->start)
+#define ZFSEnd(h)					((h)->end)
 
 /* Function macros */
 #define z64fs_entries(h)	(((h)->filecount))

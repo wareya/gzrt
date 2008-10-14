@@ -93,7 +93,7 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 	
 	/* User specified format */
 	va_start( ap, fmt );
-	len = vsnprintf( buffer, sizeof(buffer) - 1, fmt, ap );
+	len = vsnprintf( buffer, sizeof(buffer), fmt, ap );
 	va_end( ap );
 	
 	/* Insert text */
@@ -112,6 +112,8 @@ int gzrt_gui_debug_mem ( void )
 	char buffer[64];
 	int mid;
 	static int init;
+	static int id;
+	static int past;
 	
 	/* Prepare buffer */
 	#ifndef __linux__
@@ -124,10 +126,11 @@ int gzrt_gui_debug_mem ( void )
 	
 	/* Remove old? */
 	if( init )
-		gtk_statusbar_pop( w->bar, 0 );
+		gtk_statusbar_remove( GTK_STATUSBAR(w->bar), id, past );
 	
 	/* Push the new message */
-	gtk_statusbar_push( w->bar, 0, buffer );
+	id = gtk_statusbar_get_context_id( GTK_STATUSBAR(w->bar), buffer);
+	past = gtk_statusbar_push( w->bar, id, buffer );
 	
 	/* Update */
 	init++;
