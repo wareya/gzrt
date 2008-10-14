@@ -8,7 +8,7 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS += -g -DIN_GZRT -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` --std=gnu99 -funsigned-char
+CFLAGS += -g -DIN_GZRT -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` -O3 --std=gnu99 -funsigned-char
 
 # Include search paths...
 CFLAGS += -Ilibs/z64 -Ilibs/n64rom
@@ -33,10 +33,6 @@ PARTS += app/settings.o
 # Debug!
 ifeq ($(DEBUG), 1)
 	CFLAGS += -DGZRT_DEBUG
-endif
-
-ifeq ($(NOOPT), 0)
-	CFLAGS += -O3
 endif
 
 ifeq ($(MIMIC), 1)

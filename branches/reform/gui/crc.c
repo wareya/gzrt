@@ -9,6 +9,10 @@
 #define HOOKUP( component, widget, name )                       \
     g_object_set_data( G_OBJECT(component), name, widget )
 
+/* Lookup connected data */
+#define LOOKUP( component, name )   \
+    g_object_get_data( G_OBJECT(component), name )
+	
 static GList * parents;
 
 /* Create an instance */
@@ -39,6 +43,28 @@ static void gzrt_wcrc_closed ( MAINWIN *w )
 	parents = g_list_remove( parents, w );
 }
 
+/* Shared */
+static unsigned	oldcrc[2];
+static unsigned crcs[2];
+
+/* Write CRCs */
+static void write_crcs ( GtkWidget * window )
+{
+	N64Rom * h = LOOKUP( window, "rom-context" );
+	
+	fseek( h->handle, 0x10, SEEK_SET );
+	fputc( crcs[0] >> 24 & 0xFF, h->handle );
+	fputc( crcs[0] >> 16 & 0xFF, h->handle );
+	fputc( crcs[0] >> 8  & 0xFF, h->handle );
+	fputc( crcs[0] & 0xFF, h->handle       );
+	fputc( crcs[1] >> 24 & 0xFF, h->handle );
+	fputc( crcs[1] >> 16 & 0xFF, h->handle );
+	fputc( crcs[1] >> 8  & 0xFF, h->handle );
+	fputc( crcs[1] & 0xFF, h->handle       );
+	
+	gzrt_notice( "Notice", "New CRCs applied." );
+}
+
 /* Show the CRC checking window */
 void gzrt_wcrc_show ( MAINWIN * c )
 {
@@ -50,8 +76,6 @@ void gzrt_wcrc_show ( MAINWIN * c )
 	GtkWidget * image;
 	GtkWidget * entry;
 	GtkWidget * button;
-	unsigned	oldcrc[2];
-	unsigned 	crcs[2];
 	
 	/* Does this parent window exist? */
 	if( g_list_find( parents, c ) )
@@ -125,6 +149,7 @@ void gzrt_wcrc_show ( MAINWIN * c )
 	
 	/* Create buttons */
 	button = gtk_button_new_with_label( "Fix" );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(write_crcs), window );
 	gtk_widget_set_sensitive( button, (!memcmp(crcs,oldcrc,8) ? FALSE : TRUE) );
 	gtk_box_pack_start( GTK_BOX(hbox), button, TRUE, TRUE, 12 );
 	button = gtk_button_new_with_label( "Close" );
@@ -138,6 +163,9 @@ void gzrt_wcrc_show ( MAINWIN * c )
 	
 	/* Signals */
 	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(gzrt_wcrc_closed), c );
+	
+	/* Hookup data */
+	HOOKUP( window, c->c, "rom-context" );
 	
 	/* Show */
 	gtk_widget_show_all( window );
