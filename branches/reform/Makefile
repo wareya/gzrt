@@ -35,7 +35,7 @@ ifeq ($(DEBUG), 1)
 	CFLAGS += -DGZRT_DEBUG
 endif
 
-ifneq ($(NOOPT), 0)
+ifeq ($(NOOPT), 0)
 	CFLAGS += -O3
 endif
 
