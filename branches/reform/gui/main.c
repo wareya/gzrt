@@ -981,6 +981,17 @@ void gzrt_wmain_extract ( MAINWIN * w )
 	return;
 	
 	/* Write file */
-write_file:
-	return;
+write_file: ;
+	
+	unsigned char * buffer = malloc(ZFileVirtSize(w->z, id));
+	
+	/* Read it */
+	z64fs_read_file( w->z, id, buffer );
+	
+	/* Write it */
+	fwrite( buffer, 1, ZFileVirtSize(w->z, id), h );
+	fclose( h );
+	
+	/* Done */
+	gzrt_notice("Notice", "File written.");
 }
