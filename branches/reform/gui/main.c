@@ -451,7 +451,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, File_menu, "File_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, File_menu_menu, "File_menu_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, open1, "open1");
-	GLADE_HOOKUP_OBJECT (Main_Window, reload1, "reload1");
 	GLADE_HOOKUP_OBJECT (Main_Window, close1, "close1");
 	GLADE_HOOKUP_OBJECT (Main_Window, image5, "image5");
 	GLADE_HOOKUP_OBJECT (Main_Window, quit1, "quit1");
@@ -467,7 +466,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, Help_menu_menu, "Help_menu_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, about1, "about1");
 	GLADE_HOOKUP_OBJECT (Main_Window, Main_window_padding, "Main_window_padding");
-	GLADE_HOOKUP_OBJECT (Main_Window, Main_window_seperator, "Main_window_seperator");
 	GLADE_HOOKUP_OBJECT (Main_Window, hpaned1, "hpaned1");
 	GLADE_HOOKUP_OBJECT (Main_Window, Side_frame_seperator, "Side_frame_seperator");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_alignment, "Frame_1_alignment");
