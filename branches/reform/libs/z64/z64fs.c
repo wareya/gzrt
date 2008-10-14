@@ -10,7 +10,7 @@
 /* Constants */
 #define SEARCH_STRING	"zelda@"
 #define CHUNK_SIZE		(512 * 1024)
-#define END_ADDR		(4 * 1024 * 1024)
+#define END_ADDR		(1 * 1024 * 1024)
 
 /* Macros */
 #define U32(x)		((x)[0] << 24 | (x)[1] << 16 | (x)[2] << 8 | (x)[3])
@@ -85,19 +85,19 @@ fs_found:
 	dmad_start = U32(buffer + tstart + 2 * 16);
 	dmad_end   = U32(buffer + tstart + 2 * 16 + 4);
 	
-	/* Allocate memory for final storage */
-	ret->files = malloc( dmad_end - dmad_start );
-	
 	/* Set filecount */
 	for( count = 1; U32(&buffer[tstart+count*16]); count++ );
-	ret->filecount = count;;
+		ret->filecount = count;
 	
 	/* Set address */
-	ret->start = dmad_start;
-	ret->end   = dmad_end;
+	ret->start = seek + tstart;
+	ret->end   = ret->start + count * 16;
+	
+	/* Allocate memory for final storage */
+	ret->files = malloc( ret->end - ret->start );
 	
 	/* Fill */
-	for( i = 0; i < dmad_end - dmad_start; i += 16 )
+	for( i = 0; i < ret->end - ret->start; i += 16 )
 	{
 		ret->files[i/16].vstart = U32(buffer + tstart + i     );
 		ret->files[i/16].vend   = U32(buffer + tstart + i +  4);

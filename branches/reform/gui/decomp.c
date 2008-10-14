@@ -131,7 +131,7 @@ decompress_rom: ;
 	pbar = gtk_progress_bar_new();
 	gtk_container_add( GTK_CONTAINER(window), pbar );
 	gtk_widget_show_all( window );
-	pbarset( pbar, 0.0, "%%.2f%", 0.0 );
+	pbarset( pbar, 0.0, "%.2f%%", 0.0 );
 	
 	/* Create scratch buffer */
 	buffer = malloc( 8 * 1024 * 1024 );
