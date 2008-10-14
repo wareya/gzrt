@@ -17,12 +17,18 @@
 
 /* Create a filesystem context */
 struct Zelda64FileTable *
-z64fs_open ( FILE * handle )
+z64fs_open ( char * filename )
 {
 	unsigned char * buffer, * seek;
 	Z64FS		  * ret;
 	unsigned        i, count, tstart, k;
 	unsigned		dmad_start, dmad_end;
+	FILE          * handle;
+	
+	/* Open file */
+	if( !(handle = fopen(filename, "rb")) )
+		return NULL;
+	fseek( handle, 0, SEEK_SET );
 	
 	/* Create return */
 	ret = calloc( sizeof(Z64FS), 1 );

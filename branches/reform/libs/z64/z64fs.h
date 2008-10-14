@@ -35,7 +35,7 @@ typedef struct Zelda64FileTable
 Z64FS;
 
 /* Functions */
-Z64FS *            z64fs_open      ( FILE * handle                           );
+Z64FS *            z64fs_open      ( char * filename                         );
 const Z64FSEntry * z64fs_file      ( Z64FS * h, int id                       );
 void               z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
 void			   z64fs_close	   ( Z64FS * h                               );

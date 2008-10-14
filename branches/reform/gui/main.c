@@ -57,7 +57,7 @@ int gzrt_wmain_create_new ( N64Rom * rc )
 	}
 	
 	/* Identify Zelda filesystem elements */
-	if( !(cur->z = z64fs_open( rc->handle )) )
+	if( !(cur->z = z64fs_open( rc->filename )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
 		gzrt_notice( "Error", "Unable to find filesystem in ROM." );
