@@ -96,7 +96,7 @@ fs_found:
 		ret->filecount = count;
 	
 	/* Set address */
-	ret->start = (seek - buffer) + tstart;
+	ret->start = dmad_start + tstart;
 	ret->end   = ret->start + count * 16;
 	
 	/* Allocate memory for final storage */
@@ -139,6 +139,7 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 {
 	Z64FSEntry * f = (void*)z64fs_file( h, id );
 	
+	/* Read the file */
 	fseek( h->fhandle, ZFileRealStart(h, id), SEEK_SET );
 	fread( dest, ZFileRealSize(h, id), 1, h->fhandle );
 	
