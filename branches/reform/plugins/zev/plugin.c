@@ -74,8 +74,8 @@ void asdfdhjfh ( struct PluginTransac * t  )
 	system( buffer );
 	
 	/* Cleanup */
-	system("del " BINNAME );
-	system("del " FILENAME );
+	unlink( BINNAME );
+	unlink( FILENAME );
 	
 	functions->close( t );
 }
