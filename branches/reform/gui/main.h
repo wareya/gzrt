@@ -79,7 +79,8 @@ void gzrt_wmain_plugin_action ( MAINWIN * w );
 GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w );
 int	gzrt_select_file_id ( MAINWIN * w );
 void gzrt_wmain_byteswap ( N64Rom * rc );
+void gzrt_wmain_extract ( MAINWIN * w );
 
-//void create_Main_Window ( MAINWIN *c );
+
 		
 #endif /* __GZRT_WMAIN_H */

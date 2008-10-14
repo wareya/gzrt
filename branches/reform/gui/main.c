@@ -871,6 +871,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	GtkWidget * b;
 	GtkWidget * c;
+	GtkWidget * d;
 	
 	/* Functions */
 	extern GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c );
@@ -927,12 +928,13 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_button_hbox, FALSE, TRUE, 0 );
 	
 	/* Create them */
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("Extract",	"gtk-save"), 		TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",		"gtk-zoom-100"), 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button("Toolbox",	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
 	
 	/* Callbacks */
+	g_signal_connect_swapped( G_OBJECT(d), "clicked", G_CALLBACK(gzrt_wmain_extract), w );
 	g_signal_connect_swapped( G_OBJECT(c), "clicked", G_CALLBACK(gzrt_wreplace_create), w );
 	g_signal_connect_swapped( G_OBJECT(b), "clicked", G_CALLBACK(gzrt_wmain_plugin_action), w );
 	
@@ -947,3 +949,71 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	return ret;
 }
 
+/* Extract a file */
+void gzrt_wmain_extract ( MAINWIN * w )
+{
+	int	id = gzrt_select_file_id(w);
+	GtkWidget * dialog;
+	int result;
+	FILE * h;
+
+	/* Create file saving dialog */
+	dialog = gtk_file_chooser_dialog_new
+	( 
+		"Choose a destination", NULL,
+		GTK_FILE_CHOOSER_ACTION_SAVE, 
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN,   GTK_RESPONSE_ACCEPT, 
+		NULL
+	);
+	gtk_widget_show_all( dialog );
+	
+	/* Run the dialog and fetch the result */
+	while( result = gtk_dialog_run( GTK_DIALOG(dialog) ) )
+	switch( result )
+	{
+		/* A file has been chosen */
+		case GTK_RESPONSE_ACCEPT:
+		{
+			char * n = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) );
+			
+			/* Check that file doesn't exist */
+			if( (h = fopen(n, "rb")) )
+			{
+				gzrt_notice("Error", "File already exists.");
+				fclose( h );
+				continue;
+			}
+				
+			/* Check that we can write to it */
+			if( !(h = fopen(n, "wb")) )
+			{
+				gzrt_notice("Error", "Can't write to that file!");
+				continue;
+			}
+			
+			/* Destroy window */
+			gtk_widget_destroy( dialog );
+			
+			/* Looks good, gogogo */
+			goto write_file;
+		}
+		break;
+		
+		/* Cancel */
+		case GTK_RESPONSE_CANCEL:
+		 gtk_widget_destroy(dialog);
+		 return;
+		break;
+		
+		/* Default */
+		default:
+		 return;
+	}
+	
+	return;
+	
+	/* Write file */
+write_file:
+	return;
+}
