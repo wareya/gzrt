@@ -147,8 +147,8 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 	{
 		unsigned char * tmp = malloc(ZFileVirtSize(h, id));
 		
-		/* Decode it */
-		z64yaz0_decode( dest + 16, tmp, ZFileVirtSize(h, id) );
+		/* Decode it 
+		z64yaz0_decode( dest + 16, tmp, ZFileVirtSize(h, id) );*/
 		
 		/* Copy it to destination */
 		memcpy( dest, tmp, ZFileVirtSize(h, id) );
