@@ -16,8 +16,7 @@
 
 /* Macros */
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
-  g_object_set_data (G_OBJECT (component), name, \
-    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
+  g_object_set_data (G_OBJECT (component), name, widget)
 
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
   g_object_set_data (G_OBJECT (component), name, widget)
