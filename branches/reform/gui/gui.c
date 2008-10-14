@@ -44,8 +44,6 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Load plugins */
 	gzrt_load_plugins();
 	
-	gzrt_wextract_init();
-	
 	/* Is the default file set? */
 	if( GZRTConfig.default_rom )
 	{

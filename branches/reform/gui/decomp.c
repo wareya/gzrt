@@ -5,6 +5,17 @@
 #include <z64.h>
 #include <stdio.h>
 
+#define WU32(x, w)          \
+{                           \
+	(x)[0] = (w)>>24; 		\
+	(x)[1] = (w)>>16& 0xFF; \
+	(x)[2] = (w)>>8 & 0xFF; \
+	(x)[3] = (w) & 0xFF;    \
+}
+
+#define WRITE_ENTRY(p, id, i, w) \
+	WU32(&p[id * 16 + i * 4], w)
+
 static GList * parents;
 
 /* Set progress bar text */
@@ -33,7 +44,7 @@ void gzrt_wdecomp_show ( MAINWIN * c )
 	GtkWidget     * dialog;
 	int		        result;
 	unsigned char * buffer;
-	unsigned      * ftable;
+	unsigned char * ftable;
 	
 	/* Does the parent exist? */
 	if( g_list_find( parents, c ) )
@@ -135,7 +146,13 @@ decompress_rom: ;
 		
 		/* Does this file exist? */
 		if( !ZFileExists(c->z, i) )
+		{
+			WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z, i) );
+			WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i) );
+			WRITE_ENTRY( ftable, i, 2, 0xFFFFFFFF );
+			WRITE_ENTRY( ftable, i, 3, 0xFFFFFFFF );
 			continue;
+		}
 		
 		/* Get current file entry */
 		cur = z64fs_file(c->z, i);
@@ -146,17 +163,29 @@ decompress_rom: ;
 		/* Write it */
 		fwrite( buffer, ZFileVirtSize(c->z, i), 1, out );
 		
+		/* Update new file table */
+		WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z, i) );
+		WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i) );
+		WRITE_ENTRY( ftable, i, 2, ZFileVirtStart(c->z, i) );
+		WRITE_ENTRY( ftable, i, 3, 0 );
+		
 		/* Update progress bar */
 		if( !((i + 1) % (z64fs_entries(c->z) / 32)) )
 			pbarset( pbar, (double)i / z64fs_entries(c->z), "%.2f%%", (double)i / z64fs_entries(c->z) * 100.0 );
 	}
 	
+	/* Write new file table */
+	int tmp = ftell(out);
+	fseek( out, ZFSStart(c->z), SEEK_SET );
+	fwrite( ftable, 1, ZFSEnd(c->z) - ZFSStart(c->z), out );
+	fseek( out, tmp, SEEK_SET );
+	
 	/* Set 100% */
 	pbarset( pbar, 1.0, "Padding file..." );
 	
 	/* Write padding */
-	for( i = ftell( h ); i < 64 * 1024 * 1024; i++ )
-		fputc( 0x00, h );
+	for( i = ftell( out ); i < 64 * 1024 * 1024; i++ )
+		fputc( 0x00, out );
 	
 	/* Finished */
 	gtk_widget_destroy( window );
@@ -169,3 +198,4 @@ decompress_rom: ;
 	/* Show message */
 	gzrt_notice( "Notice", "ROM decompression complete." );
 }
+
