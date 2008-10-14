@@ -59,6 +59,9 @@ typedef struct
 }
 N64Rom;
 
+/* CRC handling */
+#include <n64crc.h>
+
 /* Functions - swap.c */
 int          n64_byteswap     ( void * data, int size, enum N64Endian to, enum N64Endian from );
 N64Rom *     n64rom_load      ( char * filename  );

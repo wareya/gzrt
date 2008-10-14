@@ -99,7 +99,7 @@ void gzrt_wdecomp_show ( MAINWIN * c )
 		break;
 		
 		/* Cancel */
-		case GTK_RESPONSE_CANCEL:
+		case GTK_RESPONSE_REJECT:
 		 gtk_widget_destroy(dialog);
 		 parents = g_list_remove( parents, c );
 		 goto skiploop;
@@ -108,6 +108,7 @@ void gzrt_wdecomp_show ( MAINWIN * c )
 		/* Default */
 		default:
 		 parents = g_list_remove( parents, c );
+		 gtk_widget_destroy(dialog);
 		 goto skiploop;
 	}
 	
@@ -121,7 +122,7 @@ decompress_rom: ;
 	int    i;
 	
 	/* Create window */
-	window = gtk_window_new( GTK_WINDOW_POPUP);
+	window = gtk_window_new( GTK_WINDOW_POPUP );
     gtk_widget_set_size_request( window, 400, 30 );
 	gtk_window_set_title( GTK_WINDOW(window), " " );
 	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS );

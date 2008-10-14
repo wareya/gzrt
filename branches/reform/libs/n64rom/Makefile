@@ -5,7 +5,7 @@
 PROJECT = n64rom
 
 # Parts
-PIECES = n64rom.o swap.o
+PIECES = n64rom.o n64crc.o swap.o
 
 # Win32 stuff
 ifeq ($(WIN32), 1)

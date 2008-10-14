@@ -429,11 +429,10 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	//gzrt_wmain_update
 	
 	/* Signals - operations menu */
-	//g_signal_connect_swapped( G_OBJECT(file_search1),    "activate", G_CALLBACK(), c );
-	g_signal_connect_swapped( G_OBJECT(extract_files1),  "activate", G_CALLBACK(gzrt_wextract_show),      c );
-	g_signal_connect_swapped( G_OBJECT(decompress_rom1), "activate", G_CALLBACK(gzrt_wdecomp_show), c );
-	g_signal_connect_swapped( G_OBJECT(byteswap_rom1),   "activate", G_CALLBACK(gzrt_wbyteswap_create),   c );
-	g_signal_connect_swapped( G_OBJECT(fix_crc1),        "activate", G_CALLBACK(create_CRC_Checker),      c );
+	g_signal_connect_swapped( G_OBJECT(extract_files1),  "activate", G_CALLBACK(gzrt_wextract_show),     c );
+	g_signal_connect_swapped( G_OBJECT(decompress_rom1), "activate", G_CALLBACK(gzrt_wdecomp_show),      c );
+	g_signal_connect_swapped( G_OBJECT(byteswap_rom1),   "activate", G_CALLBACK(gzrt_wbyteswap_create),  c );
+	g_signal_connect_swapped( G_OBJECT(fix_crc1),        "activate", G_CALLBACK(gzrt_wcrc_show),         c );
 	
 	/* Signals - help menu */
 	g_signal_connect_swapped( G_OBJECT(about1),"activate", G_CALLBACK(gzrt_wabout_show), NULL );
