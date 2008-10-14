@@ -126,6 +126,7 @@ decompress_rom: ;
 	gtk_window_set_title( GTK_WINDOW(window), " " );
 	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS );
 	gtk_window_set_keep_above( GTK_WINDOW(window), TRUE );
+	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
 	
 	/* Create progress bar */
 	pbar = gtk_progress_bar_new();
@@ -142,8 +143,6 @@ decompress_rom: ;
 	/* Begin decompression */
 	for( i = 0; i < z64fs_entries(c->z); i++ )
 	{
-		Z64FSEntry * cur;
-		
 		/* Does this file exist? */
 		if( !ZFileExists(c->z, i) )
 		{
@@ -153,9 +152,6 @@ decompress_rom: ;
 			WRITE_ENTRY( ftable, i, 3, 0xFFFFFFFF );
 			continue;
 		}
-		
-		/* Get current file entry */
-		cur = z64fs_file(c->z, i);
 		
 		/* Read the file */
 		z64fs_read_file( c->z, i, buffer );
