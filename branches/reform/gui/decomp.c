@@ -147,9 +147,9 @@ decompress_rom: ;
 		if( !ZFileExists(c->z, i) )
 		{
 			WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z, i) );
-			WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i) );
-			WRITE_ENTRY( ftable, i, 2, 0xFFFFFFFF );
-			WRITE_ENTRY( ftable, i, 3, 0xFFFFFFFF );
+			WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i)   );
+			WRITE_ENTRY( ftable, i, 2, 0xFFFFFFFF 			   );
+			WRITE_ENTRY( ftable, i, 3, 0xFFFFFFFF 			   );
 			continue;
 		}
 		
@@ -161,9 +161,9 @@ decompress_rom: ;
 		
 		/* Update new file table */
 		WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z, i) );
-		WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i) );
+		WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i)   );
 		WRITE_ENTRY( ftable, i, 2, ZFileVirtStart(c->z, i) );
-		WRITE_ENTRY( ftable, i, 3, 0 );
+		WRITE_ENTRY( ftable, i, 3, 0 					   );
 		
 		/* Update progress bar */
 		if( !((i + 1) % (z64fs_entries(c->z) / 32)) )
