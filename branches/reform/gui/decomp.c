@@ -7,26 +7,6 @@
 
 static GList * parents;
 
-/* Create a new zdec window */
-void gzrt_wdecompress_create ( MAINWIN *mw )
-{
-}
-
-/* Close a ZDEC window */
-void gzrt_wdecompress_close ( struct _gzrt_wdecompress * i )
-{
-}
-
-/* Close a ZDEC window */
-void gzrt_wdecompress_closed ( struct _gzrt_wdecompress * i )
-{
-}
-
-/* Decompress a ROM */
-void gzrt_wdecompress_routine ( struct _gzrt_wdecompress * i )
-{
-}
-
 /* Set progress bar text */
 static void pbarset ( GtkWidget * p, double percent, char * fmt, ... )
 {
@@ -140,7 +120,7 @@ decompress_rom: ;
 	pbar = gtk_progress_bar_new();
 	gtk_container_add( GTK_CONTAINER(window), pbar );
 	gtk_widget_show_all( window );
-	pbarset( pbar, 0.0, "%%%.2f", 0.0 );
+	pbarset( pbar, 0.0, "%%.2f%", 0.0 );
 	
 	/* Create scratch buffer */
 	buffer = malloc( 8 * 1024 * 1024 );
@@ -167,9 +147,8 @@ decompress_rom: ;
 		fwrite( buffer, ZFileVirtSize(c->z, i), 1, out );
 		
 		/* Update progress bar */
-		if( (i + 1) % (z64fs_entries(c->z) / 32) )
-			pbarset( pbar, (double)i / z64fs_entries(c->z), "%%%.2f", 
-			(double)i / z64fs_entries(c->z) * 100.0 );
+		if( !((i + 1) % (z64fs_entries(c->z) / 32)) )
+			pbarset( pbar, (double)i / z64fs_entries(c->z), "%.2f%%", (double)i / z64fs_entries(c->z) * 100.0 );
 	}
 	
 	/* Set 100% */
@@ -183,4 +162,10 @@ decompress_rom: ;
 	gtk_widget_destroy( window );
 	fclose( out );
 	free( buffer );
+	
+	/* Remove it from parents list */
+	parents = g_list_remove( parents, c );
+	
+	/* Show message */
+	gzrt_notice( "Notice", "ROM decompression complete." );
 }
