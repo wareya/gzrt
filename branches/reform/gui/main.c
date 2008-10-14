@@ -465,7 +465,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, Help_menu, "Help_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, Help_menu_menu, "Help_menu_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, about1, "about1");
-	GLADE_HOOKUP_OBJECT (Main_Window, hpaned1, "hpaned1");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_alignment, "Frame_1_alignment");
 	GLADE_HOOKUP_OBJECT (Main_Window, ROM_Info, "ROM_Info");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_label_alignment, "Frame_1_label_alignment");
