@@ -79,18 +79,6 @@ DASM;
 /* Functions */
 void dasm_jump_handle ( GtkWidget * w, DASM * h );
 
-
-/* Destroy a widget */
-void dasm_widget_destroy ( GtkWidget ** w )
-{
-    /* Valid pointer? */
-    if( *w ) 
-    {
-        gtk_widget_destroy( *w );
-        *w = NULL;
-    }
-}
-
 /* Set font of a widget */
 void dasm_set_font ( GtkWidget * w, char * font )
 {

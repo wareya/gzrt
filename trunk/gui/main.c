@@ -3,207 +3,195 @@
 *******************/
 #include <gzrt.h>
 #include <stdarg.h>
+#include <glib.h>
+#include <n64rom.h>
+#include <z64.h>
 
-/*
-** No global struct here, since there can be several main windows
-** containing ROM information and the like.
-** SEE: main.h for limit
-*/
-
-MAINWIN *wmain_instances[GZRT_WMAIN_MAX];
-int	window_amount = 0, close_called = 0, ram_use = 0;
-
-PROGRESS *d;
+/* Main windows */
+static GList * instances;
 
 /* Create a new window */
-int gzrt_wmain_create_new ( N64ROM * rc )
+int gzrt_wmain_create_new ( N64Rom * rc )
 {
-	/* Not allocated? */
-	if( !wmain_instances[0] )
-		for( int i = 0; i < GZRT_WMAIN_MAX; i++ )
-			wmain_instances[i] = gzrt_calloc( sizeof(MAINWIN) );
+	MAINWIN * cur = gzrt_calloc( sizeof(MAINWIN) );
 	
-	/* Is this ROM already loaded? */
-	for( int i = 0; i < window_amount; i++ )
-		if( !FILENAME_CMP( rc->filename, wmain_instances[i]->c->filename ) )
+	/* Store the ROM context */
+	cur->c = rc;
+	
+	/* Byteswapped? */
+	if( rc->endian != N64_ENDIAN_BIG )
+	{
+		GtkWidget * d = gtk_dialog_new_with_buttons
+		( 
+			"Notice", NULL, GTK_DIALOG_MODAL, 
+			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+			NULL 
+		);
+		GtkWidget * a = GTK_DIALOG(d)->vbox;
+		GtkWidget * l = gtk_label_new( "This ROM needs to be byteswapped." );
+		
+		gtk_misc_set_padding( GTK_MISC(l), 12, 12 );
+		gtk_container_add( GTK_CONTAINER(a), l );
+		gtk_widget_show_all(d);
+		
+		switch( gtk_dialog_run( GTK_DIALOG(d) ) )
 		{
-			gzrt_werror_show( "Notice", "This ROM is already loaded.", 0 );
-			GZRTD_MESG( "ROM \"%s\" is already loaded.\n", rc->filename );
-			n64rom_close( rc );
-			return FALSE;
+			/* No */
+			case GTK_RESPONSE_REJECT:	
+			  n64rom_close( rc );
+			  free( cur );
+			  gtk_widget_destroy( d );
+			  return FALSE;
+			break;
+			
+			/* Yes */
+			case GTK_RESPONSE_ACCEPT:
+			  gtk_widget_destroy( d );
+			  gzrt_wmain_byteswap( rc );
+			break;
+			
+			default:
+			  gtk_widget_destroy( d );
 		}
-	
-	/* Too many windows? */
-	if( window_amount >= GZRT_WMAIN_MAX )
-	{
-		GZRTD_MESG( "Cannot create more windows; limit reached (%u).", GZRT_WMAIN_MAX );
-		return FALSE;
-	}
-	
-	/* Keep menus in check */
-	if( window_amount + 1 == GZRT_WMAIN_MAX )
-	{
-		int i;
-		
-		/* Disable all 'Open's */
-		for( i = 0; i < window_amount; i++ )
-			gzrt_wmain_disable_item( wmain_instances[i], "open1" );
-		
-		/* Debug */
-		GZRTD_MESG( "Main window instances full; 'Open' disabled." );
-		GZRTD_MESG( "%u", i );
-	}
-	else
-	{
-		/* Make sure all 'Open's are enabled */
-		for( int i = 0; i < window_amount; i++ )
-			gzrt_wmain_enable_item( wmain_instances[i], "open1" );
-	}
-	
-	/* Set ID */
-	wmain_instances[window_amount]->id = window_amount;
-	
-	/* Store ROM context */
-	wmain_instances[window_amount]->c = rc;
-	
-	/* Debug */
-	GZRTD_MESG( "Creating window %u/%u (%08X).", window_amount + 1, GZRT_WMAIN_MAX, wmain_instances[window_amount + 1] );
-	GZRTD_MESG( "ROM storage: %.2f MB.", (float)(ram_use += rc->filesize) / 1024.0 / 1024.0 );
-	GZRTD_MESG( "Loading ROM \"%s\".", rc->filename );
-	
-	/* Load ROM */
-	d = gzrt_wpbar_new();
-	gzrt_wpbar_set( d , 0);
-	gzrt_wpbar_show( d );
-	if( !(n64rom_read( rc, pbu )) )
-		gzrt_werror_show( "Error occured", n64rom_error(), 1 );
-	GZRTD_MESG( "Loaded ROM successfully." );
-	gzrt_wpbar_close( d );
-	
-	/* Byteswap the ROM if required */
-	if( rc->endian != N64_BIG )
-	{
-		/* Swap */
-		d = gzrt_wpbar_new();
-		if( rc->endian == N64_LITTLE )
-			n64rom_swap( rc, 32, 0, 32, 1 );
-		else if( rc->endian == N64_V64 )
-			n64rom_swap( rc, 16, 0, 32, 1 );
-		gzrt_wpbar_show( d );
-		
-		/* Write */
-		fseek( rc->handle, 0, SEEK_SET );
-		for( int i = 0; i < rc->filesize; i += rc->filesize / 32 )
-		{
-			fwrite( rc->data + i, rc->filesize / 32, 1, rc->handle );
-			gzrt_wpbar_set( d , (double)i / (double)rc->filesize );
-		}
-		gzrt_wpbar_close( d );
-		
-		/* Notice */
-		gzrt_werror_show( "Notice", "ROM was automatically byteswapped.", 0 );
 	}
 	
 	/* Identify Zelda filesystem elements */
-	if( !(wmain_instances[window_amount]->z = z64fs_init( rc->filename )) )
+	if( !(cur->z = z64fs_open( rc->filename )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
-		gzrt_werror_show( "Error", "Unable to find filesystem in ROM.", 0 );
+		gzrt_notice( "Error", "Unable to find filesystem in ROM." );
 		n64rom_close( rc );
-		return FALSE;
+		free( cur );
+		return 0;
 	}
 	
 	/* Identify Zelda 64 name table elements */
-	if( !(wmain_instances[window_amount]->t = z64nt_init( rc->filename )) )
+	if( !(cur->t = z64nt_open( rc->handle )) )
+	{
 		GZRTD_MESG( "No name table in this ROM." );
+	}
 	
 	/* Information */
-	GZRTD_MESG( "Name table p:  $%08X", wmain_instances[window_amount]->t );
-	GZRTD_MESG( "File table p:  $%08X", wmain_instances[window_amount]->z );
-	GZRTD_MESG( "ROM context p: $%08X", rc								  );
+	GZRTD_MESG( "Name table p:  $%08X", cur->t );
+	GZRTD_MESG( "File table p:  $%08X", cur->z );
+	GZRTD_MESG( "ROM context p: $%08X", rc	   );
 	
 	/* Fill struct with GTK elements & update count */
-	gzrt_wmain_fill( wmain_instances[window_amount] );
+	gzrt_wmain_fill( cur );
 	
 	/* Set message */
-	gzrt_wmain_status_addmsg( wmain_instances[window_amount], "Ready" );
+	gzrt_wmain_status_addmsg( cur, "Ready" );
 	
-	/* Update counter */
-	window_amount++;
+	/* Append to list */
+	instances = g_list_append( instances, cur );
 	
 	/* We did it! */
 	return TRUE;
 }
 
+/* Byteswap a ROM */
+void gzrt_wmain_byteswap ( N64Rom * rc )
+{
+	GtkWidget * window;
+	GtkWidget * bar;
+	unsigned	chunksize, i;
+	char		buffer[64];
+	unsigned char * rom;
+	
+	/* Create window */
+	window = gtk_window_new( GTK_WINDOW_POPUP );
+	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS );
+	gtk_widget_set_size_request( window, 350, 30 );
+	gtk_window_set_keep_above( GTK_WINDOW(window), TRUE );
+	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
+	
+	/* Create progress bar */
+	bar = gtk_progress_bar_new();
+	
+	/* Pack it */
+	gtk_container_add( GTK_CONTAINER(window), bar );
+	
+	/* Show */
+	gtk_widget_show_all( window );
+	
+	/* Set updates */
+	chunksize = rc->filesize / 8;
+	
+	/* ROM storage */
+	rom = gzrt_malloc( chunksize );
+	
+	/* Loop */
+	for( i = 0; i < rc->filesize; i += chunksize )
+	{
+		/* Seek to current */
+		fseek( rc->handle, i, SEEK_SET );
+		
+		/* Read it in */
+		fread( rom, chunksize, 1, rc->handle );
+		
+		/* Swap it */
+		if( !n64_byteswap( rom, chunksize, N64_ENDIAN_BIG, rc->endian ) )
+			exit( -4 );
+		
+		/* Write */
+		fseek( rc->handle, i, SEEK_SET );
+		fwrite( rom, chunksize, 1, rc->handle );
+		
+		/* Update progress bar */
+		sprintf( buffer, "%.2f%%", (double)i/(double)rc->filesize * 100.0 );
+		gtk_progress_bar_set_text( GTK_PROGRESS_BAR(bar), buffer );
+		gtk_progress_bar_set_fraction( GTK_PROGRESS_BAR(bar), (double)i/(double)rc->filesize );
+		
+		/* Make sure it shows up */
+		while( gtk_events_pending() )
+			gtk_main_iteration();
+	}
+	
+	/* Final update */
+	sprintf( buffer, "%.2f%%", (double)i/(double)rc->filesize * 100.0 );
+	gtk_progress_bar_set_text( GTK_PROGRESS_BAR(bar), buffer );
+	gtk_progress_bar_set_fraction( GTK_PROGRESS_BAR(bar), (double)i/(double)rc->filesize );
+	
+	/* Done */
+	gzrt_notice( "Notice", "ROM successfully byteswapped." );
+	
+	/* Delete progress bar */
+	gtk_widget_destroy( bar );
+}
+
 /* Close a preexisting window */
 void gzrt_wmain_close ( MAINWIN *w )
 {
-	void *tmp; int d, i = w->id;
-	GZRTD_MESG( "Closing window #%u...", i + 1 );
-	
-	/* Is this the last window? If so, we can just quit */
-	if( !(window_amount - 1) )
-		gzrt_gui_quit();
-		
-	/* Update memory usage */
-	ram_use -= w->c->filesize;
-		
-	/* Free associated ROM context */
-	GZRTD_MESG( "Freeing ROM context...", i + 1 );
-	n64rom_close( w->c );
-	
-	/* Destroy window widget */
-	if( w->window )
-	{
-		GZRTD_MESG( "Disconnecting destroy signal handler from window...", i + 1 );
-		g_signal_handler_disconnect( wmain_instances[i]->window,  (int)wmain_instances[i]->hid );
-		gtk_widget_destroy( wmain_instances[i]->window );
-	}
-	
-	/* Store original memory location */
-	tmp = wmain_instances[i];
-	
-	/* Shift down the rest of the windows */
-	for( d = 0; d < window_amount - i; d++ )
-	{
-		wmain_instances[i + d] = wmain_instances[i + d + 1];
-		if( wmain_instances[i + d]->id )
-			wmain_instances[i + d]->id--;
-	}
-	
-	/* Restore original */
-	wmain_instances[i + d + 1] = tmp;
-	
-	/* Update counter */
-	window_amount--;
-	
-	/* Debug */
-	GZRTD_MESG( "Deleted window #%u, shifted rest down %u positions.", i, window_amount - i );
-	GZRTD_MESG( "ROM storage: %.2f", (float)ram_use / 1024.0 / 1024.0 );
-	GZRTD_MESG( "Windows status: %u/%u", window_amount, GZRT_WMAIN_MAX );
+	/* Destroy the window */
+	gtk_widget_destroy( w->window );
 }
 
 /* Closed */
 void gzrt_wmain_closed ( MAINWIN *w )
 {
-	w->window = NULL;
-	gzrt_wmain_close( w );
+	/* Close ROM context */
+	n64rom_close( w->c );
+	
+	/* Close filesystem context */
+	z64fs_close( w->z );
+	
+	/* Close name table context, if applicable */
+	if( w->t )
+		z64nt_close( w->t );
+	
+	/* Is this the last window? If so, we can just quit */
+	if( g_list_length( instances ) == 1 )
+		gzrt_gui_quit();
+	
+	/* Remove it from the list */
+	instances = g_list_remove( instances, w );
 }
 
-/* Focus changed */
-void gzrt_wmain_focus ( MAINWIN *w )
+/* Amount of main windows */
+int gzrt_wmain_count ( void )
 {
-	GZRTD_MESG( "Window #%u.", w->id + 1 );
-}
-
-/* Update progress bar */
-void pbu ( int a, int b )
-{
-	gzrt_wpbar_text(d, "%.2f%%", (double)a / (double)b * 100.0 );
-	gzrt_wpbar_set( d, (double)a / (double)b );
-	gzrt_wpbar_show( d );
-	while( gtk_events_pending() )
-		gtk_main_iteration();
+	return g_list_length( instances );
 }
 
 /* Set font of a widget */
@@ -219,80 +207,80 @@ static void set_font ( GtkWidget * w, char * font )
 void gzrt_wmain_fill ( MAINWIN *c )
 {
 	/* GTK Elements */
-	GtkWidget *Main_Window;
-	GtkWidget *Main_vbox;
-	GtkWidget *Menu;
-	GtkWidget *File_menu;
-	GtkWidget *File_menu_menu;
-	GtkWidget *open1;
-	GtkWidget *reload1;
-	GtkWidget *close1;
-	GtkWidget *image5;
-	GtkWidget *quit1;
-	GtkWidget *Operations_menu;
-	GtkWidget *Operations_menu_menu;
-	GtkWidget *extract_files1;
-	GtkWidget *decompress_rom1;
-	GtkWidget *file_search1;
-	GtkWidget *separator1;
-	GtkWidget *byteswap_rom1;
-	GtkWidget *fix_crc1;
-	GtkWidget *Help_menu;
-	GtkWidget *Help_menu_menu;
-	GtkWidget *about1;
-	GtkWidget *Main_window_padding;
-	GtkWidget *Main_window_seperator;
-	GtkWidget *hpaned1;
-	GtkWidget *Side_frame_seperator;
-	GtkWidget *Frame_1_alignment;
-	GtkWidget *ROM_Info;
-	GtkWidget *Frame_1_label_alignment;
-	GtkWidget *Frame_1_label_seperator;
-	GtkWidget *f1l1;
-	GtkWidget *f1l2;
-	GtkWidget *f1l3;
-	GtkWidget *f1l4;
-	GtkWidget *f1l5;
-	GtkWidget *f1l6;
-	GtkWidget *Frame_1_label;
-	GtkWidget *Frame_2_alignment;
-	GtkWidget *Filesystem_info;
-	GtkWidget *Frame_2_label_alignment;
-	GtkWidget *Frame_2_label_seperator;
-	GtkWidget *f2l1;
-	GtkWidget *f2l2;
-	GtkWidget *f2l3;
-	GtkWidget *f2l4;
-	GtkWidget *f2l5;
-	GtkWidget *f2l6;
-	GtkWidget *Frame_2_label;
-	GtkWidget *alignment12;
-	GtkWidget *Right_pane;
-	GtkWidget *Column_view_scroller;
-	GtkWidget *treeview1;
-	GtkWidget *Action_buttons_organizer;
-	GtkWidget *Action_buttons_seperator;
-	GtkWidget *Extract_button;
-	GtkWidget *alignment10;
-	GtkWidget *hbox6;
-	GtkWidget *image4;
-	GtkWidget *label16;
-	GtkWidget *View_button;
-	GtkWidget *alignment9;
-	GtkWidget *hbox5;
-	GtkWidget *image3;
-	GtkWidget *label15;
-	GtkWidget *Replace_button;
-	GtkWidget *alignment8;
-	GtkWidget *hbox4;
-	GtkWidget *image2;
-	GtkWidget *label14;
-	GtkWidget *Disassemble_button;
-	GtkWidget *alignment7;
-	GtkWidget *hbox3;
-	GtkWidget *image1;
-	GtkWidget *label13;
-	GtkWidget *App_status;
+	GtkWidget *Main_Window = NULL;
+	GtkWidget *Main_vbox = NULL;
+	GtkWidget *Menu = NULL;
+	GtkWidget *File_menu = NULL;
+	GtkWidget *File_menu_menu = NULL;
+	GtkWidget *open1 = NULL;
+	GtkWidget *reload1 = NULL;
+	GtkWidget *close1 = NULL;
+	GtkWidget *image5 = NULL;
+	GtkWidget *quit1 = NULL;
+	GtkWidget *Operations_menu = NULL;
+	GtkWidget *Operations_menu_menu = NULL;
+	GtkWidget *extract_files1 = NULL;
+	GtkWidget *decompress_rom1 = NULL;
+	GtkWidget *file_search1 = NULL;
+	GtkWidget *separator1 = NULL;
+	GtkWidget *byteswap_rom1 = NULL;
+	GtkWidget *fix_crc1 = NULL;
+	GtkWidget *Help_menu = NULL;
+	GtkWidget *Help_menu_menu = NULL;
+	GtkWidget *about1 = NULL;
+	GtkWidget *Main_window_padding = NULL;
+	GtkWidget *Main_window_seperator = NULL;
+	GtkWidget *hpaned1 = NULL;
+	GtkWidget *Side_frame_seperator = NULL;
+	GtkWidget *Frame_1_alignment = NULL;
+	GtkWidget *ROM_Info = NULL;
+	GtkWidget *Frame_1_label_alignment = NULL;
+	GtkWidget *Frame_1_label_seperator = NULL;
+	GtkWidget *f1l1 = NULL;
+	GtkWidget *f1l2 = NULL;
+	GtkWidget *f1l3 = NULL;
+	GtkWidget *f1l4 = NULL;
+	GtkWidget *f1l5 = NULL;
+	GtkWidget *f1l6 = NULL;
+	GtkWidget *Frame_1_label = NULL;
+	GtkWidget *Frame_2_alignment = NULL;
+	GtkWidget *Filesystem_info = NULL;
+	GtkWidget *Frame_2_label_alignment = NULL;
+	GtkWidget *Frame_2_label_seperator = NULL;
+	GtkWidget *f2l1 = NULL;
+	GtkWidget *f2l2 = NULL;
+	GtkWidget *f2l3 = NULL;
+	GtkWidget *f2l4 = NULL;
+	GtkWidget *f2l5 = NULL;
+	GtkWidget *f2l6 = NULL;
+	GtkWidget *Frame_2_label = NULL;
+	GtkWidget *alignment12 = NULL;
+	GtkWidget *Right_pane = NULL;
+	GtkWidget *Column_view_scroller = NULL;
+	GtkWidget *treeview1 = NULL;
+	GtkWidget *Action_buttons_organizer = NULL;
+	GtkWidget *Action_buttons_seperator = NULL;
+	GtkWidget *Extract_button = NULL;
+	GtkWidget *alignment10 = NULL;
+	GtkWidget *hbox6 = NULL;
+	GtkWidget *image4 = NULL;
+	GtkWidget *label16 = NULL;
+	GtkWidget *View_button = NULL;
+	GtkWidget *alignment9 = NULL;
+	GtkWidget *hbox5 = NULL;
+	GtkWidget *image3 = NULL;
+	GtkWidget *label15 = NULL;
+	GtkWidget *Replace_button = NULL;
+	GtkWidget *alignment8 = NULL;
+	GtkWidget *hbox4 = NULL;
+	GtkWidget *image2 = NULL;
+	GtkWidget *label14 = NULL;
+	GtkWidget *Disassemble_button = NULL;
+	GtkWidget *alignment7 = NULL;
+	GtkWidget *hbox3 = NULL;
+	GtkWidget *image1 = NULL;
+	GtkWidget *label13 = NULL;
+	GtkWidget *App_status = NULL;
 	GtkAccelGroup *accel_group;
 	
 	/* GTK Elements - scroll window */
@@ -305,10 +293,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	#ifdef GZRT_DEBUG
 	 GtkWidget *wai1;
 	#endif
-	
-	/* Debug */
-	GZRTD_MESG( "Filling struct wmain_instances[%u] (0x%08X).",
-		c->id, &wmain_instances[ c->id ] );
 	
 	/* Variables */
 	char buffer[256];
@@ -336,7 +320,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	#else
 	 "",
 	#endif
-		c->c->filename, c->c->header + 0x20 );
+		c->c->filename, c->c->makerom + 0x20 );
 	Main_Window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (Main_Window), buffer );
 	gtk_window_set_default_size (GTK_WINDOW (Main_Window), 800, 480);
@@ -423,13 +407,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_widget_show (about1);
 	gtk_container_add (GTK_CONTAINER (Help_menu_menu), about1);
 	
-	#ifdef GZRT_DEBUG
-	 wai1 = gtk_menu_item_new_with_mnemonic (_("_Who am I?"));
-	 gtk_widget_show (wai1);
-	 gtk_container_add (GTK_CONTAINER (Help_menu_menu), wai1);
-	#endif
-
-	
 	GtkWidget * M = gzrt_wmain_main_generate(c);
 	GtkWidget * MAIN_PANE = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
 	/*Main_window_padding = gtk_alignment_new (0.5, 0.5, 1, 1);
@@ -451,17 +428,13 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	//gzrt_wmain_update
 	
 	/* Signals - operations menu */
-	//g_signal_connect_swapped( G_OBJECT(file_search1),    "activate", G_CALLBACK(), c );
-	g_signal_connect_swapped( G_OBJECT(extract_files1),  "activate", G_CALLBACK(gzrt_wextract_show),      c );
-	g_signal_connect_swapped( G_OBJECT(decompress_rom1), "activate", G_CALLBACK(gzrt_wdecompress_create), c );
-	g_signal_connect_swapped( G_OBJECT(byteswap_rom1),   "activate", G_CALLBACK(gzrt_wbyteswap_create),   c );
-	g_signal_connect_swapped( G_OBJECT(fix_crc1),        "activate", G_CALLBACK(create_CRC_Checker),      c );
+	g_signal_connect_swapped( G_OBJECT(extract_files1),  "activate", G_CALLBACK(gzrt_wextract_show),     c );
+	g_signal_connect_swapped( G_OBJECT(decompress_rom1), "activate", G_CALLBACK(gzrt_wdecomp_show),      c );
+	g_signal_connect_swapped( G_OBJECT(byteswap_rom1),   "activate", G_CALLBACK(gzrt_wbyteswap_create),  c );
+	g_signal_connect_swapped( G_OBJECT(fix_crc1),        "activate", G_CALLBACK(gzrt_wcrc_show),         c );
 	
 	/* Signals - help menu */
 	g_signal_connect_swapped( G_OBJECT(about1),"activate", G_CALLBACK(gzrt_wabout_show), NULL );
-	#ifdef GZRT_DEBUG
-	 g_signal_connect_swapped( G_OBJECT(wai1),"activate", G_CALLBACK(gzrt_wmain_focus), c );
-	#endif
 	
 	
 	/* Signals - window itself */
@@ -476,7 +449,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, File_menu, "File_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, File_menu_menu, "File_menu_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, open1, "open1");
-	GLADE_HOOKUP_OBJECT (Main_Window, reload1, "reload1");
 	GLADE_HOOKUP_OBJECT (Main_Window, close1, "close1");
 	GLADE_HOOKUP_OBJECT (Main_Window, image5, "image5");
 	GLADE_HOOKUP_OBJECT (Main_Window, quit1, "quit1");
@@ -491,44 +463,9 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, Help_menu, "Help_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, Help_menu_menu, "Help_menu_menu");
 	GLADE_HOOKUP_OBJECT (Main_Window, about1, "about1");
-	GLADE_HOOKUP_OBJECT (Main_Window, Main_window_padding, "Main_window_padding");
-	GLADE_HOOKUP_OBJECT (Main_Window, Main_window_seperator, "Main_window_seperator");
-	GLADE_HOOKUP_OBJECT (Main_Window, hpaned1, "hpaned1");
-	GLADE_HOOKUP_OBJECT (Main_Window, Side_frame_seperator, "Side_frame_seperator");
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_alignment, "Frame_1_alignment");
-	GLADE_HOOKUP_OBJECT (Main_Window, ROM_Info, "ROM_Info");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_label_alignment, "Frame_1_label_alignment");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_label_seperator, "Frame_1_label_seperator");
-	GLADE_HOOKUP_OBJECT (Main_Window, f1l1, "f1l1");
-	GLADE_HOOKUP_OBJECT (Main_Window, f1l2, "f1l2");
-	GLADE_HOOKUP_OBJECT (Main_Window, f1l3, "f1l3");
-	GLADE_HOOKUP_OBJECT (Main_Window, f1l4, "f1l4");
-	GLADE_HOOKUP_OBJECT (Main_Window, f1l5, "f1l5");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_label, "Frame_1_label");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_alignment, "Frame_2_alignment");
-	GLADE_HOOKUP_OBJECT (Main_Window, Filesystem_info, "Filesystem_Info");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_label_alignment, "Frame_2_label_alignment");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_label_seperator, "Frame_2_label_seperator");
-	GLADE_HOOKUP_OBJECT (Main_Window, f2l1, "f2l1");
-	GLADE_HOOKUP_OBJECT (Main_Window, f2l2, "f2l2");
-	GLADE_HOOKUP_OBJECT (Main_Window, f2l3, "f2l3");
-	GLADE_HOOKUP_OBJECT (Main_Window, f2l4, "f2l4");
-	GLADE_HOOKUP_OBJECT (Main_Window, f2l5, "f2l5");
-	GLADE_HOOKUP_OBJECT (Main_Window, Frame_2_label, "Frame_2_label");
-	GLADE_HOOKUP_OBJECT (Main_Window, alignment12, "alignment12");
-	GLADE_HOOKUP_OBJECT (Main_Window, Right_pane, "Right_pane");
-	GLADE_HOOKUP_OBJECT (Main_Window, Column_view_scroller, "Column_view_scroller");
-	GLADE_HOOKUP_OBJECT (Main_Window, treeview1, "treeview");
-	GLADE_HOOKUP_OBJECT (Main_Window, Action_buttons_organizer, "Action_buttons_organizer");
-	GLADE_HOOKUP_OBJECT (Main_Window, Action_buttons_seperator, "Action_buttons_seperator");
-	GLADE_HOOKUP_OBJECT (Main_Window, alignment7, "alignment7");
-	GLADE_HOOKUP_OBJECT (Main_Window, hbox3, "hbox3");
-	GLADE_HOOKUP_OBJECT (Main_Window, image1, "image1");
-	GLADE_HOOKUP_OBJECT (Main_Window, label13, "label13");
+	
 	GLADE_HOOKUP_OBJECT (Main_Window, App_status, "App_status");
-	#ifdef GZRT_DEBUG
-	 GLADE_HOOKUP_OBJECT (Main_Window, wai1, "wai1");
-	#endif
 
 	/* Store window pointer & show */
 	c->window = Main_Window;
@@ -605,25 +542,35 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	int	id =  gzrt_select_file_id(w);
 	char  * name;
 	int		i;
-	Z64NT	k = { w->t->nt, w->t->nt, 0, w->t->len };
+	const Z64FSEntry * j = z64fs_file( w->z, id );
+	
+	/* Check */
+	if( !ZFileExists(w->z, id) )
+	{
+		gzrt_notice("Notice", "This file does not physically exist within the ROM.\n"
+		"No operation can be performed on it." );
+		gzrt_free( file );
+		return;
+	}
 	
 	/* Fill the file information struct */
 	file->id		= id;
-	file->vstart	= U32( &w->z->fs_table[id * 16] 	 );
-	file->vend		= U32( &w->z->fs_table[id * 16 + 4]  );
-	file->start		= U32( &w->z->fs_table[id * 16 + 8]  );
-	file->end		= U32( &w->z->fs_table[id * 16 + 12] );
-	
-	/* Get filename */
-	for( i = 0; i < id; i++ )
-		z64nt_read_next( &k );
+	file->vstart	= j->vstart;
+	file->vend		= j->vend;
+	file->start		= j->start;
+	file->end		= j->end;
+	file->filesize  = ZFileVirtSize(w->z,id);
 	
 	/* Write filename */
-	strncpy( file->filename, k.cur, sizeof(file->filename) - 1 );
+	if( w->t )
+		strncpy( file->filename, z64nt_filename(w->t, id), sizeof(file->filename) - 1 );
+	else
+		snprintf( file->filename, sizeof(file->filename), "0x%08X - 0x%08X",
+		j->vstart, j->vend );
 	
 	/* Read the file */
-	file->file = gzrt_malloc( (file->filesize = file->vend - file->vstart) );
-	memcpy( file->file, w->c->data + file->start, file->vend - file->vstart );
+	file->file = gzrt_malloc( file->filesize );
+	z64fs_read_file( w->z, id, file->file );
 	
 	gzrt_call_plugin( file );
 }
@@ -766,23 +713,23 @@ static GtkWidget * create_rom_info_frame ( MAINWIN * c )
 	
 	/* Pack info */
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Name: %.24s", c->c->header + 0x20), 
-	TRUE, TRUE, 0 );
+		create_label("Name: %.24s", c->c->makerom + 0x20), 
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Code: %.4s", c->c->header + 0x3B), 
-	TRUE, TRUE, 0 );
+		create_label("Code: %.4s", c->c->makerom + 0x3B), 
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Size: %.2fMB (%.2fMBits)", (float)c->c->filesize / 1024.0 / 1024.0, (float)c->c->filesize / 1024.0 / 1024.0 * 8.0), 
-	TRUE, TRUE, 0 );
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x10)), 
-	TRUE, TRUE, 0 );
+		create_label("CRC 1: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x10)), 
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x14)), 
-	TRUE, TRUE, 0 );
+		create_label("CRC 2: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x14)), 
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->header + 0x08)), 
-	TRUE, TRUE, 0 );
+		create_label("Entry point: <span font_desc=\"Courier\">0x%08X</span>", U32(c->c->makerom + 0x08)), 
+	FALSE, TRUE, 0 );
 	
 	return frame;
 }
@@ -817,33 +764,42 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	/* Pack info */
 	#define MONO(x) "<span font_desc=\"Courier\">", x, "</span>"
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->rstart)), 
-	TRUE, TRUE, 0 );
+		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->start)), 
+	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->rend)), 
-	TRUE, TRUE, 0 );
+		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->end)), 
+	FALSE, TRUE, 0 );
+	
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("File count: %u", z64fs_num_entries( c->z )), 
-	TRUE, TRUE, 0 );
+		create_label("File count: %u", z64fs_entries( c->z )), 
+	FALSE, TRUE, 0 );
+	/*
 	gtk_box_pack_start( GTK_BOX(vbox), 
 		create_label("Total size: %.2fMB", (float)z64fs_calc_size_decompressed( c->z ) / 1024.0 / 1024.0), 
 	TRUE, TRUE, 0 );
+	*/
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Creator: %s%s%s", MONO(c->z->creator) ), 
+	FALSE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), 
+		create_label("Date: %s%s%s", MONO(c->z->date) ), 
+	FALSE, TRUE, 0 );
 	
 	/* Name table? */
 	if( c->t )
 	{
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table start: %s0x%08X%s", MONO(__NAME_TABLE_START)), 
-		TRUE, TRUE, 0 );
+			create_label("Name table start: %s0x%08X%s", MONO(z64nt_start(c->t))), 
+		FALSE, TRUE, 0 );
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table end: %s0x%08X%s", MONO(__NAME_TABLE_END)), 
-		TRUE, TRUE, 0 );
+			create_label("Name table end: %s0x%08X%s", MONO(z64nt_end(c->t))), 
+		FALSE, TRUE, 0 );
 	}
 	else
 	{
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table end: %s%s%s", MONO("no")), 
-		TRUE, TRUE, 0 );
+			create_label("Name table: %s%s%s", MONO("no")), 
+		FALSE, TRUE, 0 );
 	}
 	
 	return frame;
@@ -877,6 +833,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	GtkWidget * b;
 	GtkWidget * c;
+	GtkWidget * d;
 	
 	/* Functions */
 	extern GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c );
@@ -933,12 +890,13 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_button_hbox, FALSE, TRUE, 0 );
 	
 	/* Create them */
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("Extract",	"gtk-save"), 		TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",		"gtk-zoom-100"), 	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		TRUE, TRUE, 0 );
+	/* gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",		"gtk-zoom-100"), 	TRUE, TRUE, 0 ); */
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button("Toolbox",	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
 	
 	/* Callbacks */
+	g_signal_connect_swapped( G_OBJECT(d), "clicked", G_CALLBACK(gzrt_wmain_extract), w );
 	g_signal_connect_swapped( G_OBJECT(c), "clicked", G_CALLBACK(gzrt_wreplace_create), w );
 	g_signal_connect_swapped( G_OBJECT(b), "clicked", G_CALLBACK(gzrt_wmain_plugin_action), w );
 	
@@ -953,3 +911,82 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	return ret;
 }
 
+/* Extract a file */
+void gzrt_wmain_extract ( MAINWIN * w )
+{
+	int	id = gzrt_select_file_id(w);
+	GtkWidget * dialog;
+	int result;
+	FILE * h;
+
+	/* Create file saving dialog */
+	dialog = gtk_file_chooser_dialog_new
+	( 
+		"Choose a destination", NULL,
+		GTK_FILE_CHOOSER_ACTION_SAVE, 
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN,   GTK_RESPONSE_ACCEPT, 
+		NULL
+	);
+	gtk_widget_show_all( dialog );
+	
+	/* Run the dialog and fetch the result */
+	while( result = gtk_dialog_run( GTK_DIALOG(dialog) ) )
+	switch( result )
+	{
+		/* A file has been chosen */
+		case GTK_RESPONSE_ACCEPT:
+		{
+			char * n = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) );
+			
+			/* Check that file doesn't exist */
+			if( (h = fopen(n, "rb")) )
+			{
+				gzrt_notice("Error", "File already exists.");
+				fclose( h );
+				continue;
+			}
+				
+			/* Check that we can write to it */
+			if( !(h = fopen(n, "wb")) )
+			{
+				gzrt_notice("Error", "Can't write to that file!");
+				continue;
+			}
+			
+			/* Destroy window */
+			gtk_widget_destroy( dialog );
+			
+			/* Looks good, gogogo */
+			goto write_file;
+		}
+		break;
+		
+		/* Cancel */
+		case GTK_RESPONSE_CANCEL:
+		 gtk_widget_destroy(dialog);
+		 return;
+		break;
+		
+		/* Default */
+		default:
+		 return;
+	}
+	
+	return;
+	
+	/* Write file */
+write_file: ;
+	
+	unsigned char * buffer = malloc(ZFileVirtSize(w->z, id));
+	
+	/* Read it */
+	z64fs_read_file( w->z, id, buffer );
+	
+	/* Write it */
+	fwrite( buffer, 1, ZFileVirtSize(w->z, id), h );
+	fclose( h );
+	
+	/* Done */
+	gzrt_notice("Notice", "File written.");
+}

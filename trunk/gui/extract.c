@@ -2,334 +2,313 @@
 * ROM Extraction Window *
 ************************/
 #include <gzrt.h>
+#include <string.h>
 
-/* Structure */
-static struct _gzrt_wextract gzrt_wextract;
+/* Connect data to a widget */
+#define HOOKUP( component, widget, name ) \
+    g_object_set_data( G_OBJECT(component), name, widget )
 
-/* Pointer shorthand */
-static struct _gzrt_wextract *w = &gzrt_wextract;
-
-/* Last window */
-static MAINWIN *last = NULL;
-
-/* Initialize the window */
-void gzrt_wextract_init ( void )
+/* Lookup connected data */
+#define LOOKUP( component, name ) \
+    g_object_get_data( G_OBJECT(component), name )
+	
+/* Options */
+typedef struct
 {
-	/* Create a new window */
-	w->window = gtk_window_new(  GTK_WINDOW_TOPLEVEL                                       );
-	/* gtk_widget_set_size_request( GTK_WINDOW(w->window), GZRT_WEXTRACT_W,   GZRT_WEXTRACT_H ); */
-	gtk_window_set_title(        GTK_WINDOW(w->window), GZRT_WEXTRACT_T                    );
-	gtk_window_set_position(     GTK_WINDOW(w->window), GTK_WIN_POS_CENTER                 );
-	
-	/* Create border vbox */
-	w->wvbox = gtk_vbox_new( FALSE, 12 );
-	
-	/* Create border hbox */
-	w->whbox = gtk_hbox_new( FALSE, 12 );
-	
-	/* Pack 'em */
-	gtk_box_pack_start( GTK_BOX(w->wvbox),       w->whbox, TRUE, TRUE, 12 );
-	gtk_container_add( GTK_CONTAINER(w->window), w->wvbox );
-	
-	/* Create vbox for elements */
-	w->vbox = gtk_vbox_new( FALSE, 4 );
-	
-	/* Create a frame for options */
-	GtkWidget *h = gtk_hbox_new( FALSE, 12 ), *v = gtk_vbox_new( FALSE, 12 );
-	w->frame = gtk_frame_new( "Options" );
-	gtk_container_add( GTK_CONTAINER(w->frame), h );
-	
-	/* Check boxes */
-	w->b_strip_prefixes = gtk_check_button_new_with_label( GZRT_WEXTRACT_C_1 );
-	w->b_scene_table = gtk_check_button_new_with_label( GZRT_WEXTRACT_C_2 );
-	w->b_actor_table = gtk_check_button_new_with_label( GZRT_WEXTRACT_C_3 );
-	
-	/* Pack */
-	GtkWidget *vv = gtk_vbox_new( FALSE, 4 );
-	gtk_box_pack_start( GTK_BOX(w->whbox), w->vbox,  TRUE, TRUE,  10 );
-	gtk_box_pack_start( GTK_BOX(w->vbox),  w->frame, TRUE, TRUE, 0  );
-	gtk_box_pack_start( GTK_BOX(h),        v,        TRUE, TRUE,  12  );
-	gtk_box_pack_start( GTK_BOX(v),        vv,        TRUE, TRUE,  12  );
-	gtk_box_pack_start( GTK_BOX(vv), w->b_strip_prefixes, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(vv), w->b_scene_table, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(vv), w->b_actor_table, TRUE, TRUE, 0 );
-	
-	#ifdef GZRT_DEBUG
-	w->dontwrite = gtk_check_button_new_with_label( GZRT_WEXTRACT_CD1 );
-	gtk_box_pack_start( GTK_BOX(vv), w->dontwrite, TRUE, TRUE, 0 );
-	#endif
-	
-	GtkWidget *l = gtk_label_new( "Output directory:" );
-	GtkWidget *a = gtk_alignment_new( 0.0, 1.0, 0.0, 1.0 );
-	gtk_container_add( GTK_CONTAINER(a), l );
-	gtk_box_pack_start( GTK_BOX(vv), a, TRUE, TRUE, 0 );
-	w->entry = gtk_entry_new();
-	w->browse = gtk_button_new_with_label( "Browse..." );
-	GtkWidget *hh = gtk_hbox_new( FALSE, 4 );
-	gtk_box_pack_start( GTK_BOX(hh), w->entry, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hh), w->browse, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(vv), hh, TRUE, TRUE, 0 );
-	
-	#ifdef GZRT_DEBUG
-	a = gtk_alignment_new( 0.0, 1.0, 0.0, 1.0 );
-	l = gtk_label_new( "Filename format:" );
-	gtk_container_add( GTK_CONTAINER(a), l );
-	w->fmt = gtk_entry_new();
-	gtk_entry_set_text( GTK_ENTRY(w->fmt), GZRT_WEXTRACT_FMT_NT);
-	gtk_box_pack_start( GTK_BOX(vv), a, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(vv), w->fmt, TRUE, TRUE, 0 );
-	#endif
-	
-	w->button = gtk_button_new_with_label( GZRT_WEXTRACT_OK );
-	a = gtk_alignment_new( 0.5, 1.0, 0.25, 1.0 );
-	gtk_container_add( GTK_CONTAINER(a), w->button ); 
-	gtk_box_pack_start( GTK_BOX(w->vbox), a, TRUE, TRUE, 0  );
-	
-	/* Show everything 
-	gtk_widget_show_all( w->window ); */
-	
-	/* Extract */
-	g_signal_connect_swapped( G_OBJECT(w->button), "clicked", gzrt_wextract_begin, NULL );
-	
-	/* On destroy, regenerate */
-	g_signal_connect_swapped( G_OBJECT(w->window), "destroy", gzrt_wextract_regen, NULL );
-	
-	/* Debug */
-	GZRTD_MESG( "Extractor window created." );
+	gboolean	remove_prefix;
+	gboolean	add_fid_prefix;
+}
+OPT;
+
+/* List of parents */
+static GList * parents;
+static OPT	   options;
+
+/* Set options */
+static void opt_1 ( void )
+{
+	options.remove_prefix = (~options.remove_prefix) & 1;
+}
+static void opt_2 ( void )
+{
+	options.add_fid_prefix = (~options.add_fid_prefix) & 1;
 }
 
-/* Show extractor window */
-void gzrt_wextract_show ( MAINWIN *h )
+/* Close extractor window */
+static void wclose ( GtkWidget * w )
 {
-	last = h;
+	MAINWIN * p = LOOKUP( w, "parent" );
 	
-	/* Set main window status */
-	gzrt_wmain_status_addmsg( h, "Extracting ROM contents" );
-	GZRTD_MESG( "Extractor window shown; fed WINMAIN * 0x%08X (#%u).", h, h->id );
-	gtk_widget_show_all( w->window );
+	parents = g_list_remove( parents, p );
+	
+	gtk_widget_destroy( w );
 }
 
-/* Regenerate window */
-void gzrt_wextract_regen ( void )
+/* Extractor window closed */
+static void wclosed ( MAINWIN * c )
 {
-	gzrt_wmain_status_rmmsg( last );
-	GZRTD_MESG( "Extractor window destroyed - recreating." );
-	gzrt_wextract_init();
+	parents = g_list_remove( parents, c );
 }
 
-/* Extraction procedure */
-void gzrt_wextract_begin ( void )
+/* Set progress bar text */
+static void pbarset ( GtkWidget * p, double percent, char * fmt, ... )
 {
-	char *output = (char*)gtk_entry_get_text( GTK_ENTRY(w->entry) );
-	char *temp = malloc( GZRT_WEXTRACT_MAX );
-	char *use;
-	char *data;
-	char  dest_path[512]; 
-	FILE *h;
-	clock_t s = clock();
-	int type;
-	struct _gzrt_wextract_stats stats = 
-		{ 0, last->z, last->t };
+	va_list	 ap;
+	char	 buffer[128];
 	
-	/* Formatting options */
-	#ifdef GZRE_DEBUG
-	 char *name_fmt = (char*)gtk_entry_get_text( GTK_ENTRY(w->fmt) );
-	#else
-	 char *name_fmt = ( last->t ? GZRT_WEXTRACT_FMT : GZRT_WEXTRACT_FMT_NT );
-	#endif
-		
-	/* No dir specified? */
-	if( !strlen(output) )
+	va_start( ap, fmt );
+	vsnprintf( buffer, sizeof(buffer), fmt, ap );
+	va_end( ap );
+	
+	gtk_progress_bar_set_fraction( GTK_PROGRESS_BAR(p), percent );
+	gtk_progress_bar_set_text( GTK_PROGRESS_BAR(p), buffer );
+	
+	while( gtk_events_pending() )
+		gtk_main_iteration();
+}
+
+/* Find a destination directory */
+static void finddest ( GtkWindow * w )
+{
+	GtkWidget * entry = LOOKUP( w, "opt-dest" );
+	GtkWidget * dialog;
+	FILE      * h;
+	int			result;
+	
+	/* Create dir choosing dialog */
+	dialog = gtk_file_chooser_dialog_new
+	( 
+		"Choose a destination", NULL,
+		GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, 
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN,   GTK_RESPONSE_ACCEPT, 
+		NULL
+	);
+	gtk_widget_show_all( dialog );
+	
+	/* Run the dialog and fetch the result */
+	while( (result = gtk_dialog_run( GTK_DIALOG(dialog) )) )
+	switch( result )
 	{
-		gzrt_werror_show( "Error", "No output directory specified.", 0 );
-		free( data );
-		free( temp );
-		return;
-	}
-	
-	/* Make output directory */
-	if( !is_dir( output ) )
-	{
-		if( MKDIR( output ) == -1 )
+		/* A dir has been chosen */
+		case GTK_RESPONSE_ACCEPT:
 		{
-			gzrt_werror_show( "Error", "Unable to create output folder", 0 );
-			free( data );
-			free( temp );
-			return;
-		}
-		else
-			GZRTD_MESG( "Created dir \"%s\".", output );
-	}
-	
-	/* Set up progress bar */
-	last->pbar = gzrt_wpbar_new();
-	gzrt_wpbar_show( last->pbar );
-	
-	/* Set filesystem seeker */
-	last->z->pos = 0;
-	
-	/* Extraction loop begin */
-	GZRTD_MESG( "Extraction begun. Destination: \"%s\". Format: \"%s\".", output, name_fmt );
-	for( int i = 0; i < z64fs_num_entries( last->z ); i++ )
-	{
-		/* Read next entry */
-		z64fs_read_next( last->z );
-		
-		/* Set correct pointer */
-		data = last->c->data + ZF2START( last->z );
-		
-		/* Is it compressed? */
-		if( z64fs_is_compressed( last->z ) )
-		{
-			/* Yes, we need to decompress it */
-			yaz0_decode( data + 16, temp, Z1FSIZE(last->z) );
-			use = temp;
-		}
-		else
-			use = data;
-		
-		/* Detect filetype */
-		type = 
-		( 
-			stats.nt ? 
-			 
-			 /* Using name table */
-			 zd_detect_name_main( stats.nt->cur ) :
-			 
-			 /* Using data analysis */
-			 zd_detect_main( use, Z1FSIZE( last->z ))
-		);
-		
-		/* Destination pathname */
-		char buffer[64];
-		gzrt_wextract_soffsetf( buffer, &stats, name_fmt );
-		snprintf( dest_path, sizeof(dest_path), "%s" GZRT_SLASH "%s.%s", 
-			output, buffer, string_filetype( type ) );
-		
-		/*
-		**
-		*/
-		/* (DEBUG) write? */
-		#ifdef GZRT_DEBUG
-		 if( !gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(w->dontwrite) ) )
-		 {
-		#endif
-		
-			/* Do it faggot */
-			if( !(h = fopen( dest_path, "wb" )) )
-			{
-				GZRTD_MESG( "Could not open \"%s\".", dest_path  );
-				gzrt_werror_show( "Error", "Unable to write output file", 1 );
+			/* Try creating a file */
+			char pathbuff[2048];
+			snprintf( pathbuff, sizeof(pathbuff), "%s" GZRT_SLASH "__gzrt_tmp", gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ) );
+			if( !(h = fopen(pathbuff, "wb") ) )
+				gzrt_notice("Error", "Can't write to this directory!" );
+			else {
+				fclose( h );
+				gtk_entry_set_text( GTK_ENTRY(entry), gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ) );
+				gtk_widget_destroy( dialog );
+				unlink( pathbuff );
+				goto endloop;
 			}
-			fwrite( use, Z1FSIZE(last->z), 1, h );
-			fclose( h );
-	
-		/* (DEBUG) write? */
-		#ifdef GZRT_DEBUG
-		 }
-		#endif
-		/*
-		**
-		*/
-		
-		/* Statistics update */
-		stats.files_extracted++;
-		
-		/* Notice! */
-		#ifdef GZRT_DEBUG
-		 if( z64fs_is_compressed( last->z ) )
-			 GZRTD_MESG( "Extracted compressed from %08X - %08X to \"%s\".",
-			 ZF2START(last->z), ZF2END(last->z), dest_path );
-		 else
-			 GZRTD_MESG( "Extracted decompressed from %08X - %08X to \"%s\".",
-			 ZF2START(last->z), ZF2END(last->z), dest_path );
-		#endif
-		
-		/* Update progress bar display */
-		if( !((i + 1) % GZRT_WEXTRACT_UPD) )
-		{
-			gzrt_wpbar_set( last->pbar, (double)i / (double)z64fs_num_entries( last->z ));
-			gzrt_wpbar_text( last->pbar, "%u / %u", i, z64fs_num_entries( last->z ) );
-			while (gtk_events_pending ())
-				gtk_main_iteration ();
 		}
+		break;
 		
-		/* Read next name table entry */
-		if( last->t )
-			z64nt_read_next( last->t );
+		/* Cancel */
+		case GTK_RESPONSE_REJECT:
+		  gtk_widget_destroy( dialog );
+		  goto endloop;
+		break;
+		
+		/* Default */
+		default: 
+		  gtk_widget_destroy( dialog );
+		  goto endloop;
 	}
 	
-	/* Notice */
-	GZRTD_MESG( "Extraction finished. Time taken: %.4f seconds.",
-		(double)(clock() - s) / (double)CLOCKS_PER_SEC );
+endloop: ;
+}
+
+/* Extract handler */
+static void extract ( GtkWidget * w )
+{
+	MAINWIN * c = LOOKUP( w, "parent" );
+	unsigned char * buffer;
+	FILE * out;
+	GtkWidget * field = LOOKUP( w, "opt-dest" );
+	const char * dest = gtk_entry_get_text( GTK_ENTRY(field) );
+	char name[2048];
+	int i;
 	
-	/* Close progress bar */
-	gzrt_wpbar_close( last->pbar );
+	/* GTK elements */
+	GtkWidget * window;
+	GtkWidget * pbar;
+	
+	/* Create window */
+	window = gtk_window_new( GTK_WINDOW_POPUP );
+    gtk_widget_set_size_request( window, 400, 30 );
+	gtk_window_set_title( GTK_WINDOW(window), " " );
+	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS );
+	gtk_window_set_keep_above( GTK_WINDOW(window), TRUE );
+	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
+	
+	/* Create progress window */
+	pbar = gtk_progress_bar_new();
+	gtk_container_add( GTK_CONTAINER(window), pbar );
+	gtk_widget_show_all( window );
+	
+	/* Set initial */
+	pbarset( pbar, 0.0, "%.2f%%", 0.0 );
+	
+	/* Create file buffer */
+	buffer = gzrt_malloc( 8 * 1024 * 1024 );
+	
+	/* Begin */
+	for( i = 0; i < z64fs_entries(c->z); i++ )
+	{
+		char * nptr = name;
+		int type;
+		
+		/* Does this file exist? */
+		if( !ZFileExists(c->z, i) )
+			continue;
+		
+		/* Read the file */
+		z64fs_read_file( c->z, i, buffer );
+		
+		/* Detect type */
+		if( c->t )
+			type = z64detect_name( z64nt_filename(c->t, i) );
+		else
+			type = z64detect_raw( buffer, ZFileVirtSize(c->z, i) );
+		
+		/* Prepare filename */
+		nptr += sprintf( nptr, "%s" GZRT_SLASH, dest );
+		if( options.add_fid_prefix )
+			nptr += sprintf( nptr, "%04u - ", i );
+		if( c->t )
+			nptr += sprintf( nptr, "%s", z64nt_filename(c->t, i) );
+		else
+			nptr += sprintf( nptr, "0x%08X - 0x%08X", ZFileVirtStart(c->z, i), ZFileVirtEnd(c->z, i) );
+		nptr += sprintf( nptr, ".%s", z64detect_fileext(type) );
+		
+		g_print( "%s\n", name );
+		
+		/* Write it */
+		out = fopen( name, "wb" );
+		fwrite( buffer, 1, ZFileVirtSize(c->z, i), out );
+		fclose( out );
+		
+		/* Update progress bar */
+		if( !((i + 1) % (z64fs_entries(c->z) / 32)) )
+			pbarset( pbar, (double)i / z64fs_entries(c->z), "%.2f%%", (double)i / z64fs_entries(c->z) * 100.0 );
+	}
 	
 	/* Free resources */
-	free( temp );
+	gzrt_free( buffer );
 	
-	/* Close extractor window */
-	gtk_widget_destroy( w->window );
+	/* Last progress bar update */
+	pbarset( pbar, 1.0, "%.2f%%", 100.0 );
+	
+	/* Display finished notice */
+	gzrt_notice( "Notice", "Extraction finished." );
+	
+	/* Destroy window */
+	gtk_widget_destroy( window );
 }
 
-/* Name format string parser */
-int gzrt_wextract_soffsetf ( char *dest, struct _gzrt_wextract_stats * stats, char *fmt )
+/* Initialize the window */
+void gzrt_wextract_show ( MAINWIN * c )
 {
-	/*
-	** Formatting modifiers
-	**
-	** %l	ID relative to files extracted
-	** %L	ID relative to file table
-	** %n	Filename
-	** %o1	First virtual address
-	** %o2	Second virtual address
-	** %o3	Third virtual address
-	** %o4	Fourth virtual address
-	*/
+	FILE          * h;
+	int		        result;
 	
-	int i, d = 0;
+	/* GTK Elements */
+	GtkWidget * window;
+	GtkWidget * pbar;
+	GtkWidget * dialog;
+	GtkWidget * button;
+	GtkWidget * expander;
+	GtkWidget * entry;
+	GtkWidget * hbox;
+	GtkWidget * vbox;
+	GtkWidget * align;
+	GtkWidget * label;
+	GtkWidget * optvbox;
+	GtkWidget * check;
 	
-	for( i = 0; fmt[i] <= '~' && fmt[i] >= ' '; i++ )
-	{
-		if( fmt[i] == '%' )
-		{
-			switch( fmt[i + 1] )
-			{
-				/* ID relative to files extracted */
-				case 'l':
-				 d += sprintf( &dest[d], "%04u", stats->files_extracted );
-				break;
-				
-				/* ID relative to filesystem */
-				case 'L':
-				 d += sprintf( &dest[d], "%04u", stats->fs->pos / 16 );
-				break;
-				
-				/* Addresses */
-				case 'o':
-				 d += sprintf( &dest[d], "%08X", 
-					 U32(stats->fs->fs_table + (stats->fs->pos - 16) + (((fmt[i + 2] - '0') - 1) * 4) ));
-				 i++;
-				break;
-				
-				/* Filename */
-				case 'n':
-				 d += sprintf( &dest[d], "%s", ( stats->nt ? (char*)stats->nt->cur : "" ) );
-				break;
-				
-				/* Unknown */
-				default:
-				 GZRTD_MESG( "Unknown format specifier \"%c\".", fmt[i + 1] );
-			}
-			i++;
-		}
-		else
-			dest[d++] = fmt[i];
-	}
+	/* Does this parent already exist? */
+	if( g_list_find( parents, c ) )
+		
+		/* Yeah */
+		return;
+		
+	/* Clear options */
+	memset( &options, 0, sizeof(options) );
 	
-	dest[d] = 0;
+	/* Add parent */
+	parents = g_list_append( parents, c );
 	
-	/* Resturn length */
-	return d;
+	/* Create window */
+	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+	gtk_window_set_title( GTK_WINDOW(window), "Resource Extractor" );
+	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
+	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
+	gtk_window_set_resizable( GTK_WINDOW(window), FALSE );
+	gtk_container_set_border_width( GTK_CONTAINER(window), 12 );
+	
+	/* Create vbox */
+	vbox = gtk_vbox_new( FALSE, 8 );
+	
+	/* Create file destination row */
+	hbox   = gtk_hbox_new( FALSE, 8 );
+	label  = gtk_label_new( "Output directory:" );
+	entry  = gtk_entry_new( );
+	button = gtk_button_new_with_label( "Browse..." );
+	
+	/* Pack */
+	gtk_box_pack_start( GTK_BOX(hbox), label,  FALSE, FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(hbox), entry,  FALSE, TRUE,  0 );
+	gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), hbox,   FALSE, TRUE,  0 );
+	
+	/* Hookup */
+	HOOKUP( window, entry, "opt-dest" );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(finddest), window );
+	
+	/* Create expander */
+	expander = gtk_expander_new( "Options" );
+	
+	/* Create contents */
+	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	optvbox = gtk_vbox_new( FALSE, 4 );
+	check = gtk_check_button_new_with_label( "Strip filename prefixes" );
+	g_signal_connect_swapped( G_OBJECT(check), "clicked", G_CALLBACK(opt_1), NULL );
+	gtk_box_pack_start( GTK_BOX(optvbox), check, FALSE, TRUE, 0 );
+	check = gtk_check_button_new_with_label( "Add file ID as prefix" );
+	g_signal_connect_swapped( G_OBJECT(check), "clicked", G_CALLBACK(opt_2), NULL );
+	gtk_box_pack_start( GTK_BOX(optvbox), check, FALSE, TRUE, 0 );
+	
+	/* Pack & set attribs */
+	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 0, 0, 12, 0 );
+	gtk_container_add( GTK_CONTAINER(align), optvbox );
+	gtk_container_add( GTK_CONTAINER(expander), align );
+	gtk_box_pack_start( GTK_BOX(vbox), expander, FALSE, TRUE, 0 );
+	
+	/* Create buttons */
+	align  = gtk_alignment_new( 0.0f, 0.5f, 0.2f, 1.0f );
+	hbox   = gtk_hbox_new( TRUE, 8 );
+	button = gtk_button_new_with_label( "Close" );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(wclose), window );
+	gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, TRUE, 0 );
+	button = gtk_button_new_with_label( "Extract" );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(extract), window );
+	gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, TRUE, 0 );
+	
+	/* Pack */
+	gtk_container_add( GTK_CONTAINER(align), hbox );
+	gtk_box_pack_start( GTK_BOX(vbox), align, FALSE, TRUE, 0 );	
+	
+	/* Hookup any additional data */
+	HOOKUP( window, c, "parent" );
+	
+	/* Add to window and show */
+	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(wclosed), c );
+	gtk_container_add( GTK_CONTAINER(window), vbox );
+	gtk_widget_show_all( window );
 }
+

@@ -4,6 +4,7 @@
 #include <gzrt.h>
 #include <dirent.h>
 #include <string.h>
+#include <app/settings.h>
 
 /* Constants */
 #define PLUGINS_DIR			"plugins"
@@ -331,10 +332,26 @@ void gzrt_load_plugins ( void )
 		}
 		
 		/* Load it */
-		if( !(data = load_plugin( buffer )) )
+		if( !(data = load_plugin( buffer )) ) {
 			GZRTD_MESG( "Error: %s", g_module_error() );
+			continue;
+		}
 		else
 			GZRTD_MESG( "Loaded plugin \"%s\".", data->long_name );
+		
+		/* Default? */
+		if( GZRTConfig.default_plugin )
+		if( !strcmp(ent->d_name, GZRTConfig.default_plugin) )
+		{
+			PLUGINS * t = &plugins;
+			
+			while( t->next )
+				t = t->next;
+			
+			selected = t;
+			
+			GZRTD_MESG( "Plugin set as default." );
+		}
 	}
 	
 	/* Close directory */

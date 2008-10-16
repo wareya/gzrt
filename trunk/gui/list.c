@@ -12,24 +12,28 @@ static void gen_id ( char * dest, int id, MAINWIN * c )
 
 static void gen_vstart ( char * dest, int id, MAINWIN * c )
 {
-	sprintf( dest, "0x%08X", U32( &c->z->fs_table[id * 16] ) );
+	sprintf( dest, "0x%08X", ZFileVirtStart(c->z, id) );
 }
 
 static void gen_vend ( char * dest, int id, MAINWIN * c )
 {
-	sprintf( dest, "0x%08X", U32( &c->z->fs_table[id * 16 + 4] ) );
+	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z, id) );
 }
 
 static void gen_name ( char * dest, int id, MAINWIN * c )
 {
-	if( !c->t )
-	{
-		strcpy( dest, "-" );
+		if( !c->t )
+		{
+			strcpy( dest, "-" );
+			return;
+		}
+		
+		char * s = z64nt_filename( c->t, id );
+		if( !s )
+			strcpy( dest, "-" );
+		else
+			sprintf( dest, "%s", s );
 		return;
-	}
-	
-	sprintf(dest, "%s", c->t->cur );
-	z64nt_read_next( c->t );
 }
 typedef void (*COLGEN)(char *, int, void *);
 struct ColumnSpec
@@ -69,7 +73,7 @@ GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c )
 	}
 	
 	/* Generate data */
-	for( int i = 0; i < z64fs_num_entries( c->z ); i++ )
+	for( int i = 0; i < z64fs_entries( c->z ); i++ )
 	{
 		GtkTreeIter j;
 		

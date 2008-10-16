@@ -1,11 +1,11 @@
-#############################
-# Zelda 64 Function Library #
-#############################
+###########################
+# MIPS R4000 Disassembler #
+###########################
 
-PROJECT = z64
+PROJECT = r4kdis
 
 # Parts
-PIECES = z64nt.o z64fs.o z64yaz0.o z64detect.o
+PIECES = opprintf.o r4kdis.o
 
 # Win32 stuff
 ifeq ($(WIN32), 1)
@@ -19,12 +19,12 @@ CC = gcc
 
 # Compiler settings
 LDFLAGS = -shared -W1,-soname,$(TARGET) `pkg-config --libs glib-2.0`
-CFLAGS  = `pkg-config --cflags glib-2.0` -O3 --std=gnu99 -g -fPIC -I. \
+CFLAGS  = `pkg-config --cflags glib-2.0` --std=gnu99 -g -fPIC -O3 -I. \
 	-funsigned-char
 
 # Win32 again
 ifeq ($(WIN32) ,1)
-	CFLAGS += -mwindows -mms-bitfields
+	CFLAGS += -mwindows -mms-bitfields -DWIN32
 endif
 	
 $(TARGET): $(PIECES)

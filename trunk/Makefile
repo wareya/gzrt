@@ -8,35 +8,31 @@ PROJECT=gzrt
 CC=gcc
 
 # Standard flags
-CFLAGS += -D IN_GZRT -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` -O3 --std=gnu99 -funsigned-char
+CFLAGS += -g -DIN_GZRT -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` -O3 --std=gnu99 -funsigned-char
+
+# Include search paths...
+CFLAGS += -Ilibs/z64 -Ilibs/n64rom
 
 # Error control flags
-CFLAGS += -Wfatal-errors
+CFLAGS += -Wfatal-errors -Wall
 
 # Linker flags
-LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0`
+LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0` -Llibs -lz64 -ln64rom
 
 # Parts - GUI
-PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o \
-	gui/main.o gui/pbar.o gui/about.o gui/extract.o gui/decomp.o gui/crc.o \
-	gui/byteswap.o gui/mwi.o gui/list.o gui/replace.o
-
-# Parts - Zelda 64
-PARTS += z64/z_actortable.o z64/z_scenetable.o z64/z_filesystem.o \
-	z64/z_nametable.o z64/z_detect.o z64/z_yaz0.o
-	
-# Parts - ROM library
-PARTS += rom/rom.o rom/crc.o
+PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o gui/main.o \
+	gui/about.o gui/extract.o gui/decomp.o gui/crc.o gui/byteswap.o \
+	gui/list.o gui/replace.o gui/debug.o 
 
 # Parts - other
-PARTS += generic/generic.o
-PARTS += generic/plugins.o
-PARTS += generic/mem.o
+PARTS += app/generic.o
+PARTS += app/plugins.o
+PARTS += app/mem.o
+PARTS += app/settings.o
 
 # Debug!
 ifeq ($(DEBUG), 1)
-	PARTS += gui/debug.o
-	CFLAGS += -DGZRT_DEBUG -g
+	CFLAGS += -DGZRT_DEBUG
 endif
 
 ifeq ($(MIMIC), 1)
@@ -49,16 +45,20 @@ endif
 
 all: $(PARTS)
 	make -C plugins
+	make -C libs
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	
 # For creating final Win32 package
 win32: $(PARTS)
 	make -C plugins
+	make -C libs
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
 	cp -v launcher/$(PROJECT).exe /c/GZRT/GZRT.exe
 	cp -v plugins/*.dll /c/GZRT/plugins/
+	cp -v libs/*.dll /c/GZRT/resources/bin/
+	cp -v resources/gzrt.ini /c/GZRT/resources/
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files

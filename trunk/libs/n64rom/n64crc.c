@@ -19,11 +19,32 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include <nrt.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <n64rom.h>
 
-unsigned int crc_table[256];
+/* Macros */
+#define ROL(i, b) (((i) << (b)) | ((i) >> (32 - (b))))
+#define CRCBYTES2LONG(b) ( (b)[0] << 24 | \
+                        (b)[1] << 16 | \
+                        (b)[2] <<  8 | \
+                        (b)[3] )
 
-void gen_table() 
+/* Defines */
+#define N64_HEADER_SIZE  0x40
+#define N64_BC_SIZE      (0x1000 - N64_HEADER_SIZE)
+#define N64_CRC1         0x10
+#define N64_CRC2         0x14
+#define CHECKSUM_START   0x00001000
+#define CHECKSUM_LENGTH  0x00100000
+#define CHECKSUM_CIC6102 0xF8CA4DDC
+#define CHECKSUM_CIC6103 0xA3886759
+#define CHECKSUM_CIC6105 0xDF26F436
+#define CHECKSUM_CIC6106 0x1FEA617A
+
+static unsigned int crc_table[256];
+
+static void gen_table() 
 {
 	unsigned int crc, poly;
 	int	i, j;
@@ -39,7 +60,7 @@ void gen_table()
 	}
 }
 
-unsigned int n64_crc32 (unsigned char *data, int len) 
+static unsigned int n64_crc32 (unsigned char *data, int len) 
 {
 	unsigned int crc = ~0;
 	int i;
@@ -52,7 +73,7 @@ unsigned int n64_crc32 (unsigned char *data, int len)
 }
 
 
-int N64GetCIC(unsigned char *data) 
+static int N64GetCIC(unsigned char *data) 
 {
 	switch (n64_crc32(&data[N64_HEADER_SIZE], N64_BC_SIZE)) {
 		case 0x6170A4A1: return 6101;
@@ -65,7 +86,8 @@ int N64GetCIC(unsigned char *data)
 	return 0;
 }
 
-int N64CalcCRC(unsigned int *crc, unsigned char *data) {
+static int N64CalcCRC(unsigned int *crc, unsigned char *data) 
+{
 	int bootcode, i;
 	unsigned int seed;
 
@@ -122,6 +144,31 @@ int N64CalcCRC(unsigned int *crc, unsigned char *data) {
 		crc[0] = t6 ^ t4 ^ t3;
 		crc[1] = t5 ^ t2 ^ t1;
 	}
-
 	return 0;
+}
+
+/* Get the checksum of a N64Rom context */
+void n64rom_crc ( N64Rom * h, unsigned * dest )
+{
+	unsigned char * buffer;
+	static int init;
+	
+	/* Gen table? */
+	if( !init ) {
+		gen_table();
+		init = 1;
+	}
+	
+	/* Allocate buffer space */
+	buffer = malloc(CHECKSUM_LENGTH + CHECKSUM_START);
+	
+	/* Read section of ROM used for CRC */
+	fseek( h->handle, 0, SEEK_SET );
+	fread( buffer, 1, CHECKSUM_LENGTH + CHECKSUM_START, h->handle );
+	
+	/* Calculate CRC */
+	N64CalcCRC( dest, buffer );
+	
+	/* Free buffer */
+	free( buffer );
 }

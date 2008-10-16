@@ -16,8 +16,7 @@
 
 /* Macros */
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
-  g_object_set_data_full (G_OBJECT (component), name, \
-    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
+  g_object_set_data (G_OBJECT (component), name, widget)
 
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
   g_object_set_data (G_OBJECT (component), name, widget)
@@ -64,9 +63,7 @@ extern int window_amount;
 
 /* Local headers */
 #include <gui/debug.h>
-#include <gui/pbar.h>
 #include <gui/main.h>
-#include <gui/mwi.h>
 #include <gui/splash.h>
 #include <gui/error.h>
 #include <gui/filesel.h>

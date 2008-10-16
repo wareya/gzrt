@@ -4,11 +4,14 @@
 #ifndef __GZRT_WMAIN_H
 #define __GZRT_WMAIN_H
 
+/* Deps */
+#include <n64rom.h>
+#include <z64.h>
+
 /* Constants */
-#define GZRT_WMAIN_MAX	4	/* Max amounts of main windows */
 #define GZRT_WMAIN_W	500
 #define GZRT_WMAIN_H	320
-#define GZRT_WMAIN_NAME	"ZRomTool"
+#define GZRT_WMAIN_NAME	"GZRomTool"
 
 /* String compare function */
 #ifdef WIN32	
@@ -45,11 +48,8 @@ typedef struct _gzrt_wmain
 	/* Status stack */
 	int sstack;
 	
-	/* Progress bar */
-	PROGRESS *pbar; 
-	
 	/* ROM Context */
-	N64ROM *c;
+	N64Rom *c;
 	
 	/* Zelda Filesystem */
 	Z64FS *z;
@@ -61,7 +61,7 @@ MAINWIN;
 extern int window_amount;
 
 /* Functions */
-int gzrt_wmain_create_new ( N64ROM * rc );
+int gzrt_wmain_create_new ( N64Rom * rc );
 void gzrt_wmain_fill ( MAINWIN *c );
 void gzrt_wmain_destroyed ( GtkWidget *w, MAINWIN * h );
 void gzrt_wmain_destroy ( GtkWidget *w, MAINWIN * h );
@@ -78,7 +78,10 @@ void gzrt_wmain_update ( MAINWIN *c );
 void gzrt_wmain_plugin_action ( MAINWIN * w );
 GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w );
 int	gzrt_select_file_id ( MAINWIN * w );
+void gzrt_wmain_byteswap ( N64Rom * rc );
+void gzrt_wmain_extract ( MAINWIN * w );
+int gzrt_wmain_count ( void );
 
-//void create_Main_Window ( MAINWIN *c );
+
 		
 #endif /* __GZRT_WMAIN_H */

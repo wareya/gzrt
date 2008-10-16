@@ -16,7 +16,7 @@ static int status;
 void gzrt_wfilesel_show ( void )
 {
 	char * f;
-	N64ROM * ctx;
+	N64Rom * ctx;
 	GtkWidget * dialog = gtk_file_chooser_dialog_new
 	( 
 		"Load ROM", NULL,
@@ -49,7 +49,12 @@ void gzrt_wfilesel_show ( void )
 			
 			/* Cancel */
 			default:
-			  gzrt_gui_quit();
+			  if( gzrt_wmain_count() == 0 )
+			    gzrt_gui_quit();
+			  else {
+				gtk_widget_destroy( dialog );
+				goto quitloop;
+			  }
 		}
 	}
 	

@@ -5,7 +5,7 @@
 PROJECT = n64rom
 
 # Parts
-PIECES = n64rom.o swap.o
+PIECES = n64rom.o n64crc.o swap.o
 
 # Win32 stuff
 ifeq ($(WIN32), 1)
@@ -19,8 +19,8 @@ CC = gcc
 
 # Compiler settings
 LDFLAGS = -shared -W1,-soname,$(TARGET) `pkg-config --libs glib-2.0`
-CFLAGS  = `pkg-config --cflags glib-2.0` --std=gnu99 -g \
-	-funsigned-char -O3 -I.
+CFLAGS  = `pkg-config --cflags glib-2.0` --std=gnu99 -g -fPIC -O3 -I. \
+	-funsigned-char
 
 # Win32 again
 ifeq ($(WIN32) ,1)

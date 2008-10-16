@@ -2,6 +2,7 @@
 * GZRT GUI Globals *
 *******************/
 #include <gzrt.h>
+#include <app/settings.h>
 
 /* GUI quit handler */
 void gzrt_gui_quit ( void )
@@ -14,7 +15,7 @@ void gzrt_gui_quit ( void )
 void gzrt_gui_init ( int argc, char **argv )
 {
 	/* Set up icons */
-	N64ROM *ctx;
+	N64Rom *ctx = NULL;
 	GList *list = NULL;
 	char *icons[] =
 	{
@@ -32,34 +33,58 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Set default icon */
 	gtk_window_set_default_icon_list( list );
 	
-	/* Init about window */
-	gzrt_wabout_init();
-	
 	/* Show debug window */
 	#ifdef GZRT_DEBUG
 	 gzrt_gui_debug_create();
 	#endif
 	
+	/* Load configuration */
+	gzrt_config_load();
+	
 	/* Load plugins */
 	gzrt_load_plugins();
 	
-	gzrt_wextract_init();
+	/* Find a file to open */
+	int opened = FALSE;
 	
-	/* Notice */
-	GZRTD_MESG( "Debug console created." );
-	
-	/* Show splash - after, open file */
-	if( argc == 1 )
-		gzrt_wsplash_init( gzrt_wfilesel_show );
-	else {
-		if( !(ctx = n64rom_load( argv[1] )) )
+	/* Is the default file set? */
+	if( GZRTConfig.default_rom )
+	{
+		/* Yep, try it */
+		if( (ctx = n64rom_load(GZRTConfig.default_rom)) )
 		{
-			gzrt_wsplash_init( gzrt_wfilesel_show );
-			return;
-		}
-		else if( !(gzrt_wmain_create_new( ctx )) )
+			
+			/* Goes */
+			if( !gzrt_wmain_create_new( ctx ) )
+				
+				/* File selection */
 				gzrt_wfilesel_show();
+			
+			else
+				
+				opened = TRUE;
+		}
+		else 
+			gzrt_notice( "Notice!", "There was a default ROM specified, but it wasn't found.\nPlease fix this!" );
 	}
+	
+	/* Try command line arguments also */
+	if( argc > 1 )
+		for( i = 1; i < argc; i++ )
+		{
+			if( !(ctx = n64rom_load( argv[i] )) )
+			{
+				char buffer[128];
+				sprintf(buffer, "Failed to open \"%s\".", argv[i]);
+				gzrt_notice( "Error", buffer );
+			}
+			else if( gzrt_wmain_create_new( ctx ) )
+					opened = TRUE;
+		}
+	
+	/* Show splash? */
+	if( !opened )
+		gzrt_wsplash_init( gzrt_wfilesel_show );
 }
 
 /*

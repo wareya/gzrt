@@ -10,19 +10,25 @@
 /* Constants */
 #define SEARCH_STRING	"zelda@"
 #define CHUNK_SIZE		(512 * 1024)
-#define END_ADDR		(4 * 1024 * 1024)
+#define END_ADDR		(1 * 1024 * 1024)
 
 /* Macros */
 #define U32(x)		((x)[0] << 24 | (x)[1] << 16 | (x)[2] << 8 | (x)[3])
 
 /* Create a filesystem context */
 struct Zelda64FileTable *
-z64fs_open ( FILE * handle )
+z64fs_open ( char * filename )
 {
 	unsigned char * buffer, * seek;
 	Z64FS		  * ret;
-	unsigned        i, count, tstart;
+	unsigned        i, count, tstart, k;
 	unsigned		dmad_start, dmad_end;
+	FILE          * handle;
+	
+	/* Open file */
+	if( !(handle = fopen(filename, "rb")) )
+		return NULL;
+	fseek( handle, 0, SEEK_SET );
 	
 	/* Create return */
 	ret = calloc( sizeof(Z64FS), 1 );
@@ -73,25 +79,31 @@ fs_found:
 	/* Copy it */
 	seek += sprintf( ret->date, "%s", seek );
 	
-	/* Table start is at next 16-byte align after date */
-	tstart = ((seek - buffer >> 4) + 1) << 4;
+	/* Discover entry */
+	for( k = ((seek - buffer >> 4) + 1) << 4; ; k += 16 )
+		if( U32(&buffer[k + 4]) == 0x00001060 )
+		{
+			tstart = k;
+			break;
+		}
 	
 	/* Read address of DMA data */
 	dmad_start = U32(buffer + tstart + 2 * 16);
 	dmad_end   = U32(buffer + tstart + 2 * 16 + 4);
 	
-	/* Allocate memory for final storage */
-	ret->files = malloc( dmad_end - dmad_start );
-	
 	/* Set filecount */
-	ret->filecount = (dmad_end - dmad_start) / 16;
+	for( count = 1; U32(&buffer[tstart+count*16]); count++ );
+		ret->filecount = count;
 	
 	/* Set address */
-	ret->start = dmad_start;
-	ret->end   = dmad_end;
+	ret->start = ftell(handle) - CHUNK_SIZE + tstart;
+	ret->end   = ret->start + count * 16;
+	
+	/* Allocate memory for final storage */
+	ret->files = malloc( ret->end - ret->start );
 	
 	/* Fill */
-	for( i = 0; i < dmad_end - dmad_start; i += 16 )
+	for( i = 0; i < ret->end - ret->start; i += 16 )
 	{
 		ret->files[i/16].vstart = U32(buffer + tstart + i     );
 		ret->files[i/16].vend   = U32(buffer + tstart + i +  4);
@@ -127,16 +139,17 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 {
 	Z64FSEntry * f = (void*)z64fs_file( h, id );
 	
+	/* Read the file */
 	fseek( h->fhandle, ZFileRealStart(h, id), SEEK_SET );
 	fread( dest, ZFileRealSize(h, id), 1, h->fhandle );
 	
 	/* Do we need to decompress it? */
-	if( ZFileIsCompressed(h, id) && !strncmp( dest, "Yaz0", 4 ) )
+	if( ZFileIsCompressed(h, id) && !strncmp("Yaz0", dest, 4) )
 	{
 		unsigned char * tmp = malloc(ZFileVirtSize(h, id));
 		
 		/* Decode it */
-		z64yaz0_decode( dest, tmp, ZFileVirtSize(h, id) );
+		z64yaz0_decode( dest + 16, tmp, ZFileVirtSize(h, id) );
 		
 		/* Copy it to destination */
 		memcpy( dest, tmp, ZFileVirtSize(h, id) );
@@ -144,5 +157,13 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 		/* Free temp */
 		free(tmp);
 	}
+}
+
+/* Close a handle */
+void z64fs_close ( Z64FS * h )
+{
+	fclose( h->fhandle );
+	free( h->files );
+	free( h );
 }
 

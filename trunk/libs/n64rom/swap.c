@@ -13,7 +13,7 @@ int n64_byteswap ( void * data, int size, enum N64Endian to, enum N64Endian from
 	
 	/* Identical? */
 	if( to == from )
-		return 0;
+		return FALSE;
 	
 	/* Which subroutine should we use? */
 	if( from == N64_ENDIAN_BIG )
@@ -40,6 +40,9 @@ int n64_byteswap ( void * data, int size, enum N64Endian to, enum N64Endian from
 			case N64_ENDIAN_LITTLE: goto to_litv64; break;
 			case N64_ENDIAN_BIG:	goto to_v64;	break;
 		}
+	else
+		
+		return FALSE;
 	
 	/* Swap to V64 */
 to_v64:
