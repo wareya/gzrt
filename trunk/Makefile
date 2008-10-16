@@ -44,8 +44,8 @@ ifeq ($(WIN32), 1)
 endif
 
 all: $(PARTS)
-	make -C plugins
 	make -C libs
+	make -C plugins
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	
 # For creating final Win32 package
