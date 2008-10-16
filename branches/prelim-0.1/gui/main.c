@@ -157,7 +157,7 @@ void gzrt_wmain_byteswap ( N64Rom * rc )
     gzrt_notice( "Notice", "ROM successfully byteswapped." );
     
     /* Delete progress bar */
-    gtk_widget_destroy( bar );
+    gtk_widget_destroy( window );
 }
 
 /* Close a preexisting window */
