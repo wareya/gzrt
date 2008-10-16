@@ -5,30 +5,30 @@
 #define __GZRT_H
 
 /* Macros */
-#define U32(x)		((x)[0] << 24 | (x)[1] << 16 | (x)[2] << 8 | (x)[3])
+#define U32(x)      ((x)[0] << 24 | (x)[1] << 16 | (x)[2] << 8 | (x)[3])
 #define WU32(x, w)          \
 {                           \
-	(x)[0] = (w)>>24; 		\
-	(x)[1] = (w)>>16& 0xFF; \
-	(x)[2] = (w)>>8 & 0xFF; \
-	(x)[3] = (w) & 0xFF;    \
+    (x)[0] = (w)>>24;       \
+    (x)[1] = (w)>>16& 0xFF; \
+    (x)[2] = (w)>>8 & 0xFF; \
+    (x)[3] = (w) & 0xFF;    \
 }
 
 /* Windows or Unix? */
 #ifdef WIN32
 
 /* Constants */
-#define	GZRT_SLASH "\\"
+#define GZRT_SLASH "\\"
 
 /* Macros */
-#define	MKDIR(x)	mkdir((x))
+#define MKDIR(x)    mkdir((x))
 #else
 
 /* Constants */
-#define	GZRT_SLASH "/"
+#define GZRT_SLASH "/"
 
 /* Macros */
-#define	MKDIR(x)	mkdir((x), 0777)
+#define MKDIR(x)    mkdir((x), 0777)
 #endif
 
 /* Standard stuff */

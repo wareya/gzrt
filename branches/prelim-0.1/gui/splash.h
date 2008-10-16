@@ -5,16 +5,16 @@
 #define __GZRT_WSPLASH_H
 
 /* Defines */
-#define GRT_SPLASH_IMAGE	GZRT_GUI_ICON_DIR "splash.png"
-#define GRT_SPLASH_W		520
-#define GRT_SPLASH_H		253
+#define GRT_SPLASH_IMAGE    GZRT_GUI_ICON_DIR "splash.png"
+#define GRT_SPLASH_W        520
+#define GRT_SPLASH_H        253
 
 /* Data structure */
 struct _gzrt_wsplash
 {
-	GtkWidget *window;
-	GtkWidget *image;
-	int (*handler)( void );
+    GtkWidget *window;
+    GtkWidget *image;
+    int (*handler)( void );
 };
 
 /* Function declarations */

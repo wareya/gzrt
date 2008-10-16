@@ -3,8 +3,8 @@
 
 struct crcarg
 {
-	MAINWIN *parent;
-	unsigned int *crc;
+    MAINWIN *parent;
+    unsigned int *crc;
 };
 
 void gzrt_wcrc_create ( MAINWIN *parent );

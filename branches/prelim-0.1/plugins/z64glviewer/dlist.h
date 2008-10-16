@@ -1,9 +1,9 @@
 
 struct Data
 {
-	unsigned char * data;
-	unsigned int	size;
-	unsigned int	ep;
+    unsigned char * data;
+    unsigned int    size;
+    unsigned int    ep;
 };
 
 void Check_RSP ( void );
@@ -48,7 +48,7 @@ void Check_RSP ( void );
 
 
 // G_SETIMG fmt: set image formats
-#define G_IM_FMT_RGBA	0
+#define G_IM_FMT_RGBA   0
 #define G_IM_FMT_YUV    1
 #define G_IM_FMT_CI     2
 #define G_IM_FMT_IA     3
@@ -71,7 +71,7 @@ void Check_RSP ( void );
 #define G_CCMUX_COMBINED_ALPHA    7
 #define G_CCMUX_TEXEL0_ALPHA      8
 #define G_CCMUX_TEXEL1_ALPHA      9
-#define G_CCMUX_PRIMITIVE_ALPHA	10
+#define G_CCMUX_PRIMITIVE_ALPHA 10
 #define G_CCMUX_SHADE_ALPHA      11
 #define G_CCMUX_ENV_ALPHA        12
 #define G_CCMUX_LOD_FRACTION     13
@@ -97,24 +97,24 @@ void Check_RSP ( void );
 
 
 // G_SETOTHERMODE_H shift count
-#define	G_MDSFT_ALPHADITHER		4
+#define G_MDSFT_ALPHADITHER     4
 #define  G_MDSFT_RGBDITHER       6
-#define	G_MDSFT_COMBKEY			8
+#define G_MDSFT_COMBKEY         8
 #define  G_MDSFT_TEXTCONV        9
 #define  G_MDSFT_TEXTFILT        12
-#define	G_MDSFT_TEXTLUT			14
-#define	G_MDSFT_TEXTLOD			16
-#define	G_MDSFT_TEXTDETAIL		17
+#define G_MDSFT_TEXTLUT         14
+#define G_MDSFT_TEXTLOD         16
+#define G_MDSFT_TEXTDETAIL      17
 #define  G_MDSFT_TEXTPERSP       19
 #define  G_MDSFT_CYCLETYPE       20
 #define  G_MDSFT_COLORDITHER     22
 #define  G_MDSFT_PIPELINE        23
 
 // G_SETOTHERMODE_L shift count
-#define	G_MDSFT_ALPHACOMPARE		0
-#define	G_MDSFT_ZSRCSEL			2
-#define	G_MDSFT_RENDERMODE		3
-#define	G_MDSFT_BLENDER			16
+#define G_MDSFT_ALPHACOMPARE        0
+#define G_MDSFT_ZSRCSEL         2
+#define G_MDSFT_RENDERMODE      3
+#define G_MDSFT_BLENDER         16
 
 
 // G_DL flags
@@ -125,14 +125,14 @@ void Check_RSP ( void );
 
 typedef struct {
    short          x,y,z;
-	unsigned short	flag;
+    unsigned short  flag;
    short          u,v;
    unsigned char  r,g,b,a;
 } Vtx_t;
 
 typedef struct {
    short          x,y,z;
-	unsigned short	flag;
+    unsigned short  flag;
    short          u,v;
    signed char    nx,ny,nz; 
    unsigned char  a;
@@ -140,7 +140,7 @@ typedef struct {
 
 typedef struct {
    unsigned short x,y,z;
-	unsigned short	flag;
+    unsigned short  flag;
    unsigned short u,v;
    unsigned char  r,g,b,a;
 } Vtx_flip;
@@ -166,8 +166,8 @@ typedef struct {
 } uSprite_t;
 
 typedef struct {
-	unsigned char	flag;
-	unsigned char	v[3];
+    unsigned char   flag;
+    unsigned char   v[3];
 } Tri;
 
 typedef struct {
@@ -199,39 +199,39 @@ typedef struct {
 
 // ******************************** F3DEX2  ********************************
 
-#define	G_NOOP			0x00
-#define	G_RDPHALF_2		0xf1
-#define	G_SETOTHERMODE_H	0xe3
-#define	G_SETOTHERMODE_L	0xe2
-#define	G_RDPHALF_1		0xe1
-#define	G_SPNOOP		0xe0
-#define	G_ENDDL			0xdf
-#define	G_DL			0xde
-#define	G_LOAD_UCODE		0xdd
-#define	G_MOVEMEM		0xdc
-#define	G_MOVEWORD		0xdb
-#define	G_MTX			0xda
+#define G_NOOP          0x00
+#define G_RDPHALF_2     0xf1
+#define G_SETOTHERMODE_H    0xe3
+#define G_SETOTHERMODE_L    0xe2
+#define G_RDPHALF_1     0xe1
+#define G_SPNOOP        0xe0
+#define G_ENDDL         0xdf
+#define G_DL            0xde
+#define G_LOAD_UCODE        0xdd
+#define G_MOVEMEM       0xdc
+#define G_MOVEWORD      0xdb
+#define G_MTX           0xda
 #define  G_GEOMETRYMODE     0xd9
-#define	G_POPMTX		0xd8
-#define	G_TEXTURE		0xd7
-#define	G_SUBMODULE		0xd6
+#define G_POPMTX        0xd8
+#define G_TEXTURE       0xd7
+#define G_SUBMODULE     0xd6
 
-#define	G_VTX			0x01
-#define	G_MODIFYVTX		0x02
-#define	G_CULLDL		0x03
-#define	G_BRANCH_Z		0x04
-#define	G_TRI1			0x05
+#define G_VTX           0x01
+#define G_MODIFYVTX     0x02
+#define G_CULLDL        0x03
+#define G_BRANCH_Z      0x04
+#define G_TRI1          0x05
 #define  G_TRI2       0x06
 #define  G_LINE3D     0x07
 
 
 // G_MTX: parameter flags
-# define G_MTX_MODELVIEW	0x00	/* matrix types */
-# define G_MTX_PROJECTION	0x04
-# define G_MTX_MUL		0x00	/* concat or load */
-# define G_MTX_LOAD		0x02
-# define G_MTX_NOPUSH		0x00	/* push or not */
-# define G_MTX_PUSH		0x01
+# define G_MTX_MODELVIEW    0x00    /* matrix types */
+# define G_MTX_PROJECTION   0x04
+# define G_MTX_MUL      0x00    /* concat or load */
+# define G_MTX_LOAD     0x02
+# define G_MTX_NOPUSH       0x00    /* push or not */
+# define G_MTX_PUSH     0x01
 
 // G_SETGEOMETRYMODE: flags
 #define  G_ZBUFFER            0x00000001
@@ -250,20 +250,20 @@ typedef struct {
 #define  G_CLIPPING           0x00000000
                            
 // MOVEMEM indices
-# define G_MV_VIEWPORT	8
-# define G_MV_LIGHT	10
-# define G_MV_POINT	12
-# define G_MV_MATRIX	14		/* NOTE: this is in moveword table */
-# define G_MVO_LOOKATX	(0*24)
-# define G_MVO_LOOKATY	(1*24)
-# define G_MVO_L0	(2*24)
-# define G_MVO_L1	(3*24)
-# define G_MVO_L2	(4*24)
-# define G_MVO_L3	(5*24)
-# define G_MVO_L4	(6*24)
-# define G_MVO_L5	(7*24)
-# define G_MVO_L6	(8*24)
-# define G_MVO_L7	(9*24)
+# define G_MV_VIEWPORT  8
+# define G_MV_LIGHT 10
+# define G_MV_POINT 12
+# define G_MV_MATRIX    14      /* NOTE: this is in moveword table */
+# define G_MVO_LOOKATX  (0*24)
+# define G_MVO_LOOKATY  (1*24)
+# define G_MVO_L0   (2*24)
+# define G_MVO_L1   (3*24)
+# define G_MVO_L2   (4*24)
+# define G_MVO_L3   (5*24)
+# define G_MVO_L4   (6*24)
+# define G_MVO_L5   (7*24)
+# define G_MVO_L6   (8*24)
+# define G_MVO_L7   (9*24)
                            
 // MOVEWORD indices
 #define  G_MW_MATRIX       0x00  /* NOTE: also used by movemem */

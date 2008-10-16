@@ -18,53 +18,53 @@
 enum { FALSE, TRUE };
 
 /* Defaults */
-#define SCREEN_WIDTH	640
-#define SCREEN_HEIGHT	480
-#define SCREEN_BPP		16
-#define SCREEN_FPS		15.0	/* Initial FPS limit */
+#define SCREEN_WIDTH    640
+#define SCREEN_HEIGHT   480
+#define SCREEN_BPP      16
+#define SCREEN_FPS      15.0    /* Initial FPS limit */
 
 /* Animation defaults */
-#define ANIMATION_DPS	20.0	/* Degrees to rotate per sec */
+#define ANIMATION_DPS   20.0    /* Degrees to rotate per sec */
 
 /* Exception */
 #define Z64MV_MESSAGE( h, x, ... ) { \
-	(*h->err)( h, __FILE__, __LINE__, x, ##__VA_ARGS__ ); \
+    (*h->err)( h, __FILE__, __LINE__, x, ##__VA_ARGS__ ); \
 }
 #ifdef DEBUG
 #define Z64MV_DEBUG( h, x, ... ) { \
-	(*h->err)( h, __FILE__, __LINE__, x, ##__VA_ARGS__ ); \
+    (*h->err)( h, __FILE__, __LINE__, x, ##__VA_ARGS__ ); \
 }
 #else
 #define Z64MV_DEBUG( ... )
 #endif
 #define Z64MV_ERROR( h, x, ... ) { \
-	(*h->err)( h, __FILE__, __LINE__, x, ##__VA_ARGS__ ); \
-	exit( EXIT_FAILURE );								  \
+    (*h->err)( h, __FILE__, __LINE__, x, ##__VA_ARGS__ ); \
+    exit( EXIT_FAILURE );                                 \
 }
 
 /* Types */
-typedef unsigned long long	u64;
-typedef unsigned long 		u32;
-typedef unsigned short		u16;
-typedef unsigned char		 u8;
-typedef long long			s64;
-typedef long				s32;
-typedef short				s16;
-typedef char				 s8;
+typedef unsigned long long  u64;
+typedef unsigned long       u32;
+typedef unsigned short      u16;
+typedef unsigned char        u8;
+typedef long long           s64;
+typedef long                s32;
+typedef short               s16;
+typedef char                 s8;
 
 /* Generic macros */
 #define U64(x) ( \
-	(u64)(x)[0] << 56 | \
-	(u64)(x)[1] << 48 | \
-	(u64)(x)[2] << 40 | \
-	(u64)(x)[3] << 32 | \
-	(u64)(x)[4] << 24 | \
-	(u64)(x)[5] << 16 | \
-	(u64)(x)[6] << 8  | \
-	(u64)(x)[7] )
-#define U32(x)	((x)[0]<<24 | (x)[1]<<16 | (x)[2]<<8 | (x)[3])
-#define U16(x)	((x)[0]<<8  | (x)[1])
-#define F16(x)	((float)((short)((x)[0]<<8|(x)[1])))
+    (u64)(x)[0] << 56 | \
+    (u64)(x)[1] << 48 | \
+    (u64)(x)[2] << 40 | \
+    (u64)(x)[3] << 32 | \
+    (u64)(x)[4] << 24 | \
+    (u64)(x)[5] << 16 | \
+    (u64)(x)[6] << 8  | \
+    (u64)(x)[7] )
+#define U32(x)  ((x)[0]<<24 | (x)[1]<<16 | (x)[2]<<8 | (x)[3])
+#define U16(x)  ((x)[0]<<8  | (x)[1])
+#define F16(x)  ((float)((short)((x)[0]<<8|(x)[1])))
 
 /* Local includes */
 #include <dlist.h>
@@ -75,40 +75,40 @@ typedef void (*z64mv_errh)( void * h, char *file, int line, char *fmt, ... );
 /* Context */
 typedef struct
 {
-	/* Thread */
-	SDL_Thread *proc;
-	
-	/* SDL Elements */
-	SDL_Surface   *surface;
-	SDL_Surface	  *message;
-	SDL_Event	   event;
-	SDL_VideoInfo *vinfo;
-	TTF_Font	  *font;
-	SDL_Color      textColor;
-	
-	/* File information */
-	char *filename;
-	u32   filesize;
-	u8	 *contents;
-	FILE *handle;
-	u32 entry;
-	
-	/* Preloaded 3D stuff */
-	int vtx_source;
-	
-	/* Error handler */
-	z64mv_errh err;
-	
-	/* Time since creation */
-	struct timeval invoke;
-	
-	/* Viewer config */
-	float fps_cap;
+    /* Thread */
+    SDL_Thread *proc;
+    
+    /* SDL Elements */
+    SDL_Surface   *surface;
+    SDL_Surface   *message;
+    SDL_Event      event;
+    SDL_VideoInfo *vinfo;
+    TTF_Font      *font;
+    SDL_Color      textColor;
+    
+    /* File information */
+    char *filename;
+    u32   filesize;
+    u8   *contents;
+    FILE *handle;
+    u32 entry;
+    
+    /* Preloaded 3D stuff */
+    int vtx_source;
+    
+    /* Error handler */
+    z64mv_errh err;
+    
+    /* Time since creation */
+    struct timeval invoke;
+    
+    /* Viewer config */
+    float fps_cap;
 }
 Z64MV;
 
 /* Globals */
-extern int sdlstatus;	/* We don't want to initialize sdl twice */
+extern int sdlstatus;   /* We don't want to initialize sdl twice */
 
 /* Functions for managing instances */
 Z64MV * z64mv_create_from_file  ( char *filename          ); 
@@ -129,8 +129,8 @@ void z64mv_set_error_handler ( Z64MV * h, z64mv_errh f );
 /* Functions for the display */
 void z64mv_init_context   ( Z64MV * h                    );
 void z64mv_display_resize ( Z64MV * handle, int w, int h );
-void z64mv_display_fps	  ( Z64MV * h, int fps           );
-void z64mv_set_title	  ( char * title, char * icon    );
+void z64mv_display_fps    ( Z64MV * h, int fps           );
+void z64mv_set_title      ( char * title, char * icon    );
 void z64mv_draw_loop ( Z64MV * h );
 
 /* Other generic functions */

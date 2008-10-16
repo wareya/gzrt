@@ -5,13 +5,13 @@
 #define __GZRT_WFILESEL_H
 
 /* Constants */
-#define GZRT_FILE_SELECT_TITLE	"Please select a Zelda ROM"
-#define GZRT_FILE_DEFAULT_NAME	"ZELDA64.Z64"
+#define GZRT_FILE_SELECT_TITLE  "Please select a Zelda ROM"
+#define GZRT_FILE_DEFAULT_NAME  "ZELDA64.Z64"
 
 /* Structure */
 struct _gzrt_wfilesel
 {
-	GtkWidget *fswin;
+    GtkWidget *fswin;
 };
 
 /* Functions */

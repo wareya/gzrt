@@ -67,10 +67,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 void multM4Vect(float vr[], float mat[], float v[])
 {
     float temp[4];
-	temp[0] = v[0]*mat[0] + v[1]*mat[4] + v[2]*mat[8] + v[3]*mat[12];
-	temp[1] = v[0]*mat[1] + v[1]*mat[5] + v[2]*mat[9] + v[3]*mat[13];
-	temp[2] = v[0]*mat[2] + v[1]*mat[6] + v[2]*mat[10] + v[3]*mat[14];
-	temp[3] = v[0]*mat[3] + v[1]*mat[7] + v[2]*mat[11] + v[3]*mat[15];
+    temp[0] = v[0]*mat[0] + v[1]*mat[4] + v[2]*mat[8] + v[3]*mat[12];
+    temp[1] = v[0]*mat[1] + v[1]*mat[5] + v[2]*mat[9] + v[3]*mat[13];
+    temp[2] = v[0]*mat[2] + v[1]*mat[6] + v[2]*mat[10] + v[3]*mat[14];
+    temp[3] = v[0]*mat[3] + v[1]*mat[7] + v[2]*mat[11] + v[3]*mat[15];
     vr[0]=temp[0];
     vr[1]=temp[1];
     vr[2]=temp[2];
@@ -468,7 +468,7 @@ void matrixLookAt(GLfloat *m, GLfloat eyex, GLfloat eyey, GLfloat eyez,
    z[1] = eyey - centery;
    z[2] = eyez - centerz;
    mag = sqrt(z[0] * z[0] + z[1] * z[1] + z[2] * z[2]);
-   if (mag) {			/* mpichler, 19950515 */
+   if (mag) {           /* mpichler, 19950515 */
       z[0] /= mag;
       z[1] /= mag;
       z[2] /= mag;
