@@ -401,13 +401,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_widget_show (about1);
 	gtk_container_add (GTK_CONTAINER (Help_menu_menu), about1);
 	
-	#ifdef GZRT_DEBUG
-	 wai1 = gtk_menu_item_new_with_mnemonic (_("_Who am I?"));
-	 gtk_widget_show (wai1);
-	 gtk_container_add (GTK_CONTAINER (Help_menu_menu), wai1);
-	#endif
-
-	
 	GtkWidget * M = gzrt_wmain_main_generate(c);
 	GtkWidget * MAIN_PANE = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
 	/*Main_window_padding = gtk_alignment_new (0.5, 0.5, 1, 1);
@@ -467,9 +460,6 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GLADE_HOOKUP_OBJECT (Main_Window, Frame_1_alignment, "Frame_1_alignment");
 	
 	GLADE_HOOKUP_OBJECT (Main_Window, App_status, "App_status");
-	#ifdef GZRT_DEBUG
-	 GLADE_HOOKUP_OBJECT (Main_Window, wai1, "wai1");
-	#endif
 
 	/* Store window pointer & show */
 	c->window = Main_Window;
@@ -895,7 +885,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	/* Create them */
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",		"gtk-zoom-100"), 	TRUE, TRUE, 0 );
+	/* gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",		"gtk-zoom-100"), 	TRUE, TRUE, 0 ); */
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button("Toolbox",	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
 	

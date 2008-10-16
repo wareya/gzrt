@@ -136,10 +136,10 @@ decompress_rom: ;
 	pbarset( pbar, 0.0, "%.2f%%", 0.0 );
 	
 	/* Create scratch buffer */
-	buffer = malloc( 8 * 1024 * 1024 );
+	buffer = gzrt_malloc( 8 * 1024 * 1024 );
 	
 	/* Create a new FS table */
-	ftable = malloc(ZFSEnd(c->z) - ZFSStart(c->z));
+	ftable = gzrt_malloc(ZFSEnd(c->z) - ZFSStart(c->z));
 	
 	/* Begin decompression */
 	for( i = 0; i < z64fs_entries(c->z); i++ )
@@ -187,7 +187,8 @@ decompress_rom: ;
 	/* Finished */
 	gtk_widget_destroy( window );
 	fclose( out );
-	free( buffer );
+	gzrt_free( buffer );
+	gzrt_free( ftable );
 	
 	/* Remove it from parents list */
 	parents = g_list_remove( parents, c );

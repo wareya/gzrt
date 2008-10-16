@@ -15,7 +15,7 @@ void gzrt_gui_quit ( void )
 void gzrt_gui_init ( int argc, char **argv )
 {
 	/* Set up icons */
-	N64Rom *ctx;
+	N64Rom *ctx = NULL;
 	GList *list = NULL;
 	char *icons[] =
 	{
@@ -44,12 +44,14 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Load plugins */
 	gzrt_load_plugins();
 	
+	/* Find a file to open */
+	int opened = FALSE;
+	
 	/* Is the default file set? */
 	if( GZRTConfig.default_rom )
 	{
-		
 		/* Yep, try it */
-		if( ctx = n64rom_load(GZRTConfig.default_rom) )
+		if( (ctx = n64rom_load(GZRTConfig.default_rom)) )
 		{
 			
 			/* Goes */
@@ -57,27 +59,32 @@ void gzrt_gui_init ( int argc, char **argv )
 				
 				/* File selection */
 				gzrt_wfilesel_show();
-		}
-		else {
 			
+			else
+				
+				opened = TRUE;
+		}
+		else 
 			gzrt_notice( "Notice!", "There was a default ROM specified, but it wasn't found.\nPlease fix this!" );
-			gzrt_wsplash_init( gzrt_wfilesel_show );
-		}
 	}
-	else
 	
-	/* No, try command line arguments */
-	if( argc == 1 )
-		gzrt_wsplash_init( gzrt_wfilesel_show );
-	else {
-		if( !(ctx = n64rom_load( argv[1] )) )
+	/* Try command line arguments also */
+	if( argc > 1 )
+		for( i = 1; i < argc; i++ )
 		{
-			gzrt_wsplash_init( gzrt_wfilesel_show );
-			return;
+			if( !(ctx = n64rom_load( argv[i] )) )
+			{
+				char buffer[128];
+				sprintf(buffer, "Failed to open \"%s\".", argv[i]);
+				gzrt_notice( "Error", buffer );
+			}
+			else if( gzrt_wmain_create_new( ctx ) )
+					opened = TRUE;
 		}
-		else if( !(gzrt_wmain_create_new( ctx )) )
-				gzrt_wfilesel_show();
-	}
+	
+	/* Show splash? */
+	if( !opened )
+		gzrt_wsplash_init( gzrt_wfilesel_show );
 }
 
 /*
