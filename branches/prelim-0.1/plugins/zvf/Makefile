@@ -7,9 +7,9 @@ PROJECT = zvf
 
 # Target
 ifeq ($(WIN32), 1)
-	TARGET = $(PROJECT).dll
+    TARGET = $(PROJECT).dll
 else
-	TARGET = $(PROJECT).so
+    TARGET = $(PROJECT).so
 endif
 
 # Environment
@@ -23,21 +23,21 @@ CFLAGS  += -O3 -I. -g -fPIC
 LDFLAGS += -L. `pkg-config --libs gtk+-2.0` `sdl-config --libs` -lpthread
 
 # Lib destination
-DEST	= ..
+DEST    = ..
 
 # Win32 options
 ifeq ($(WIN32), 1)
-	CFLAGS	+=	-mwindows -mms-bitfields -DWIN32 
+    CFLAGS  +=  -mwindows -mms-bitfields -DWIN32 
 endif
 
 # Application pieces
-PIECES	= plugin.o
+PIECES  = plugin.o
 
 # Make lib
 $(DEST)/$(TARGET): $(PIECES)
-	$(CC) -o $(TARGET) $(PIECES) $(LDFLAGS)
-	cp -v $(TARGET) $(DEST)
-	
+    $(CC) -o $(TARGET) $(PIECES) $(LDFLAGS)
+    cp -v $(TARGET) $(DEST)
+    
 # Cleanup
 clean:
-	rm -vf $(DEST)/$(TARGET) $(TARGET) *.o 
+    rm -vf $(DEST)/$(TARGET) $(TARGET) *.o 
