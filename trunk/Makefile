@@ -50,8 +50,8 @@ all: $(PARTS)
 	
 # For creating final Win32 package
 win32: $(PARTS)
-	make -C plugins
 	make -C libs
+	make -C plugins
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
