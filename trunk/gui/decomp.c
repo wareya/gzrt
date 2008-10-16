@@ -52,6 +52,13 @@ void gzrt_wdecomp_show ( MAINWIN * c )
 		/* Yep... */
 		return;
 		
+	/* Check filesize */
+	if( c->c->filesize >= 40 * 1024 * 1024 )
+	{
+		gzrt_notice( "Error", "This ROM is already decompressed!" );
+		return;
+	}
+		
 	/* Add parent */
 	parents = g_list_append( parents, c );
 		
