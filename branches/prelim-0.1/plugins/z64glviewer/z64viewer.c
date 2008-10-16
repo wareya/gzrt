@@ -235,9 +235,9 @@ init(int argc, char *argv[])
 
   LoadResourceZ(argv[1],0,0);
   LoadResourceZ(
-	  "resources/gameplay_keep.zdata"
-	  , 
-	  1024*1024, 4);
+      "resources/gameplay_keep.zdata"
+      , 
+      1024*1024, 4);
   
   if (argc > 3 && strcmp(argv[3], "-glinfo")==0) {
      printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
@@ -394,7 +394,7 @@ int _main(int argc, char *argv[])
                 camera[3*4+2]-=camera[0*4+2]*200;
                 camera[3*4+3]-=camera[0*4+3]*200;
             }
-	    if(mousebutton&1 && mousebutton&2)
+        if(mousebutton&1 && mousebutton&2)
             {
                 camera[3*4+0]+=camera[0*4+0]*200;
                 camera[3*4+1]+=camera[0*4+1]*200;
@@ -409,14 +409,14 @@ int _main(int argc, char *argv[])
                 camera[3*4+2]+=camera[2*4+2]*200;
                 camera[3*4+3]+=camera[2*4+3]*200;
             }
-	    if(keys[SDLK_k])
+        if(keys[SDLK_k])
             {
                 camera[3*4+0]-=camera[2*4+0]*200;
                 camera[3*4+1]-=camera[2*4+1]*200;
                 camera[3*4+2]-=camera[2*4+2]*200;
                 camera[3*4+3]-=camera[2*4+3]*200;
             }
- 	    
+        
             if(keys[SDLK_j])
             {
                 camera[3*4+0]-=camera[1*4+0]*200;
@@ -480,9 +480,9 @@ void draw_from_data ( struct Data * k )
 
   LoadResourceZ_bin(k->data, k->size, 0, 0);
   LoadResourceZ(
-	  "resources/gameplay_keep.zdata"
-	  
-	  , 1024*1024, 4);
+      "resources/gameplay_keep.zdata"
+      
+      , 1024*1024, 4);
   
 
     camera[0] = 1; camera[1]=0; camera[2]=0; camera[3]=0; // Forward
@@ -603,7 +603,7 @@ void draw_from_data ( struct Data * k )
                 camera[3*4+2]-=camera[0*4+2]*200;
                 camera[3*4+3]-=camera[0*4+3]*200;
             }
-	    if(mousebutton&1 && mousebutton&2)
+        if(mousebutton&1 && mousebutton&2)
             {
                 camera[3*4+0]+=camera[0*4+0]*200;
                 camera[3*4+1]+=camera[0*4+1]*200;
@@ -618,14 +618,14 @@ void draw_from_data ( struct Data * k )
                 camera[3*4+2]+=camera[2*4+2]*200;
                 camera[3*4+3]+=camera[2*4+3]*200;
             }
-	    if(keys[SDLK_k])
+        if(keys[SDLK_k])
             {
                 camera[3*4+0]-=camera[2*4+0]*200;
                 camera[3*4+1]-=camera[2*4+1]*200;
                 camera[3*4+2]-=camera[2*4+2]*200;
                 camera[3*4+3]-=camera[2*4+3]*200;
             }
- 	    
+        
             if(keys[SDLK_j])
             {
                 camera[3*4+0]-=camera[1*4+0]*200;
@@ -655,9 +655,9 @@ void draw_from_data ( struct Data * k )
         }
     }    
     draw();
-	
-	if(__quit)
-		break;
+    
+    if(__quit)
+        break;
   }
   SDL_Quit();
   __quited=1;

@@ -23,15 +23,15 @@ int ProcessDisplayListSW(DWORD dl);
 FILE *logfile=NULL;
 
 void Log_Message (char * Message, ...) {
-	DWORD dwWritten;
-	char Msg[2048];
-	va_list ap;
+    DWORD dwWritten;
+    char Msg[2048];
+    va_list ap;
 
-	va_start( ap, Message );
-	vsnprintf( Msg, 2048, Message, ap );
-	va_end( ap );
-	
-	strcat(Msg,"\r\n");
+    va_start( ap, Message );
+    vsnprintf( Msg, 2048, Message, ap );
+    va_end( ap );
+    
+    strcat(Msg,"\r\n");
 
     if(logfile!=NULL)
         fwrite(Msg, strlen(Msg), 1, logfile);
@@ -660,16 +660,16 @@ void LoadTileTMEM(int Tile)
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
           
     // if (RDP_Tiles[RDP_TN].CMS == 1) 
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP	);
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP    );
     
      //else 
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT_ARB	);   
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT_ARB  );   
     
   //  if (RDP_Tiles[RDP_TN].CMS == 1) 
-  //  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLCLAMP_TO_BORDER_ARB	);
+  //  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLCLAMP_TO_BORDER_ARB   );
     
   //    else 
-  //  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT_ARB	);   
+  //  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT_ARB  );   
        
                
       glTexImage2D(GL_TEXTURE_2D,
@@ -714,21 +714,21 @@ void MOVEMEM(DWORD SRC,DWORD SIZE,DWORD DST)
 
 void MultMatrix(float res[4][4],float mf[4][4],float nf[4][4])
 {
-	int	i, j, k;
-	float	temp[4][4];
-	for (i=0; i<4; i++) {
-	    for (j=0; j<4; j++) {
-		temp[i][j] = 0.0;
-		for (k=0; k<4; k++) {
-		    temp[i][j] += mf[i][k] * nf[k][j];
-		}
-	    }
-	}
-	for (i=0; i<4; i++) {
-	    for (j=0; j<4; j++) {
-		res[i][j] = temp[i][j];
-	    }
-	}
+    int i, j, k;
+    float   temp[4][4];
+    for (i=0; i<4; i++) {
+        for (j=0; j<4; j++) {
+        temp[i][j] = 0.0;
+        for (k=0; k<4; k++) {
+            temp[i][j] += mf[i][k] * nf[k][j];
+        }
+        }
+    }
+    for (i=0; i<4; i++) {
+        for (j=0; j<4; j++) {
+        res[i][j] = temp[i][j];
+        }
+    }
 }
 
 

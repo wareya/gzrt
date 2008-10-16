@@ -16,17 +16,17 @@ static const struct Functions * func;
 /* Plugin information */
 struct PluginMeta gzrt_plugin_info =
 {
-	"Disassembler",
-	"MIPS R4300 Disassembler",
-	"ZZT32",
-	"64.vg",
-	"prelim",
-	
-	/* Description */
-	NULL,
-	
-	/* Init, menu & file action funcs */
-	init, menu_bar, dasm
+    "Disassembler",
+    "MIPS R4300 Disassembler",
+    "ZZT32",
+    "64.vg",
+    "prelim",
+    
+    /* Description */
+    NULL,
+    
+    /* Init, menu & file action funcs */
+    init, menu_bar, dasm
 };
 
 /* Constants */
@@ -70,9 +70,9 @@ typedef struct
     int                         filesize;
     char                      * filename;
     unsigned char             * data;
-	
-	/* Plugin stuff */
-	struct PluginTransac      * transac;
+    
+    /* Plugin stuff */
+    struct PluginTransac      * transac;
 } 
 DASM;
     
@@ -412,10 +412,10 @@ void dasm_window_populate ( DASM * h )
     GtkWidget * winrows;
     GtkWidget * winstatus;
     GtkWidget * panel;
-	char        buffer[128];
-	
-	/* Prepare title */
-	sprintf( buffer, "MIPS R4300 Disassembler - \"%s\"", h->filename );
+    char        buffer[128];
+    
+    /* Prepare title */
+    sprintf( buffer, "MIPS R4300 Disassembler - \"%s\"", h->filename );
     
     /* Create the main window */
     h->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
@@ -469,9 +469,9 @@ DASM * dasm_new ( char * filename )
     /* Read the file in */
     if( !(h = fopen(filename, "rb") ) )
         return NULL;
-	
-	/* Set filename */
-	ret->filename = filename;
+    
+    /* Set filename */
+    ret->filename = filename;
     
     /* Create text buffers */
     for( i = 0; i < ASM_ROWS; i++ )
@@ -519,9 +519,9 @@ DASM * dasm_new_from_raw ( char * filename, unsigned char * data, int len )
     if( !(ret = func->calloc( sizeof(DASM) )) )
         return NULL;
     
-	/* Set filename */
-	ret->filename = filename;
-	
+    /* Set filename */
+    ret->filename = filename;
+    
     /* Create text buffers */
     for( i = 0; i < ASM_ROWS; i++ )
     {
@@ -555,17 +555,17 @@ DASM * dasm_new_from_raw ( char * filename, unsigned char * data, int len )
 
 void dasm_file_cleanup ( DASM * h )
 {
-	func->free( h->data );
-	func->free( h       );
+    func->free( h->data );
+    func->free( h       );
 }
 
 void dasm_cleanup ( DASM * h )
 {
-	/* Free the plugin handle */
-	func->close( h->transac );
-	
-	/* Free handle */
-	func->free( h );
+    /* Free the plugin handle */
+    func->close( h->transac );
+    
+    /* Free handle */
+    func->free( h );
 }
 
 /*
@@ -574,8 +574,8 @@ void dasm_cleanup ( DASM * h )
 
 int init ( const struct Functions * f )
 {
-	/* Update function pointer */
-	func = f;
+    /* Update function pointer */
+    func = f;
 }
 
 /*
@@ -584,38 +584,38 @@ int init ( const struct Functions * f )
 
 int menu_bar ( void )
 {
-	static char fn[1024];
-	DASM * h;
-	GtkWidget * dialog = gtk_file_chooser_dialog_new
-	( 
-		"Choose a file to disassemble", NULL,
-		GTK_FILE_CHOOSER_ACTION_OPEN, 
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
-		NULL
-	);
-	gtk_widget_show_all( dialog );
-	
-	/* Wait for filename */
-	switch( gtk_dialog_run( GTK_DIALOG(dialog) ) )
-	{
-		/* Yes */
-		case GTK_RESPONSE_ACCEPT:
-		 strcpy(fn, gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
-		 gtk_widget_destroy( dialog );
-		 h = dasm_new( fn );
-		 
-		 /* Register cleanup handle */
-	     g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_file_cleanup), h );
-		break;
-		
-		/* None given? Cancel */
-		default:
-		 gtk_widget_destroy( dialog );
-		 return FALSE;
-	}
-	
-	return TRUE;
+    static char fn[1024];
+    DASM * h;
+    GtkWidget * dialog = gtk_file_chooser_dialog_new
+    ( 
+        "Choose a file to disassemble", NULL,
+        GTK_FILE_CHOOSER_ACTION_OPEN, 
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
+        NULL
+    );
+    gtk_widget_show_all( dialog );
+    
+    /* Wait for filename */
+    switch( gtk_dialog_run( GTK_DIALOG(dialog) ) )
+    {
+        /* Yes */
+        case GTK_RESPONSE_ACCEPT:
+         strcpy(fn, gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
+         gtk_widget_destroy( dialog );
+         h = dasm_new( fn );
+         
+         /* Register cleanup handle */
+         g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_file_cleanup), h );
+        break;
+        
+        /* None given? Cancel */
+        default:
+         gtk_widget_destroy( dialog );
+         return FALSE;
+    }
+    
+    return TRUE;
 }
 
 /*
@@ -624,10 +624,10 @@ int menu_bar ( void )
 
 int dasm ( struct PluginTransac * t )
 {
-	struct PluginFileSpec * k = t->file;
-	DASM * h = dasm_new_from_raw( k->filename, k->file, k->filesize );
-	h->transac = t;
-	
-	/* Register cleanup handle */
-	g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_cleanup), h );
+    struct PluginFileSpec * k = t->file;
+    DASM * h = dasm_new_from_raw( k->filename, k->file, k->filesize );
+    h->transac = t;
+    
+    /* Register cleanup handle */
+    g_signal_connect_swapped( G_OBJECT(h->window), "destroy", G_CALLBACK(dasm_cleanup), h );
 }
