@@ -122,6 +122,8 @@ LoadResourceZ(char *name, int offset, int segment)
   int resourcesize;
   printf("Loading %s to segment %d (rdram %08X)\n",name,segment,offset);
   FILE *infile=fopen(name, "rb");
+  if(!infile)
+	  exit( -1 );
   fseek(infile, 0, SEEK_END);
   resourcesize=ftell(infile);
   fseek(infile, 0, SEEK_SET);
