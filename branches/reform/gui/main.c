@@ -188,6 +188,12 @@ void gzrt_wmain_closed ( MAINWIN *w )
 	instances = g_list_remove( instances, w );
 }
 
+/* Amount of main windows */
+int gzrt_wmain_count ( void )
+{
+	return g_list_length( instances );
+}
+
 /* Set font of a widget */
 static void set_font ( GtkWidget * w, char * font )
 {

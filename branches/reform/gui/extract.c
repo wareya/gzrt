@@ -2,6 +2,7 @@
 * ROM Extraction Window *
 ************************/
 #include <gzrt.h>
+#include <string.h>
 
 /* Connect data to a widget */
 #define HOOKUP( component, widget, name ) \
@@ -160,6 +161,7 @@ static void extract ( GtkWidget * w )
 	for( i = 0; i < z64fs_entries(c->z); i++ )
 	{
 		char * nptr = name;
+		int type;
 		
 		/* Does this file exist? */
 		if( !ZFileExists(c->z, i) )
@@ -167,6 +169,12 @@ static void extract ( GtkWidget * w )
 		
 		/* Read the file */
 		z64fs_read_file( c->z, i, buffer );
+		
+		/* Detect type */
+		if( c->t )
+			type = z64detect_name( z64nt_filename(c->t, i) );
+		else
+			type = z64detect_raw( buffer, ZFileVirtSize(c->z, i) );
 		
 		/* Prepare filename */
 		nptr += sprintf( nptr, "%s" GZRT_SLASH, dest );
@@ -176,7 +184,9 @@ static void extract ( GtkWidget * w )
 			nptr += sprintf( nptr, "%s", z64nt_filename(c->t, i) );
 		else
 			nptr += sprintf( nptr, "0x%08X - 0x%08X", ZFileVirtStart(c->z, i), ZFileVirtEnd(c->z, i) );
-		nptr += sprintf( nptr, ".bin" );
+		nptr += sprintf( nptr, ".%s", z64detect_fileext(type) );
+		
+		g_print( "%s\n", name );
 		
 		/* Write it */
 		out = fopen( name, "wb" );
@@ -227,6 +237,9 @@ void gzrt_wextract_show ( MAINWIN * c )
 		/* Yeah */
 		return;
 		
+	/* Clear options */
+	memset( &options, 0, sizeof(options) );
+	
 	/* Add parent */
 	parents = g_list_append( parents, c );
 	

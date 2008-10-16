@@ -80,6 +80,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w );
 int	gzrt_select_file_id ( MAINWIN * w );
 void gzrt_wmain_byteswap ( N64Rom * rc );
 void gzrt_wmain_extract ( MAINWIN * w );
+int gzrt_wmain_count ( void );
 
 
 		

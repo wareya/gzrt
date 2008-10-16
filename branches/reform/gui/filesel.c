@@ -49,7 +49,12 @@ void gzrt_wfilesel_show ( void )
 			
 			/* Cancel */
 			default:
-			  gzrt_gui_quit();
+			  if( gzrt_wmain_count() == 0 )
+			    gzrt_gui_quit();
+			  else {
+				gtk_widget_destroy( dialog );
+				goto quitloop;
+			  }
 		}
 	}
 	
