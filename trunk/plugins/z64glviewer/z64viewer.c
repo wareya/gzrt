@@ -535,17 +535,19 @@ void draw_from_data ( struct Data * k )
     {
         if((mousebutton&1) && (mousebutton&4))
         {
+			/*
             matrixRotate(viewMatrix, mouseX/600.0f*360.0f, camera[0*4+0],camera[0*4+1],camera[0*4+2]);
-            
+            */
             multM4Vect(&camera[0*4], viewMatrix, &camera[0*4]);
             multM4Vect(&camera[1*4], viewMatrix, &camera[1*4]);
             multM4Vect(&camera[2*4], viewMatrix, &camera[2*4]);
         }
         else
         {
+			/*
             matrixRotate(viewMatrix, -mouseX/600.0f*360.0f, camera[2*4+0], camera[2*4+1],camera[2*4+2]);
             matrixRotate(viewMatrix, -mouseY/600.0f*360.0f, camera[1*4+0], camera[1*4+1],camera[1*4+2]);
-            
+            */
             multM4Vect(&camera[0*4], viewMatrix, &camera[0*4]);
             multM4Vect(&camera[1*4], viewMatrix, &camera[1*4]);
         
