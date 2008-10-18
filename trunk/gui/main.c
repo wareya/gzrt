@@ -5,7 +5,16 @@
 #include <stdarg.h>
 #include <glib.h>
 #include <n64rom.h>
-#include <z64.h>
+#include <z64.h> 
+
+/* Connect data to a widget */
+#define HOOKUP( component, widget, name )                       \
+    g_object_set_data_full( G_OBJECT(component), name,          \
+    gtk_widget_ref(widget), (GDestroyNotify)gtk_widget_unref )
+
+/* Lookup connected data */
+#define LOOKUP( component, name )   \
+    g_object_get_data( G_OBJECT(component), name )
 
 /* Main windows */
 static GList * instances;
@@ -344,9 +353,13 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	gtk_widget_show (open1);
 	gtk_container_add (GTK_CONTAINER (File_menu_menu), open1);
 	
-	/*reload1 = gtk_menu_item_new_with_mnemonic (_("_Reload"));
+	reload1 = gtk_image_menu_item_new_with_mnemonic (_("_Settings"));
 	gtk_widget_show (reload1);
-	gtk_container_add (GTK_CONTAINER (File_menu_menu), reload1);*/
+	gtk_container_add (GTK_CONTAINER (File_menu_menu), reload1);
+
+	image5 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+	gtk_widget_show (image5);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (reload1), image5);
 
 	close1 = gtk_image_menu_item_new_with_mnemonic (_("_Close"));
 	gtk_widget_show (close1);
@@ -421,7 +434,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 
 	/* Signals - file menu */
 	g_signal_connect_swapped( G_OBJECT(open1),   "activate", G_CALLBACK(gzrt_wfilesel_show), NULL );
-	//g_signal_connect_swapped( G_OBJECT(reload1), "activate", G_CALLBACK(gzrt_wmain_update), c );
+	g_signal_connect_swapped( G_OBJECT(reload1), "activate", G_CALLBACK(gzrt_wconf_show), c );
 	g_signal_connect_swapped( G_OBJECT(close1),  "activate", G_CALLBACK(gzrt_wmain_close), c );
 	g_signal_connect_swapped( G_OBJECT(quit1),   "activate", G_CALLBACK(gzrt_gui_quit), NULL );
 	
@@ -884,6 +897,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	flist_tree = gzrt_wmain_tree_generate(w);
 	gtk_container_add( GTK_CONTAINER(flist_scroll), flist_tree );
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_scroll, TRUE, TRUE, 0 );
+	gtk_tree_view_columns_autosize( GTK_TREE_VIEW(flist_tree) );
 	
 	/* Set up the buttons */
 	flist_button_hbox = gtk_hbox_new( FALSE, 0 );
@@ -891,9 +905,8 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	/* Create them */
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		TRUE, TRUE, 0 );
-	/* gtk_box_pack_start( GTK_BOX(flist_button_hbox), create_button("View",		"gtk-zoom-100"), 	TRUE, TRUE, 0 ); */
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button("Toolbox",	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button(gzrt_plugin_curname(),	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
 	
 	/* Callbacks */
 	g_signal_connect_swapped( G_OBJECT(d), "clicked", G_CALLBACK(gzrt_wmain_extract), w );
@@ -905,7 +918,8 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 		gtk_widget_set_sensitive( b, FALSE );
 	
 	/* Hookup objects */
-	GLADE_HOOKUP_OBJECT( ret, flist_tree, "file-tree" );
+	HOOKUP( ret, b, "action-button" );
+	HOOKUP( ret, flist_tree, "file-tree" );
 	
 	/* Return the final product */
 	return ret;
@@ -989,4 +1003,17 @@ write_file: ;
 	
 	/* Done */
 	gzrt_notice("Notice", "File written.");
+}
+
+/* Set button text */
+static void set_text ( MAINWIN * p, char * text )
+{
+	GtkWidget * b = get_object(p, "action-button");
+	gtk_button_set_label( GTK_BUTTON(b), text );
+}
+
+/* Set the action button text */
+void gzrt_wmain_action_button_text ( char * text )
+{
+	g_list_foreach( instances, (GFunc)set_text, text );
 }

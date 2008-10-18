@@ -39,9 +39,9 @@ void * gzrt_malloc ( unsigned size )
 {
 	void * a;
 	
-	/* Word align */
-	if( size % 4 )
-		size = ((size >> 2) << 2) + 4;
+	/* Dword align */
+	if( size % 8 )
+		size = ((size >> 3) << 3) + 8;
 	
 	/* Allocate */
 	if( !(a = malloc( size )) )
@@ -69,9 +69,9 @@ void * gzrt_calloc ( unsigned size )
 {
 	void * a;
 	
-	/* Word align */
-	if( size % 4 )
-		size = ((size >> 2) << 2) + 4;
+	/* Dword align */
+	if( size % 8 )
+		size = ((size >> 3) << 3) + 8;
 	
 	/* Allocate */
 	if( !(a = calloc( size, 1 )) )

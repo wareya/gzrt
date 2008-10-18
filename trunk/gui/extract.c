@@ -172,7 +172,7 @@ static void extract ( GtkWidget * w )
 		
 		/* Detect type */
 		if( c->t )
-			type = z64detect_name( z64nt_filename(c->t, i) );
+			type = z64detect_name( (unsigned char*)z64nt_filename(c->t, i) );
 		else
 			type = z64detect_raw( buffer, ZFileVirtSize(c->z, i) );
 		
@@ -185,8 +185,6 @@ static void extract ( GtkWidget * w )
 		else
 			nptr += sprintf( nptr, "0x%08X - 0x%08X", ZFileVirtStart(c->z, i), ZFileVirtEnd(c->z, i) );
 		nptr += sprintf( nptr, ".%s", z64detect_fileext(type) );
-		
-		g_print( "%s\n", name );
 		
 		/* Write it */
 		out = fopen( name, "wb" );
@@ -214,13 +212,7 @@ static void extract ( GtkWidget * w )
 /* Initialize the window */
 void gzrt_wextract_show ( MAINWIN * c )
 {
-	FILE          * h;
-	int		        result;
-	
-	/* GTK Elements */
 	GtkWidget * window;
-	GtkWidget * pbar;
-	GtkWidget * dialog;
 	GtkWidget * button;
 	GtkWidget * expander;
 	GtkWidget * entry;

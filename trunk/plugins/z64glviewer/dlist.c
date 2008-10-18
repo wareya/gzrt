@@ -22,30 +22,19 @@ int ProcessDisplayListSW(DWORD dl);
 
 FILE *logfile=NULL;
 
-void Log_Message (char * Message, ...) {
-	DWORD dwWritten;
-	char Msg[2048];
-	va_list ap;
-
-	va_start( ap, Message );
-	vsnprintf( Msg, 2048, Message, ap );
-	va_end( ap );
-	
-	strcat(Msg,"\r\n");
-
-    if(logfile!=NULL)
-        fwrite(Msg, strlen(Msg), 1, logfile);
+void Log_Message (char * Message, ...) 
+{
+	return;
 }
 
-void Start_Log (void) {
-       if(logfile==NULL)
-        logfile=fopen("dlist.log","w");   
+void Start_Log (void) 
+{
+	return;
 }
 
-void Stop_Log (void) {
-    if(logfile!=NULL)
-        fclose(logfile);
-    logfile=NULL;
+void Stop_Log (void) 
+{
+	return;
 }
 
 // THANKS TO GUYS BEHIND TR!

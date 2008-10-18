@@ -74,4 +74,7 @@ extern int window_amount;
 #include <gui/byteswap.h>
 #include <gui/replace.h>
 
+
+void gzrt_wconf_show ( MAINWIN * c );
+
 #endif

@@ -91,7 +91,7 @@ GtkWidget * gzrt_plugins_menu ( void )
 		while( p )
 		{
 			/* Create menu entry */
-			item = gtk_image_menu_item_new_with_mnemonic( p->meta->short_name );
+			item = gtk_image_menu_item_new_with_mnemonic( p->meta->long_name );
 			
 			/* Add it to menu */
 			gtk_container_add( GTK_CONTAINER(menu), item );
@@ -140,6 +140,7 @@ GtkWidget * gzrt_plugins_preferences ( int action )
 	GtkWidget * ok;
 	PLUGINS   * p = &plugins;
 	static int  init;
+	int			i;
 	
 	/* Are we just cleaning up? */
 	if( action ) {
@@ -155,6 +156,7 @@ GtkWidget * gzrt_plugins_preferences ( int action )
 	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW(window), "Plugin preferences" );
 	gtk_container_set_border_width( GTK_CONTAINER(window), 12 );
+	gtk_window_set_resizable( GTK_CONTAINER(window), FALSE );
 	
 	/* Create vertical organizer */
 	vbox = gtk_vbox_new( FALSE, 8 );
@@ -178,10 +180,14 @@ GtkWidget * gzrt_plugins_preferences ( int action )
 	select = gtk_combo_box_entry_new_text();
 	
 	/* Populate */
-	while( p )
+	for( i = 0; p; i++ )
 	{
 		/* Append */
 		gtk_combo_box_append_text( GTK_COMBO_BOX(select), p->meta->long_name );
+		
+		/* Default? */
+		if( p == selected )
+			gtk_combo_box_set_active( GTK_COMBO_BOX(select), i );
 		
 		/* Next */
 		p = p->next;
@@ -362,49 +368,6 @@ void gzrt_load_plugins ( void )
 		GZRTD_MESG( "No plugins found." );
 }
 
-/* Call plugin */
-void __gzrt_call_plugin ( void * file )
-{
-	struct PluginFileSpec * F = file;
-	struct PluginTransac  * T = gzrt_calloc( sizeof(struct PluginTransac) );
-	GList * result;
-	GZRTD_MESG( "Plugin action requested.", PLUGINS_DIR );
-	
-	/* Check the plugin total */
-	if( total == 1 )
-	{
-		/* Only one */
-		GZRTD_MESG( "Only one plugin present - \"%s\".", plugins.meta->short_name );
-		
-		/* Check that this plugin does not have this file open already */
-		if( !(result = g_list_find_custom( plugins.files, F->filename, strcmp )) )
-		{
-			/* Append it */
-			plugins.files = g_list_append( plugins.files, strdup(F->filename) );
-			
-			/* Call handler */
-			plugins.meta->action( file );
-		}
-		else
-		{
-			/* It's already open 
-			GZRTD_MESG( "File \"%s\" already open.", F->filename );
-			plugin_cleanup( &functions, F );*/
-		}
-	}
-	else 
-	{
-		GtkWidget * radio;
-		GtkWidget * window;
-		GList	  * group;
-		
-		return;
-	}
-	
-	/* Done */
-	GZRTD_MESG( "Plugin request serviced." );
-}
-
 /* Call a plugin using the default */
 void gzrt_call_plugin ( void * file )
 {
@@ -451,4 +414,10 @@ void gzrt_plugin_cleanup ( struct PluginTransac * t )
 	gzrt_free( t->file->file );
 	gzrt_free( t->file       );
 	gzrt_free( t             );
+}
+
+/* Return the name of the current plugin */
+char * gzrt_plugin_curname ( void )
+{
+	return selected->meta->short_name;
 }

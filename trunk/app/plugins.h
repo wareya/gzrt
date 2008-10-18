@@ -94,6 +94,7 @@ void        gzrt_call_plugin         ( void * file              );
 void        gzrt_plugin_cleanup      ( struct PluginTransac * t );
 GtkWidget * gzrt_plugins_preferences ( int action               );
 void        gzrt_set_default_plugin  ( GtkWidget * window       );
+char *      gzrt_plugin_curname      ( void                     );
 
 #endif
 

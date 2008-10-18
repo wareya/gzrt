@@ -81,6 +81,7 @@ int	gzrt_select_file_id ( MAINWIN * w );
 void gzrt_wmain_byteswap ( N64Rom * rc );
 void gzrt_wmain_extract ( MAINWIN * w );
 int gzrt_wmain_count ( void );
+void gzrt_wmain_action_button_text ( char * text );
 
 
 		
