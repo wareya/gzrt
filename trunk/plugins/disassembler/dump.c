@@ -259,6 +259,14 @@ static void dasm_write_disassembly ( GtkWidget * w )
 	GtkWidget * pbar;
 	FILE      * fh;
 	int         i;
+	unsigned	start;
+	unsigned	end;
+	
+	/* Get start/end */
+	sscanf( gtk_entry_get_text( GTK_ENTRY(_s) ), "%08X", &start );
+	sscanf( gtk_entry_get_text( GTK_ENTRY(_e) ), "%08X", &end );
+	start &= 0x00FFFFFFUL;
+	end   &= 0x00FFFFFFUL;
 	
 	/* Create window for progress indicator */
 	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
@@ -281,7 +289,8 @@ static void dasm_write_disassembly ( GtkWidget * w )
 	fh = fopen( gtk_entry_get_text( GTK_ENTRY(en) ), "wb" );
 	
 	/* Loop */
-	for( i = 0; i < h->filesize; i += 4 )
+	g_print( "%X, %X\n", start, MIN(end, h->filesize) );
+	for( i = start; i < MIN(end, h->filesize); i += 4 )
 	{
 		char buffer[128];
 		char * p = buffer;
