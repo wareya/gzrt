@@ -15,8 +15,14 @@
 #define LOOKUP( component, name )   \
     g_object_get_data( G_OBJECT(component), name )
 	
+#define U32(b) ( (b)[0] << 24 | \
+                        (b)[1] << 16 | \
+                        (b)[2] <<  8 | \
+                        (b)[3] )
+	
 /* Functions */
-static void dasm_write_disassembly ( GtkWindow * w );
+static void dasm_write_disassembly ( GtkWidget * w );
+static void dasm_find_file ( GtkWidget * w );
 
 /* Close the window */
 static void close_window ( GtkWidget * window )
@@ -62,6 +68,8 @@ void dasm_save_show ( DASM * h )
 	label = gtk_label_new( "Output file:" );
 	entry = gtk_entry_new( );
 	button = gtk_button_new_with_label( "Browse..." );
+	HOOKUP( window, entry, "dest" );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(dasm_find_file), window );
 	
 	/* Pack 'em */
 	gtk_box_pack_start( GTK_BOX(_1_hbox), label,  FALSE, FALSE, 0 );
@@ -159,12 +167,143 @@ void dasm_save_show ( DASM * h )
 	gtk_widget_show_all( window );
 }
 
-/* Write disassembly */
-static void dasm_write_disassembly ( GtkWindow * w )
+/* Find a file */
+static void dasm_find_file ( GtkWidget * w )
 {
-	DASM * h = LOOKUP( w, "parent" );
+	GtkWidget * entry = LOOKUP( w, "dest" );
+	GtkWidget * dialog;
+	FILE      * h;
+	int			result;
+	char      * n;
+	
+	/* Create dir choosing dialog */
+	dialog = gtk_file_chooser_dialog_new
+	( 
+		"Choose a destination", NULL,
+		GTK_FILE_CHOOSER_ACTION_SAVE, 
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN,   GTK_RESPONSE_ACCEPT, 
+		NULL
+	);
+	gtk_widget_show_all( dialog );
+	
+	/* Run the dialog and fetch the result */
+	while( (result = gtk_dialog_run( GTK_DIALOG(dialog) )) )
+	switch( result )
+	{
+		/* A file has been chosen */
+		case GTK_RESPONSE_ACCEPT:
+		{
+			char * n = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) );
+			
+			/* Check that we can write to it */
+			if( !(h = fopen(n, "wb")) )
+				continue;
+			
+			/* Destroy window */
+			gtk_widget_destroy( dialog );
+			
+			/* Looks good, set file */
+			gtk_entry_set_text( GTK_ENTRY(entry), n );
+			return;
+		}
+		break;
+		
+		/* Cancel */
+		case GTK_RESPONSE_REJECT:
+		 gtk_widget_destroy(dialog);
+		 goto skiploop;
+		break;
+		
+		/* Default */
+		default:
+		 gtk_widget_destroy(dialog);
+		 goto skiploop;
+	}
+	
+	/* Out of loop */
+skiploop: ;
+	return;
+}
+
+/* Set progress bar text */
+static void pbarset ( GtkWidget * p, double percent, char * fmt, ... )
+{
+	va_list	 ap;
+	char	 buffer[128];
+	
+	va_start( ap, fmt );
+	vsnprintf( buffer, sizeof(buffer), fmt, ap );
+	va_end( ap );
+	
+	gtk_progress_bar_set_fraction( GTK_PROGRESS_BAR(p), percent );
+	gtk_progress_bar_set_text( GTK_PROGRESS_BAR(p), buffer );
+	
+	while( gtk_events_pending() )
+		gtk_main_iteration();
+}
+
+/* Write disassembly */
+static void dasm_write_disassembly ( GtkWidget * w )
+{
+	DASM      * h  = LOOKUP( w, "parent" );
+	GtkWidget * en = LOOKUP( w, "dest" );
+	GtkWidget * _s = LOOKUP( w, "addr-1" );
+	GtkWidget * _e = LOOKUP( w, "addr-2" );
 	GtkWidget * c1 = LOOKUP( w, "opt-1" );
 	GtkWidget * c2 = LOOKUP( w, "opt-2" );
+	gboolean
+		op1 = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(c1) ),
+		op2 = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(c2) );
+	GtkWidget * window;
+	GtkWidget * pbar;
+	FILE      * fh;
+	int         i;
 	
-	g_print( "%d,%d\n", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(c1) ), gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(c2) ) );
+	/* Create window for progress indicator */
+	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+    gtk_widget_set_size_request( window, 400, 30 );
+	gtk_window_set_title( GTK_WINDOW(window), "Working..." );
+	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS );
+	gtk_window_set_keep_above( GTK_WINDOW(window), TRUE );
+	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
+	gtk_window_set_resizable( GTK_WINDOW(window), FALSE );
+	gtk_window_set_deletable( GTK_WINDOW(window), FALSE );
+	
+	/* progress bar */
+	pbar = gtk_progress_bar_new( );
+	gtk_container_add( GTK_CONTAINER(window), pbar );
+	
+	/* Show it */
+	gtk_widget_show_all( window );
+	
+	/* Open file for writing */
+	fh = fopen( gtk_entry_get_text( GTK_ENTRY(en) ), "wb" );
+	
+	/* Loop */
+	for( i = 0; i < h->filesize; i += 4 )
+	{
+		char buffer[128];
+		char * p = buffer;
+		
+		/* Address? */
+		if( op1 )
+			p += sprintf( p, "%08X  ", h->pc_start + i );
+		
+		/* hexadecimal? */
+		if( op2 )
+			p += sprintf( p, "%08X  ", U32(h->data + i) );
+		
+		/* Disassemble */
+		mr4kd_disassemble( U32(h->data + i), h->pc_start + i, p );
+		
+		/* Write it */
+		fprintf( fh, "%s\n", buffer );
+		
+		/* Update progress bar */
+		if( !((i + 4) % (h->filesize / 32)) )
+			pbarset( pbar, (double)i / h->filesize, "%.2f%%", (double)i / h->filesize * 100.0 );
+	}
+	
+	gtk_widget_destroy( window );
 }
