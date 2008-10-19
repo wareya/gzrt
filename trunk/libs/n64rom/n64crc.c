@@ -1,5 +1,4 @@
-/* snesrc - SNES Recompiler
- *
+/* 
  * Copyright notice for this file:
  *  Copyright (C) 2005 Parasyte
  *
