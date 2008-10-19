@@ -906,7 +906,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	/* Create them */
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		TRUE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button(gzrt_plugin_curname(),	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button("Plugin",	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
 	
 	/* Callbacks */
 	g_signal_connect_swapped( G_OBJECT(d), "clicked", G_CALLBACK(gzrt_wmain_extract), w );
