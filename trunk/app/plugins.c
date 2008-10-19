@@ -29,13 +29,20 @@ static const struct Functions
 functions =
 {
 	/* Memory management */
-	gzrt_malloc, gzrt_calloc, gzrt_free, gzrt_mem_use,
+	(void*)gzrt_malloc, 
+	(void*)gzrt_calloc, 
+	(void*)gzrt_free, 
+	(void*)gzrt_mem_use,
 	
 	/* Debugging / error handling */
-	NULL, gzrt_gui_debug_add, gzrt_notice, NULL,
+	NULL, 
+	(void*)gzrt_gui_debug_add, 
+	(void*)gzrt_notice, 
+	NULL,
 	
 	/* Plugin cleanup */
-	gzrt_plugin_cleanup, NULL
+	(void*)gzrt_plugin_cleanup, 
+	NULL
 };
 
 /* Plugin list */
@@ -155,8 +162,8 @@ GtkWidget * gzrt_plugins_preferences ( int action )
 	/* Create window */
 	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW(window), "Plugin preferences" );
+	gtk_window_set_resizable( GTK_WINDOW(window), FALSE );
 	gtk_container_set_border_width( GTK_CONTAINER(window), 12 );
-	gtk_window_set_resizable( GTK_CONTAINER(window), FALSE );
 	
 	/* Create vertical organizer */
 	vbox = gtk_vbox_new( FALSE, 8 );
