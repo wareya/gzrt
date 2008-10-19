@@ -66,7 +66,7 @@ int gzrt_wmain_create_new ( N64Rom * rc )
 	}
 	
 	/* Identify Zelda filesystem elements */
-	if( !(cur->z = z64fs_open( rc->filename )) )
+	if( !(cur->z = z64fs_open( (char*)rc->filename )) )
 	{
 		GZRTD_MESG( "Could not find filesystem!" );
 		gzrt_notice( "Error", "Unable to find filesystem in ROM." );
@@ -203,15 +203,6 @@ int gzrt_wmain_count ( void )
 	return g_list_length( instances );
 }
 
-/* Set font of a widget */
-static void set_font ( GtkWidget * w, char * font )
-{
-    PangoFontDescription * font_desc;
-    
-    font_desc = pango_font_description_from_string( font );
-    gtk_widget_modify_font( w, font_desc );
-}
-
 /* Create new instance */
 void gzrt_wmain_fill ( MAINWIN *c )
 {
@@ -237,71 +228,9 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	GtkWidget *Help_menu = NULL;
 	GtkWidget *Help_menu_menu = NULL;
 	GtkWidget *about1 = NULL;
-	GtkWidget *Main_window_padding = NULL;
-	GtkWidget *Main_window_seperator = NULL;
-	GtkWidget *hpaned1 = NULL;
-	GtkWidget *Side_frame_seperator = NULL;
-	GtkWidget *Frame_1_alignment = NULL;
-	GtkWidget *ROM_Info = NULL;
-	GtkWidget *Frame_1_label_alignment = NULL;
-	GtkWidget *Frame_1_label_seperator = NULL;
-	GtkWidget *f1l1 = NULL;
-	GtkWidget *f1l2 = NULL;
-	GtkWidget *f1l3 = NULL;
-	GtkWidget *f1l4 = NULL;
-	GtkWidget *f1l5 = NULL;
-	GtkWidget *f1l6 = NULL;
-	GtkWidget *Frame_1_label = NULL;
-	GtkWidget *Frame_2_alignment = NULL;
-	GtkWidget *Filesystem_info = NULL;
-	GtkWidget *Frame_2_label_alignment = NULL;
-	GtkWidget *Frame_2_label_seperator = NULL;
-	GtkWidget *f2l1 = NULL;
-	GtkWidget *f2l2 = NULL;
-	GtkWidget *f2l3 = NULL;
-	GtkWidget *f2l4 = NULL;
-	GtkWidget *f2l5 = NULL;
-	GtkWidget *f2l6 = NULL;
-	GtkWidget *Frame_2_label = NULL;
-	GtkWidget *alignment12 = NULL;
-	GtkWidget *Right_pane = NULL;
-	GtkWidget *Column_view_scroller = NULL;
-	GtkWidget *treeview1 = NULL;
-	GtkWidget *Action_buttons_organizer = NULL;
-	GtkWidget *Action_buttons_seperator = NULL;
-	GtkWidget *Extract_button = NULL;
-	GtkWidget *alignment10 = NULL;
-	GtkWidget *hbox6 = NULL;
-	GtkWidget *image4 = NULL;
-	GtkWidget *label16 = NULL;
-	GtkWidget *View_button = NULL;
-	GtkWidget *alignment9 = NULL;
-	GtkWidget *hbox5 = NULL;
-	GtkWidget *image3 = NULL;
-	GtkWidget *label15 = NULL;
-	GtkWidget *Replace_button = NULL;
-	GtkWidget *alignment8 = NULL;
-	GtkWidget *hbox4 = NULL;
-	GtkWidget *image2 = NULL;
-	GtkWidget *label14 = NULL;
-	GtkWidget *Disassemble_button = NULL;
-	GtkWidget *alignment7 = NULL;
-	GtkWidget *hbox3 = NULL;
-	GtkWidget *image1 = NULL;
-	GtkWidget *label13 = NULL;
 	GtkWidget *App_status = NULL;
+	GtkWidget *Frame_1_alignment = NULL;
 	GtkAccelGroup *accel_group;
-	
-	/* GTK Elements - scroll window */
-	GtkWidget       *liststore;
-	GtkTreeIter      iter;
-    GtkCellRenderer *renderer;
-
-	
-	/* GTK Elements - debug */
-	#ifdef GZRT_DEBUG
-	 GtkWidget *wai1;
-	#endif
 	
 	/* Variables */
 	char buffer[256];
@@ -553,8 +482,6 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 {
 	struct PluginFileSpec * file = gzrt_calloc( sizeof(struct PluginFileSpec) );
 	int	id =  gzrt_select_file_id(w);
-	char  * name;
-	int		i;
 	const Z64FSEntry * j = z64fs_file( w->z, id );
 	
 	/* Check */
@@ -599,7 +526,6 @@ int	gzrt_select_file_id ( MAINWIN * w )
 	GtkTreeSelection * selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tv));
     GtkTreeIter	       iter;
 	char             * s;
-	int				   id;
 	
 	/* No selection? */
 	if( !selection )
@@ -703,9 +629,7 @@ static GtkWidget * create_rom_info_frame ( MAINWIN * c )
 	GtkWidget * frame;
 	GtkWidget * align;
 	GtkWidget * vbox;
-	GtkWidget * label;
 	GtkWidget * name;
-	char		buffer[512];
 	
 	/* Create frame */
 	frame = gtk_frame_new( NULL );
@@ -753,9 +677,7 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	GtkWidget * frame;
 	GtkWidget * align;
 	GtkWidget * vbox;
-	GtkWidget * label;
 	GtkWidget * name;
-	char		buffer[512];
 	
 	/* Create frame */
 	frame = gtk_frame_new( NULL );
@@ -827,17 +749,8 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	GtkWidget * info_list_separator;	/* Separates info box and file list   */
 	GtkWidget * info_pane;				/* Resizable pane for information	  */
 	GtkWidget * info_vbox;				/* Information storage box (frames)   */
-	
 	GtkWidget * info_rom_align;			/* Align the frame nicely			  */
-	GtkWidget * info_rom_frame;			/* Frame the information labels 	  */
-	GtkWidget * info_rom_labels_align;	/* Align the labels inside nicely	  */
-	GtkWidget * info_rom_labels_vbox;	/* Label container					  */
-	
 	GtkWidget * info_bin_align;			/* Align the frame nicely			  */
-	GtkWidget * info_bin_frame;			/* Frame the information labels 	  */
-	GtkWidget * info_bin_labels_align;	/* Align the labels inside nicely	  */
-	GtkWidget * info_bin_labels_vbox;	/* Label container					  */
-	
 	GtkWidget * flist_align;			/*									  */
 	GtkWidget * flist_vbox;				/* Tree view and buttons sep		  */
 	GtkWidget * flist_scroll;			/* Scrolled window for tree			  */
@@ -945,7 +858,7 @@ void gzrt_wmain_extract ( MAINWIN * w )
 	gtk_widget_show_all( dialog );
 	
 	/* Run the dialog and fetch the result */
-	while( result = gtk_dialog_run( GTK_DIALOG(dialog) ) )
+	while( (result = gtk_dialog_run( GTK_DIALOG(dialog) )) )
 	switch( result )
 	{
 		/* A file has been chosen */

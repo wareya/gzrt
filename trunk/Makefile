@@ -14,7 +14,7 @@ CFLAGS += -g -DIN_GZRT -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` -O3 --std=
 CFLAGS += -Ilibs/z64 -Ilibs/n64rom
 
 # Error control flags
-CFLAGS += -Wfatal-errors -Wall
+CFLAGS += -Wfatal-errors -Wall -Wno-char-subscripts
 
 # Linker flags
 LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0` -Llibs -lz64 -ln64rom

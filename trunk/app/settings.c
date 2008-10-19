@@ -54,6 +54,10 @@ int gzrt_config_load ( void )
 		/* Load val */
 		const gchar * val = g_key_file_get_value( config, MAIN_GROUP_NAME, entries[i].name, NULL );
 		
+		/* Did we get it? */
+		if( !val )
+			continue;
+		
 		/* Is this a string? */
 		if( entries[i].type == tSTRING )
 			
