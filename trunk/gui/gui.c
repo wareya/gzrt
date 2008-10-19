@@ -84,7 +84,7 @@ void gzrt_gui_init ( int argc, char **argv )
 	
 	/* Show splash? */
 	if( !opened )
-		gzrt_wsplash_init( gzrt_wfilesel_show );
+		gzrt_wsplash_init( (void*)gzrt_wfilesel_show );
 }
 
 /*

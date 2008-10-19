@@ -74,7 +74,7 @@ void gzrt_wdecomp_show ( MAINWIN * c )
 	gtk_widget_show_all( dialog );
 	
 	/* Run the dialog and fetch the result */
-	while( result = gtk_dialog_run( GTK_DIALOG(dialog) ) )
+	while( (result = gtk_dialog_run( GTK_DIALOG(dialog) )) )
 	switch( result )
 	{
 		/* A file has been chosen */

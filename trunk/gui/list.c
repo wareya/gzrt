@@ -28,7 +28,7 @@ static void gen_name ( char * dest, int id, MAINWIN * c )
 			return;
 		}
 		
-		char * s = z64nt_filename( c->t, id );
+		const char * s = z64nt_filename( c->t, id );
 		if( !s )
 			strcpy( dest, "-" );
 		else

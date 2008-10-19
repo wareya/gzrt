@@ -3,19 +3,9 @@
 *****************************/
 #include <gzrt.h>
 
-/* Structure */
-static struct _gzrt_wfilesel gzrt_wfilesel;
-
-/* Shorthand */
-static struct _gzrt_wfilesel * w = &gzrt_wfilesel;
-
-/* Vars */
-static int status;
-
 /* Open a file select box */
 void gzrt_wfilesel_show ( void )
 {
-	char * f;
 	N64Rom * ctx;
 	GtkWidget * dialog = gtk_file_chooser_dialog_new
 	( 
@@ -44,7 +34,7 @@ void gzrt_wfilesel_show ( void )
 			  }
 			  else
 				/* Display error */
-				gzrt_notice( "Error occured!", n64rom_error() );
+				gzrt_notice( "Error occured!", (char*)n64rom_error() );
 			break;
 			
 			/* Cancel */

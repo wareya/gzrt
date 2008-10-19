@@ -58,7 +58,7 @@ void gzrt_gui_debug_create ( void )
 	gtk_box_pack_start( GTK_BOX(vbox), w->bar, FALSE, FALSE, 0 );
 	
 	/* Create timer */
-	gtk_timeout_add( 500, gzrt_gui_debug_mem, NULL );
+	gtk_timeout_add( 500, (void*)gzrt_gui_debug_mem, NULL );
 	
 	/* Attach box to window */
 	gtk_container_add( GTK_CONTAINER(w->window), vbox );
@@ -110,7 +110,6 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 int gzrt_gui_debug_mem ( void )
 {
 	char buffer[64];
-	int mid;
 	static int init;
 	static int id;
 	static int past;
@@ -130,7 +129,7 @@ int gzrt_gui_debug_mem ( void )
 	
 	/* Push the new message */
 	id = gtk_statusbar_get_context_id( GTK_STATUSBAR(w->bar), buffer);
-	past = gtk_statusbar_push( w->bar, id, buffer );
+	past = gtk_statusbar_push( GTK_STATUSBAR(w->bar), id, buffer );
 	
 	/* Update */
 	init++;
