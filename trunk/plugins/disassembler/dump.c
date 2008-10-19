@@ -289,7 +289,6 @@ static void dasm_write_disassembly ( GtkWidget * w )
 	fh = fopen( gtk_entry_get_text( GTK_ENTRY(en) ), "wb" );
 	
 	/* Loop */
-	g_print( "%X, %X\n", start, MIN(end, h->filesize) );
 	for( i = start; i < MIN(end, h->filesize); i += 4 )
 	{
 		char buffer[128];
