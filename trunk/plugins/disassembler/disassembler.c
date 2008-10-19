@@ -1,7 +1,9 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <r4kdis.h>
+#include <disassembler.h>
 
 #include "gzrtplugin.h"
 
@@ -29,11 +31,6 @@ struct PluginMeta gzrt_plugin_info =
 	init, menu_bar, dasm
 };
 
-/* Constants */
-#define ASM_ROWS 20
-#define ASM_COLS 3
-#define ASM_FONT "Lucida Console 8"
-
 /* Macros */
 #define U32(x) ((x)[0] << 24 | (x)[1] << 16 | (x)[2] << 8 | (x)[3])
 
@@ -45,36 +42,6 @@ struct PluginMeta gzrt_plugin_info =
 /* Lookup connected data */
 #define LOOKUP( component, name )   \
     g_object_get_data( G_OBJECT(component), name )
-    
-/* Text buffer container */
-struct DASMRowTextBuffers
-{
-    GtkTextBuffer * address;
-    GtkTextBuffer * raw;
-    GtkTextBuffer * disassembly;
-};
-
-/* Disassembler window context */
-typedef struct
-{
-    /* GUI stuff */
-    GtkWidget                 * window;
-    struct DASMRowTextBuffers   Text[ASM_ROWS];
-    
-    /* Varying disassembler stuff */
-    unsigned int                flags;
-    unsigned int                pc;
-    unsigned int                pc_start;
-    
-    /* Disassembler stuff */
-    int                         filesize;
-    char                      * filename;
-    unsigned char             * data;
-	
-	/* Plugin stuff */
-	struct PluginTransac      * transac;
-} 
-DASM;
     
 /* Functions */
 void dasm_jump_handle ( GtkWidget * w, DASM * h );
@@ -358,7 +325,7 @@ GtkWidget * dasm_buttons_create ( DASM * h )
         { "Jump to end",           "gtk-goto-bottom", dasm_seek_end               },
         { "Jump to address",       "gtk-jump-to",     dasm_window_jump_to_address },
         { "Disassembler settings", "gtk-properties",  NULL                        },
-        { "Save disassembly",      "gtk-save",        NULL                        }
+        { "Save disassembly",      "gtk-save",        dasm_save_show              }
     };
     GtkWidget * button;
     GtkWidget * image;

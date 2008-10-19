@@ -746,8 +746,9 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	/* GTK Elements */
 	GtkWidget * ret;					/* An alignment containing everything */
 	
+	GtkWidget * content_hbox;
 	GtkWidget * info_list_separator;	/* Separates info box and file list   */
-	GtkWidget * info_pane;				/* Resizable pane for information	  */
+  /*GtkWidget * info_pane;				   Resizable pane for information	  */
 	GtkWidget * info_vbox;				/* Information storage box (frames)   */
 	GtkWidget * info_rom_align;			/* Align the frame nicely			  */
 	GtkWidget * info_bin_align;			/* Align the frame nicely			  */
@@ -773,12 +774,13 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	gtk_container_add( GTK_CONTAINER(ret), info_list_separator );
 	
 	/* Create the draggable pane */
-	info_pane = gtk_hpaned_new();
-	gtk_box_pack_start( GTK_BOX(info_list_separator), info_pane, TRUE, TRUE, 0 );
+	/* info_pane = gtk_hpaned_new(); */
+	content_hbox = gtk_hbox_new( FALSE, 8 );
+	gtk_box_pack_start( GTK_BOX(info_list_separator), content_hbox, TRUE, TRUE, 0 );
 	
 	/* Create the vertical box for all the frames */
 	info_vbox = gtk_vbox_new( FALSE, 0 );
-	gtk_paned_pack1( GTK_PANED(info_pane), info_vbox, FALSE, TRUE );
+	gtk_box_pack_start( GTK_BOX(content_hbox), info_vbox, FALSE, TRUE, 0 );
 	
 	/* Create alignments for frames */
 	info_rom_align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
@@ -798,7 +800,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	/* ALignment */
 	flist_align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
 	gtk_alignment_set_padding( GTK_ALIGNMENT(flist_align), 0, 0, 4, 0 );
-	gtk_paned_pack2( GTK_PANED(info_pane), flist_align, TRUE, TRUE );
+	gtk_box_pack_start( GTK_BOX(content_hbox), flist_align, TRUE, TRUE, 0 );
 	
 	/* Create right vbox */
 	flist_vbox = gtk_vbox_new( FALSE, 4 );

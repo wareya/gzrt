@@ -181,10 +181,8 @@ static gboolean
 detect_zobj_raw ( unsigned char * data, int size )
 {
 	/*
-	** This is just a preliminary implementation.
-	** It'll work on a few objects but certainly
-	** not all of them. Please remind me to fix
-	** this!
+	** This is just a preliminary implementation. It'll work on a few objects 
+	** but certainly not all of them. Please remind me to fix this!
 	*/
 	
 	guint64		instruction;
