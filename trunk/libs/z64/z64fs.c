@@ -159,6 +159,38 @@ void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
 	}
 }
 
+/* Return the decompressed size of a filesystem */
+unsigned z64fs_size_virt ( Z64FS * h )
+{
+	unsigned i, total = 0;
+	
+	/* Loop through each entry */
+	for( i = 0; i < z64fs_entries(h); i++ )
+	{
+		/* Does this file exist? */
+		if( ZFileExists(h, i) )
+			total += ZFileVirtSize(h, i);
+	}
+	
+	return total;
+}
+
+/* Return the physical size of a filesystem */
+unsigned z64fs_size_phys ( Z64FS * h )
+{
+	unsigned i, total = 0;
+	
+	/* Loop through each entry */
+	for( i = 0; i < z64fs_entries(h); i++ )
+	{
+		/* Does this file exist? */
+		if( ZFileExists(h, i) )
+			total += ZFileRealSize(h, i);
+	}
+	
+	return total;
+}
+
 /* Close a handle */
 void z64fs_close ( Z64FS * h )
 {
