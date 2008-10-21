@@ -13,7 +13,6 @@
 #include <sys/time.h>
 #include <gzrtplugin.h>
 #include "SDL.h"
-#include "SDL_ttf.h"
 
 /* Defaults */
 #define SCREEN_WIDTH	640
