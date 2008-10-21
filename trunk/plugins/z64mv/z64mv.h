@@ -77,7 +77,7 @@ typedef struct
 	SDL_Surface	  *message;
 	SDL_Event	   event;
 	SDL_VideoInfo *vinfo;
-	TTF_Font	  *font;
+	
 	SDL_Color      textColor;
 	
 	/* File information */
