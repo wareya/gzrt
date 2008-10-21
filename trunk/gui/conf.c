@@ -56,7 +56,8 @@ void gzrt_wconf_show ( MAINWIN * c )
 	
 	/* Default ROM */
 	label = gtk_label_new( "Default ROM:" );
-	gtk_table_attach( GTK_TABLE(table), label, 0, 1, 0, 1, 0, 0, 0, 0 );
+	gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.5f );
+	gtk_table_attach( GTK_TABLE(table), label, 0, 1, 0, 1, GTK_FILL, 0, 0, 0 );
 	hbox = gtk_hbox_new( FALSE, 4 );
 	gtk_table_attach( GTK_TABLE(table), hbox, 1, 2, 0, 1, GTK_EXPAND | GTK_FILL, 0, 0, 0 );
 	entry = gtk_entry_new();
@@ -68,6 +69,7 @@ void gzrt_wconf_show ( MAINWIN * c )
 	
 	/* Default plugin */
 	label = gtk_label_new( "Default plugin:" );
+	gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.5f );
 	gtk_table_attach( GTK_TABLE(table), label, 0, 1, 1, 2, GTK_FILL, 0, 0, 0 );
 	combo = gtk_combo_box_new();
 	gtk_table_attach( GTK_TABLE(table), combo, 1, 2, 1, 2, GTK_FILL, 0, 0, 0 );
