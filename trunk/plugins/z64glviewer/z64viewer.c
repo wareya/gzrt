@@ -258,201 +258,6 @@ init(int argc, char *argv[])
     camera[12] = -1000; camera[13]=0; camera[14]=0; camera[15]=0; // Position
 }
 
-int _main(int argc, char *argv[])
-{
-  SDL_Surface *screen;
-  int done;
-  Uint8 *keys;
-  int mousebutton,mouseX,mouseY;
-  int grabbed=false;
-  SDL_Init(SDL_INIT_VIDEO);
-
-  screen = SDL_SetVideoMode(640, 480, 32, SDL_OPENGL|SDL_RESIZABLE);
-  if ( ! screen ) {
-    fprintf(stderr, "Couldn't set 300x300 GL video mode: %s\n", SDL_GetError());
-    SDL_Quit();
-    exit(2);
-  }
-  SDL_WM_SetCaption("Z64Viewer", "z64viewer");
-  SDL_ShowCursor(SDL_DISABLE);
-  SDL_WM_GrabInput(SDL_GRAB_ON);
-  grabbed=true;
-  
-  init(argc, argv);
-  reshape(screen->w, screen->h);
-  done = 0;
-  while ( ! done ) {
-    SDL_Event event;
-
-    idle();
-    while ( SDL_PollEvent(&event) ) {
-      switch(event.type) {
-        case SDL_VIDEORESIZE:
-          screen = SDL_SetVideoMode(event.resize.w, event.resize.h, 16,
-                                    SDL_OPENGL|SDL_RESIZABLE);
-          if ( screen ) {
-            reshape(screen->w, screen->h);
-          } else {
-            printf("Problem...\n");
-          }
-          break;
-
-        case SDL_QUIT:
-          done = 1;
-          break;
-      }
-    }
-    keys = SDL_GetKeyState(NULL);
-
-    if ( keys[SDLK_ESCAPE] ) {
-      if(grabbed)
-      {
-          SDL_WM_GrabInput(SDL_GRAB_OFF);
-          SDL_ShowCursor(SDL_ENABLE);
-          grabbed=false;          
-          waitTime(200); // Wait a bit so we don't exit by mistake
-      }
-      else
-      {      
-      done = 1;
-      }
-    }
-
-    mousebutton=SDL_GetRelativeMouseState(&mouseX,&mouseY);
-    
-    GLfloat viewMatrix[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
-    
-    if(grabbed)
-    {
-        if((mousebutton&1) && (mousebutton&4))
-        {
-            matrixRotate(viewMatrix, mouseX/600.0f*360.0f, camera[0*4+0],camera[0*4+1],camera[0*4+2]);
-            
-            multM4Vect(&camera[0*4], viewMatrix, &camera[0*4]);
-            multM4Vect(&camera[1*4], viewMatrix, &camera[1*4]);
-            multM4Vect(&camera[2*4], viewMatrix, &camera[2*4]);
-        }
-        else
-        {
-            matrixRotate(viewMatrix, -mouseX/600.0f*360.0f, camera[2*4+0], camera[2*4+1],camera[2*4+2]);
-            matrixRotate(viewMatrix, -mouseY/600.0f*360.0f, camera[1*4+0], camera[1*4+1],camera[1*4+2]);
-            
-            multM4Vect(&camera[0*4], viewMatrix, &camera[0*4]);
-            multM4Vect(&camera[1*4], viewMatrix, &camera[1*4]);
-        
-            if(mousebutton&1)
-            {
-                camera[3*4+0]+=camera[0*4+0]*20;
-                camera[3*4+1]+=camera[0*4+1]*20;
-                camera[3*4+2]+=camera[0*4+2]*20;
-                camera[3*4+3]+=camera[0*4+3]*20;
-            }
-    
-          
-            if(mousebutton&4)
-            {
-                camera[3*4+0]-=camera[0*4+0]*20;
-                camera[3*4+1]-=camera[0*4+1]*20;
-                camera[3*4+2]-=camera[0*4+2]*20;
-                camera[3*4+3]-=camera[0*4+3]*20;
-            }
-
-
-            
-            if(keys[SDLK_d])
-            {
-                camera[3*4+0]+=camera[1*4+0]*20;
-                camera[3*4+1]+=camera[1*4+1]*20;
-                camera[3*4+2]+=camera[1*4+2]*20;
-                camera[3*4+3]+=camera[1*4+3]*20;
-            }
-            if(keys[SDLK_a])
-            {
-                camera[3*4+0]-=camera[1*4+0]*20;
-                camera[3*4+1]-=camera[1*4+1]*20;
-                camera[3*4+2]-=camera[1*4+2]*20;
-                camera[3*4+3]-=camera[1*4+3]*20;
-            }
-            if(keys[SDLK_w])
-            {
-                camera[3*4+0]+=camera[2*4+0]*20;
-                camera[3*4+1]+=camera[2*4+1]*20;
-                camera[3*4+2]+=camera[2*4+2]*20;
-                camera[3*4+3]+=camera[2*4+3]*20;
-            }
-            if(keys[SDLK_s])
-            {
-                camera[3*4+0]-=camera[2*4+0]*20;
-                camera[3*4+1]-=camera[2*4+1]*20;
-                camera[3*4+2]-=camera[2*4+2]*20;
-                camera[3*4+3]-=camera[2*4+3]*20;
-            }
-
-//FASTER
-            if(mousebutton&4 && mousebutton&2)
-            {
-                camera[3*4+0]-=camera[0*4+0]*200;
-                camera[3*4+1]-=camera[0*4+1]*200;
-                camera[3*4+2]-=camera[0*4+2]*200;
-                camera[3*4+3]-=camera[0*4+3]*200;
-            }
-	    if(mousebutton&1 && mousebutton&2)
-            {
-                camera[3*4+0]+=camera[0*4+0]*200;
-                camera[3*4+1]+=camera[0*4+1]*200;
-                camera[3*4+2]+=camera[0*4+2]*200;
-                camera[3*4+3]+=camera[0*4+3]*200;
-            }
-
-            if(keys[SDLK_i])
-            {
-                camera[3*4+0]+=camera[2*4+0]*200;
-                camera[3*4+1]+=camera[2*4+1]*200;
-                camera[3*4+2]+=camera[2*4+2]*200;
-                camera[3*4+3]+=camera[2*4+3]*200;
-            }
-	    if(keys[SDLK_k])
-            {
-                camera[3*4+0]-=camera[2*4+0]*200;
-                camera[3*4+1]-=camera[2*4+1]*200;
-                camera[3*4+2]-=camera[2*4+2]*200;
-                camera[3*4+3]-=camera[2*4+3]*200;
-            }
- 	    
-            if(keys[SDLK_j])
-            {
-                camera[3*4+0]-=camera[1*4+0]*200;
-                camera[3*4+1]-=camera[1*4+1]*200;
-                camera[3*4+2]-=camera[1*4+2]*200;
-                camera[3*4+3]-=camera[1*4+3]*200;
-            }
-
-            if(keys[SDLK_l])
-            {
-                camera[3*4+0]+=camera[1*4+0]*200;
-                camera[3*4+1]+=camera[1*4+1]*200;
-                camera[3*4+2]+=camera[1*4+2]*200;
-                camera[3*4+3]+=camera[1*4+3]*200;
-            }
-//FASTER END 
-
-        }            
-    }
-    else
-    {
-        if(mousebutton)
-        {
-            SDL_ShowCursor(SDL_DISABLE);
-            SDL_WM_GrabInput(SDL_GRAB_ON);
-            grabbed=true;
-        }
-    }    
-    draw();
-  }
-  SDL_Quit();
-  return 0;             /* ANSI C requires main to return int. */
-}
-
 void draw_from_data ( struct Data * k )
 {
   SDL_Surface *screen;
@@ -535,19 +340,19 @@ void draw_from_data ( struct Data * k )
     {
         if((mousebutton&1) && (mousebutton&4))
         {
-			/*
-            matrixRotate(viewMatrix, mouseX/600.0f*360.0f, camera[0*4+0],camera[0*4+1],camera[0*4+2]);
-            */
+			
+            matrixRotate(viewMatrix, mouseX/600.0f*20.0f, camera[0*4+0],camera[0*4+1],camera[0*4+2]);
+            
             multM4Vect(&camera[0*4], viewMatrix, &camera[0*4]);
             multM4Vect(&camera[1*4], viewMatrix, &camera[1*4]);
             multM4Vect(&camera[2*4], viewMatrix, &camera[2*4]);
         }
         else
         {
-			/*
-            matrixRotate(viewMatrix, -mouseX/600.0f*360.0f, camera[2*4+0], camera[2*4+1],camera[2*4+2]);
-            matrixRotate(viewMatrix, -mouseY/600.0f*360.0f, camera[1*4+0], camera[1*4+1],camera[1*4+2]);
-            */
+			
+            matrixRotate(viewMatrix, -mouseX/600.0f*25.0f, camera[2*4+0], camera[2*4+1],camera[2*4+2]);
+            matrixRotate(viewMatrix, -mouseY/600.0f*25.0f, camera[1*4+0], camera[1*4+1],camera[1*4+2]);
+            
             multM4Vect(&camera[0*4], viewMatrix, &camera[0*4]);
             multM4Vect(&camera[1*4], viewMatrix, &camera[1*4]);
         
@@ -586,17 +391,17 @@ void draw_from_data ( struct Data * k )
             }
             if(keys[SDLK_w])
             {
-                camera[3*4+0]+=camera[2*4+0]*20;
-                camera[3*4+1]+=camera[2*4+1]*20;
-                camera[3*4+2]+=camera[2*4+2]*20;
-                camera[3*4+3]+=camera[2*4+3]*20;
+                camera[3*4+0]+=camera[0*4+0]*20;
+                camera[3*4+1]+=camera[0*4+1]*20;
+                camera[3*4+2]+=camera[0*4+2]*20;
+                camera[3*4+3]+=camera[0*4+3]*20;
             }
             if(keys[SDLK_s])
             {
-                camera[3*4+0]-=camera[2*4+0]*20;
-                camera[3*4+1]-=camera[2*4+1]*20;
-                camera[3*4+2]-=camera[2*4+2]*20;
-                camera[3*4+3]-=camera[2*4+3]*20;
+                camera[3*4+0]-=camera[0*4+0]*20;
+                camera[3*4+1]-=camera[0*4+1]*20;
+                camera[3*4+2]-=camera[0*4+2]*20;
+                camera[3*4+3]-=camera[0*4+3]*20;
             }
 
 //FASTER
@@ -645,6 +450,7 @@ void draw_from_data ( struct Data * k )
                 camera[3*4+2]+=camera[1*4+2]*200;
                 camera[3*4+3]+=camera[1*4+3]*200;
             }
+			
 //FASTER END 
 
         }            
