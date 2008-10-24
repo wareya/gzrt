@@ -9,26 +9,26 @@
 
 enum NTType
 {
-	Z64NT_REAL,		/* Extracted from a ROM 		*/
-	Z64NT_VIRTUAL	/* Read in from a text document */
+    Z64NT_REAL,     /* Extracted from a ROM         */
+    Z64NT_VIRTUAL   /* Read in from a text document */
 };
 
 typedef struct Zelda64NameTable
 {
-	/* Name table information */
-	unsigned	start;
-	unsigned 	end;
-	
-	/* Data */
-	unsigned	amount;	/* Amount of entries			*/
-	GList     * names;	/* Hash table for fast lookup	*/
-	
-	/* Type */
-	enum NTType	type;
-	
-	/* Reserved */
-	unsigned	reserved1;
-	unsigned	reserved2;
+    /* Name table information */
+    unsigned    start;
+    unsigned    end;
+    
+    /* Data */
+    unsigned    amount; /* Amount of entries            */
+    GList     * names;  /* Hash table for fast lookup   */
+    
+    /* Type */
+    enum NTType type;
+    
+    /* Reserved */
+    unsigned    reserved1;
+    unsigned    reserved2;
 }
 Z64NT;
 
