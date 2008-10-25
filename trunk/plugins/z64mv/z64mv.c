@@ -26,7 +26,7 @@ int z64mv_init ( const struct Functions * f )
 /*
 ** Call from menu
 */
-int z64mv_main ( void )
+int z64mv_main ( const struct Functions * f, const struct RomSpec * r )
 {
 	/* Not implemented */
 	Z64MV_DEBUG( "Calling from menu bar not yet implemented." );
@@ -35,7 +35,7 @@ int z64mv_main ( void )
 /*
 ** Open a file from Zelda 64
 */
-int z64mv_load ( struct PluginTransac * t )
+int z64mv_load ( const struct Functions * f, const struct RomSpec * r, const struct PluginTransac * t )
 {
 	/* Allocate space */
 	Z64MV *ret = calloc(sizeof(Z64MV), 1);

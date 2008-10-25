@@ -43,15 +43,18 @@ ifeq ($(WIN32), 1)
 	CFLAGS += -DWIN32 -mwindows -mms-bitfields
 endif
 
+# Build main app 
 all: $(PARTS)
 	make -C libs
-	make -C plugins
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
-	
-# For creating final Win32 package
-win32: $(PARTS)
-	make -C libs
+
+# Build plugins only
+plugins:
 	make -C plugins
+
+# For creating final Win32 package
+win32: $(PARTS) plugins
+	make -C libs
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 	cp -v $(PROJECT).exe /c/GZRT/resources/bin
@@ -63,18 +66,3 @@ win32: $(PARTS)
 clean:
 	rm -vf `find . -name "*.o"` # Object files
 	rm -vf `find . -name "*~"`  # Temporary files
-
-lines:
-	cat `find . -name "*.c"` `find . -name "*.h"` | wc -l
-
-bytes:
-	cat `find . -name "*.c"` `find . -name "*.c"` | wc -c
-	
-# Dependencies - GUI
-gui/gui.o:		gui/gui.h
-gui/error.o:	gui/error.h	
-gui/splash.o:	gui/splash.h
-gui/filesel.o:	gui/filesel.h
-gui/main.o:		gui/main.h 	
-gui/pbar.o:		gui/pbar.h
-gui/about.o:	gui/about.h 

@@ -376,7 +376,7 @@ void gzrt_load_plugins ( void )
 }
 
 /* Call a plugin using the default */
-void gzrt_call_plugin ( void * file )
+void gzrt_call_plugin ( void * RomSpec, void * file )
 {
 	struct PluginTransac  * transaction;
 	struct PluginFileSpec * filedata = file;
@@ -405,7 +405,7 @@ void gzrt_call_plugin ( void * file )
 	transaction->plugin = selected;
 	
 	/* Call the plugin */
-	selected->meta->action( transaction );
+	selected->meta->action( &functions, RomSpec, transaction );
 }
 
 /* Plugin cleanup */

@@ -26,6 +26,6 @@ typedef unsigned long u32;
 #define NOTICE(h, t) \
 	((GZRT_FUNC)->notice(h, t))
 #define PLUGIN_DATA_FREE(t) \
-	((GZRT_FUNC)->close(t))
+	((GZRT_FUNC)->close((void*)t))
 
 #endif

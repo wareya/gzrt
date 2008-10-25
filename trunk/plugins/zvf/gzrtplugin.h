@@ -4,6 +4,14 @@
 #ifndef __GZRT_PLUGINS_H
 #define __GZRT_PLUGINS_H
 
+/* An open Zelda ROM context */
+struct RomSpec
+{
+	void * rom;
+	void * fs;
+	void * nt;
+};
+
 /* File spec */
 struct PluginFileSpec
 {
@@ -44,15 +52,36 @@ struct Functions
 	unsigned   (*mused)  ( void     );
 	
 	/* Debug/error handling */
-	void	 * (*error)  ( char *, int, char *, ... );
-	void	 * (*debug)  ( char *, int, char *, ... );
-	void     * (*notice) ( char *, char *           );
+	void	   (*error)  ( char *, int, char *, ... );
+	void	   (*debug)  ( char *, int, char *, ... );
+	void       (*notice) ( char *, char *           );
 	void     *	reserved2;
 	
 	/* Plugin ending */
-	void     * (*close)  ( struct PluginTransac * );
+	void       (*close)  ( const struct PluginTransac * );
 	void     *	reserved3;
 };
+
+/* Init function handler */
+typedef int (*GZRT_P_INIT)
+(
+	const struct Functions *
+);
+
+/* Menu bar handler */
+typedef int (*GZRT_P_MENU)
+(
+	const struct Functions *,
+	const struct RomSpec *
+);
+
+/* File action handler */
+typedef int (*GZRT_P_ACTION)
+(
+	const struct Functions *,
+	const struct RomSpec *,
+	const struct PluginTransac *
+);
 
 /* Plugin information header */
 struct PluginMeta
@@ -68,9 +97,9 @@ struct PluginMeta
 	char * desc;
 	
 	/* Functions */
-	int (*init)     ( const struct Functions * ); 
-	int (*menu_bar)	( void                     );
-	int (*action)	( struct PluginTransac *   );
+	GZRT_P_INIT		init;
+	GZRT_P_MENU		menu_bar;
+	GZRT_P_ACTION	action;
 };
 
 /*
@@ -87,13 +116,14 @@ struct PluginMeta
 #include <app/mem.h>
 
 /* Function declarations */
-void        gzrt_load_plugins        ( void                     );
-GtkWidget * gzrt_plugins_menu        ( void                     );
-int         gzrt_plugins_count       ( void                     );
-void        gzrt_call_plugin         ( void * file              );
-void        gzrt_plugin_cleanup      ( struct PluginTransac * t );
-GtkWidget * gzrt_plugins_preferences ( int action               );
-void        gzrt_set_default_plugin  ( GtkWidget * window       );
+void        gzrt_load_plugins        ( void                        );
+GtkWidget * gzrt_plugins_menu        ( void                        );
+int         gzrt_plugins_count       ( void                        );
+void        gzrt_call_plugin         ( void * RomSpec, void * file );
+void        gzrt_plugin_cleanup      ( struct PluginTransac * t    );
+GtkWidget * gzrt_plugins_preferences ( int action                  );
+void        gzrt_set_default_plugin  ( GtkWidget * window          );
+char *      gzrt_plugin_curname      ( void                        );
 
 #endif
 

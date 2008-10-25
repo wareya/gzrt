@@ -9,8 +9,7 @@
 
 /* Connect data to a widget */
 #define HOOKUP( component, widget, name )                       \
-    g_object_set_data_full( G_OBJECT(component), name,          \
-    gtk_widget_ref(widget), (GDestroyNotify)gtk_widget_unref )
+    g_object_set_data_full( G_OBJECT(component), name, widget, NULL )
 
 /* Lookup connected data */
 #define LOOKUP( component, name )   \
@@ -380,7 +379,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	
 	
 	/* Signals - window itself */
-	c->hid = (void*)g_signal_connect_swapped( G_OBJECT(Main_Window), "destroy", G_CALLBACK(gzrt_wmain_closed), c );
+	g_signal_connect_swapped( G_OBJECT(Main_Window), "destroy", G_CALLBACK(gzrt_wmain_closed), c );
 
 	/* Store pointers to all widgets, for use by lookup_widget(). */
 	GLADE_HOOKUP_OBJECT_NO_REF (Main_Window, Main_Window, "Main_Window");
@@ -438,9 +437,6 @@ void gzrt_wmain_update ( MAINWIN *c )
 	gtk_widget_show_all( h );
 	
 	GLADE_HOOKUP_OBJECT( c->window, m, "main" );
-	
-	/* Debug */
-	GZRTD_MESG( "Window %u redrawn.", c->id );
 }
 
 /* Add a new element to a side frame */
@@ -512,7 +508,7 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	file->file = gzrt_malloc( file->filesize );
 	z64fs_read_file( w->z, id, file->file );
 	
-	gzrt_call_plugin( file );
+	gzrt_call_plugin( &w->spec, file );
 }
 
 /* Get ID of the currently selected file */

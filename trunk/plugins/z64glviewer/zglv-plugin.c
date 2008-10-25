@@ -12,13 +12,13 @@
 #include "SDL.h"
 
 /* Declarations - plugin core */
-int z64v_init ( const struct Functions * f );
-int z64v_main ( void                       );
-int z64v_load ( struct PluginTransac * t   );
+int z64v_init ( const struct Functions * );
+int z64v_main ( const struct Functions *, const struct RomSpec * );
+int z64v_load ( const struct Functions *, const struct RomSpec *, const struct PluginTransac * t );
 
 /* Declarations */
-GtkWidget * z64v_ep_window ( struct PluginTransac * t         );
-void        z64v_begin     ( struct PluginTransac * t, u32 ep );
+GtkWidget * z64v_ep_window ( const struct PluginTransac * t         );
+void        z64v_begin     ( const struct PluginTransac * t, u32 ep );
 
 /* Plugin information */
 struct PluginMeta gzrt_plugin_info =
@@ -72,18 +72,18 @@ int z64v_init ( const struct Functions * f )
 }
 
 /* Call from menu */
-int z64v_main ( void )
+int z64v_main ( const struct Functions * f, const struct RomSpec * r )
 {
 	DEBUG( "Not implemented.\n" );
 }
 
 /* Open a file from Zelda */
-int z64v_load ( struct PluginTransac * t )
+int z64v_load ( const struct Functions * f, const struct RomSpec * r, const struct PluginTransac * t )
 {
 	/* Only once instance, please */
 	if( in_use )
 	{
-		PLUGIN_DATA_FREE( t);
+		PLUGIN_DATA_FREE( t );
 		return 0;
 	}
 	else
@@ -95,19 +95,18 @@ int z64v_load ( struct PluginTransac * t )
 
 /* Connect data to a widget */
 #define HOOKUP( component, widget, name )                       \
-    g_object_set_data_full( G_OBJECT(component), name,          \
-    gtk_widget_ref(widget), (GDestroyNotify)gtk_widget_unref )
+    g_object_set_data_full( G_OBJECT(component), name, (void*)widget, NULL )
 	
 /* Connect generic data to widget */
 #define HOOKUP_GEN( component, item, name ) 					\
-    g_object_set_data_full( G_OBJECT(component), name, item, NULL )
+    g_object_set_data_full( G_OBJECT(component), name, (void*)item, NULL )
 
 /* Lookup connected data */
 #define LOOKUP( component, name )   \
     g_object_get_data( G_OBJECT(component), name )
 
 /* Create window with a list of entry points from data */
-GtkWidget * z64v_ep_window ( struct PluginTransac * t )
+GtkWidget * z64v_ep_window ( const struct PluginTransac * t )
 {
 	/* File vars */
 	unsigned char	* data = t->file->file;
@@ -199,7 +198,7 @@ void z64v_ep_check ( GtkWidget * window )
 }
 
 /* Show the model viewer */
-void z64v_begin ( struct PluginTransac * t, u32 ep )
+void z64v_begin ( const struct PluginTransac * t, u32 ep )
 {
 	GtkWidget * window;
 	GtkWidget * button;

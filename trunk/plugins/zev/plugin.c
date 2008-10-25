@@ -9,7 +9,7 @@
 #define FILENAME "_tmp.bin"
 
 int init ( const struct Functions * f );
-int show ( struct PluginTransac * t );
+int show ( const struct Functions *, const struct RomSpec *, const struct PluginTransac * );
 
 /* Plugin information */
 struct PluginMeta gzrt_plugin_info =
@@ -44,7 +44,7 @@ int init ( const struct Functions * f )
 }
 
 /* Invoke */
-int show ( struct PluginTransac * t )
+int show ( const struct Functions * f, const struct RomSpec * r, const struct PluginTransac * t )
 {
 	extern void asdfdhjfh ( struct PluginTransac * t  );
 	

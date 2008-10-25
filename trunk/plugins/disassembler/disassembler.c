@@ -8,9 +8,9 @@
 #include "gzrtplugin.h"
 
 /* Function declarations */
-int init ( const struct Functions * f );
-int menu_bar ( void );
-int dasm ( struct PluginTransac * t   );
+int init     ( const struct Functions * f );
+int menu_bar ( const struct Functions *, const struct RomSpec * );
+int dasm     ( const struct Functions *, const struct RomSpec *, const struct PluginTransac * t );
 
 /* GZRT Inherited functions */
 static const struct Functions * func;
@@ -549,7 +549,7 @@ int init ( const struct Functions * f )
 ** Disassemble a regular file
 */
 
-int menu_bar ( void )
+int menu_bar ( const struct Functions * f, const struct RomSpec * r )
 {
 	static char fn[1024];
 	DASM * h;
@@ -589,7 +589,7 @@ int menu_bar ( void )
 ** Disassemble a file from OoT
 */
 
-int dasm ( struct PluginTransac * t )
+int dasm ( const struct Functions * f, const struct RomSpec * r, const struct PluginTransac * t )
 {
 	struct PluginFileSpec * k = t->file;
 	DASM * h = dasm_new_from_raw( k->filename, k->file, k->filesize );

@@ -7,6 +7,7 @@
 /* Deps */
 #include <n64rom.h>
 #include <z64.h>
+#include <app/plugins.h>
 
 /* Constants */
 #define GZRT_WMAIN_W	500
@@ -39,21 +40,25 @@
 /* Structure */
 typedef struct _gzrt_wmain
 {
-	int   id;
-	void *hid;
-	
 	/* Window */
 	GtkWidget *window;
 	
 	/* Status stack */
 	int sstack;
 	
-	/* ROM Context */
-	N64Rom *c;
-	
-	/* Zelda Filesystem */
-	Z64FS *z;
-	Z64NT *t;
+	union
+	{
+		struct RomSpec spec;
+		struct 
+		{
+			/* ROM Context */
+			N64Rom *c;
+			
+			/* Zelda Filesystem */
+			Z64FS *z;
+			Z64NT *t;
+		};
+	};
 }
 MAINWIN;
 

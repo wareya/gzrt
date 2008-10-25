@@ -19,21 +19,21 @@ struct DASMRowTextBuffers
 typedef struct
 {
     /* GUI stuff */
-    GtkWidget                 * window;
-    struct DASMRowTextBuffers   Text[ASM_ROWS];
+    GtkWidget                  * window;
+    struct DASMRowTextBuffers    Text[ASM_ROWS];
     
     /* Varying disassembler stuff */
-    unsigned int                flags;
-    unsigned int                pc;
-    unsigned int                pc_start;
+    unsigned int                 flags;
+    unsigned int                 pc;
+    unsigned int                 pc_start;
     
     /* Disassembler stuff */
-    int                         filesize;
-    char                      * filename;
-    unsigned char             * data;
+    int                          filesize;
+    char                       * filename;
+    unsigned char              * data;
 	
 	/* Plugin stuff */
-	struct PluginTransac      * transac;
+	const struct PluginTransac * transac;
 } 
 DASM;
 
