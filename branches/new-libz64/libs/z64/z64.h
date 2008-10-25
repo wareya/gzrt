@@ -24,16 +24,12 @@
 /* Status flags */
 enum
 {
-	Z64_LOADED_FS   = 0x0002,
-	Z64_LOADED_NT   = 0x0004,
-	Z64_LOADED_AT   = 0x0008,
-	Z64_LOADED_OT   = 0x0010,
-	Z64_LOADED_ST   = 0x0020,
-	Z64_NOTFOUND_FS = 0x0080,
-	Z64_NOTFOUND_NT = 0x0100,
-	Z64_NOTFOUND_AT = 0x0200,
-	Z64_NOTFOUND_OT = 0x0400,
-	Z64_NOTFOUND_ST = 0x0800,
+	Z64_LOADED_FS   = 0x0001,
+	Z64_LOADED_NT   = 0x0002,
+	Z64_LOADED_AT   = 0x0004,
+	Z64_LOADED_OT   = 0x0008,
+	Z64_LOADED_ST   = 0x0010,
+	Z64_LOADED_CODE = 0x0020
 };
 
 /* ROM context */
@@ -53,7 +49,7 @@ typedef struct
 
 	/* Extra elements */
 	Z64NT * nt;		/* Name table   */
-	void  * at;		/* Actor table  */
+	Z64AT * at;		/* Actor table  */
 	void  * ot;		/* Object table */
 	void  * st;		/* Scene table  */
 
@@ -79,5 +75,6 @@ Z64 * z64_open ( char * filename );
 void z64_close ( Z64 * h );
 void z64_read_file ( Z64 * h, int id, unsigned char * dest );
 gboolean z64_discover_code ( Z64 * h );
+Z64AT * z64at_open ( Z64 * );
 
 #endif

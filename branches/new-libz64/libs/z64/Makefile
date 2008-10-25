@@ -19,7 +19,7 @@ CC = gcc
 
 # Compiler settings
 LDFLAGS = -shared -W1,-soname,$(TARGET) `pkg-config --libs glib-2.0`
-CFLAGS  = `pkg-config --cflags glib-2.0` -O3 --std=gnu99 -g -fPIC -I. \
+CFLAGS  = `pkg-config --cflags glib-2.0` --std=gnu99 -g -fPIC -I. \
 	-funsigned-char
 
 # Win32 again
@@ -29,6 +29,7 @@ endif
 	
 $(TARGET): $(PIECES)
 	$(CC) -o $(TARGET) $(PIECES) $(LDFLAGS)
+	cp $(TARGET) /mingw/bin -v
 
 ../$(TARGET): $(TARGET)
 	cp $(TARGET) .. -v

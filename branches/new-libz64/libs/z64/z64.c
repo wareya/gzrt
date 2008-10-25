@@ -28,6 +28,10 @@ Z64 * z64_open ( char * filename )
 	if( (ret->nt = z64nt_open( ret->handle )) )
 		ret->status |= Z64_LOADED_NT;
 	
+	/* Read the actor table */
+	if( (ret->at = z64at_open( ret )) )
+		ret->status |= Z64_LOADED_AT;
+	
 	/* Store filename */
 	ret->filename = strdup( filename );
 	
@@ -71,18 +75,18 @@ void z64_read_file ( Z64 * h, int id, unsigned char * dest )
 gboolean
 z64_discover_code ( Z64 * h )
 {
-	int i;
+	int i, k;
 	unsigned char * tmp;
 	
 	/* Some unique bytes with which to identify it */
 	const guint8 code_ident[] = 
 	{
-		0x48, 0x20, 0x41, 0x32, 0x3A, 0x25, 0x30, 0x38,
-		0x78, 0x48, 0x0A, 0x00, 0x41, 0x33, 0x3A, 0x25,
-		0x30, 0x38, 0x78, 0x48, 0x20, 0x54, 0x30, 0x3A,
-		0x25, 0x30, 0x38, 0x78, 0x48, 0x20, 0x54, 0x31,
-		0x3A, 0x25, 0x30, 0x38, 0x78, 0x48, 0x0A, 0x00,
-		0x54, 0x32, 0x3A, 0x25, 0x30, 0x38, 0x78, 0x48 
+		0x5A, 0x82, 0xA5, 0x7E, 0x30, 0xFC, 0x89, 0xBE, 
+		0x76, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x18, 0xF9, 0x6A, 0x6E, 0xB8, 0xE3, 0x82, 0x76, 
+		0x47, 0x1D, 0x18, 0xF9, 0x82, 0x76, 0x6A, 0x6E, 
+		0x6A, 0x6E, 0x82, 0x76, 0xE7, 0x07, 0xB8, 0xE3, 
+		0x7D, 0x8A, 0x47, 0x1D, 0x6A, 0x6E, 0x18, 0xF9  
 	};
 	
 	/* Does this context already have one? */
@@ -115,20 +119,22 @@ z64_discover_code ( Z64 * h )
 	
 file_found: ;
 	
+	printf( "%X\n", i );
+	
 	/* Read it in */
 	tmp = malloc( ZFileVirtSize(h->fs, i) );
 	z64_read_file( h, i, tmp );
 	
 	/* Scan for block */
-	for( i = 0; i < ZFileVirtSize(h->fs, i); i += 16 )
-		if( !memcmp( tmp + i, code_ident, sizeof(code_ident) ) )
-		{
-			/* We got it! */
-			h->f_code = z64fs_file( h->fs, i );
-			h->f_code_data = tmp;
+	if( !memcmp( tmp + ZFileVirtSize(h->fs, i) - sizeof(code_ident), code_ident, sizeof(code_ident) ) )
+	{
+		/* We got it! */
+		h->f_code = z64fs_file( h->fs, i );
+		h->f_code_data = tmp;
+		h->status |= Z64_LOADED_CODE;
 			
-			return TRUE;
-		}
+		return TRUE;
+	}
 	
 	/* Not found? Keep going... */
 	free( tmp );
