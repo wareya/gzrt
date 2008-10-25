@@ -44,6 +44,7 @@ void z64_close ( Z64 * h )
 	z64fs_close( h->fs );
 	z64nt_close( h->nt );
 	free( h->filename );
+	free( h->f_code_data );
 	fclose( h->handle );
 	free( h );
 }
