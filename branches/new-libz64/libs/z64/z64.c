@@ -119,8 +119,6 @@ z64_discover_code ( Z64 * h )
 	
 file_found: ;
 	
-	printf( "%X\n", i );
-	
 	/* Read it in */
 	tmp = malloc( ZFileVirtSize(h->fs, i) );
 	z64_read_file( h, i, tmp );
