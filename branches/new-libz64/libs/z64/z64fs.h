@@ -17,10 +17,7 @@ Z64FSEntry;
 /* File table */
 typedef struct Zelda64FileTable
 {
-    /* Carrier */
-    FILE * fhandle;
-    
-    /* Table information */
+	/* Table information */
     char creator[32];
     char date[32];
     int  filecount;
@@ -35,12 +32,12 @@ typedef struct Zelda64FileTable
 Z64FS;
 
 /* Functions */
-Z64FS *            z64fs_open      ( char * filename                         );
-const Z64FSEntry * z64fs_file      ( Z64FS * h, int id                       );
-void               z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
-void               z64fs_close     ( Z64FS * h                               );
-unsigned           z64fs_size_virt ( Z64FS * h                               );
-unsigned           z64fs_size_phys ( Z64FS * h                               );
+Z64FS * z64fs_open ( FILE * handle );
+const Z64FSEntry * z64fs_file ( Z64FS * h, int id );
+void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
+void z64fs_close ( Z64FS * h );
+unsigned z64fs_size_virt ( Z64FS * h );
+unsigned z64fs_size_phys ( Z64FS * h );
 
 /* Macros */
 #define ZFileStart(h, id)           ((h)->files[id].start)

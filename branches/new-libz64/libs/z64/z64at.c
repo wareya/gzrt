@@ -1,0 +1,61 @@
+/***********************
+* Zelda 64 Actor Table *
+***********************/
+#include <z64.h>
+#include <stdio.h>
+#include <glib.h>
+#include <string.h>
+
+/* Actor table identifier - it lies immediately after this */
+static const guint8 
+table_ident[] =
+{
+    0xE2, 0x00, 0x00, 0x1C, 0xC8, 0x10, 0x49, 0xF8,
+	0xE2, 0x00, 0x1E, 0x01, 0x00, 0x00, 0x00, 0x01,
+    0xDF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
+};
+
+/* The list terminator (as far as I know) */
+static const guint8
+table_term[] = 
+{
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+	0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x05,
+    0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x10,
+	0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x40 
+};
+
+
+Z64AT * z64at_open ( Z64 * h )
+{
+	int i;
+	
+	/* We need the code file to be identified */
+	if( !z64_discover_code( h ) )
+		return NULL;
+	
+	/* Scan through it for the identifier */
+	for( i = 0; i < Z_FILESIZE_PHYS(h->f_code); i += 16 )
+		if( !memcmp( h->f_code_data + i, table_ident, sizeof(table_ident) ) )
+			goto found_table;
+			
+	/* Not found */
+	return NULL;
+	
+	/* Located the table */
+found_table:
+	
+	/* Find the end of the table */
+	for( ; i < Z_FILESIZE_PHYS(h->f_code) - sizeof(table_term); i += 16 )
+		if( !memcmp( h->f_code_data + i, table_term, sizeof(table_term) ) )
+			goto found_end;
+	
+	/* We've reached the end... */
+	return NULL;
+	
+	/* Located ending */
+found_end: ;
+}
