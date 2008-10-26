@@ -187,18 +187,21 @@ GtkWidget * gzrt_plugins_preferences ( int action )
 	select = gtk_combo_box_entry_new_text();
 	
 	/* Populate */
-	for( i = 0; p; i++ )
-	{
-		/* Append */
-		gtk_combo_box_append_text( GTK_COMBO_BOX(select), p->meta->long_name );
-		
-		/* Default? */
-		if( p == selected )
-			gtk_combo_box_set_active( GTK_COMBO_BOX(select), i );
-		
-		/* Next */
-		p = p->next;
-	}
+	if( plugins.dl )
+		for( i = 0; p; i++ )
+		{
+			/* Append */
+			gtk_combo_box_append_text( GTK_COMBO_BOX(select), p->meta->long_name );
+			
+			/* Default? */
+			if( p == selected )
+				gtk_combo_box_set_active( GTK_COMBO_BOX(select), i );
+			
+			/* Next */
+			p = p->next;
+		}
+	else
+		gtk_combo_box_append_text( GTK_COMBO_BOX(select), "None" );
 	
 	/* Create confirm button */
 	ok = gtk_button_new_with_label( "Apply" );
@@ -210,7 +213,8 @@ GtkWidget * gzrt_plugins_preferences ( int action )
 	gtk_container_add( GTK_CONTAINER(window), vbox );
 	
 	/* Signals */
-	g_signal_connect_swapped( G_OBJECT(ok), "clicked", G_CALLBACK(gzrt_set_default_plugin), (gpointer)window );
+	if( plugins.dl )
+		g_signal_connect_swapped( G_OBJECT(ok), "clicked", G_CALLBACK(gzrt_set_default_plugin), (gpointer)window );
 	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(gzrt_plugins_preferences), (gpointer)1 );
 	
 	/* Show everything */
