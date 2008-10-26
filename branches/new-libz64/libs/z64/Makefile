@@ -5,7 +5,7 @@
 PROJECT = z64
 
 # Parts
-PIECES = z64.o z64at.o z64nt.o z64fs.o z64yaz0.o z64detect.o
+PIECES = z64.o z64at.o z64nt.o z64fs.o z64st.o z64yaz0.o z64detect.o
 
 # Win32 stuff
 ifeq ($(WIN32), 1)

@@ -9,6 +9,7 @@
 #include "z64fs.h"
 #include "z64nt.h"
 #include "z64at.h"
+#include "z64st.h"
 #include "z64detect.h"
 #include "z64yaz0.h"
 
