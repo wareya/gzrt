@@ -9,6 +9,7 @@
 #include "z64fs.h"
 #include "z64nt.h"
 #include "z64at.h"
+#include "z64detect.h"
 #include "z64yaz0.h"
 
 /* Macros */
@@ -29,7 +30,8 @@ enum
 	Z64_LOADED_AT   = 0x0004,
 	Z64_LOADED_OT   = 0x0008,
 	Z64_LOADED_ST   = 0x0010,
-	Z64_LOADED_CODE = 0x0020
+	Z64_LOADED_CODE = 0x0020,
+	Z64_NO_CODE     = 0x0040
 };
 
 /* ROM context */
@@ -64,11 +66,6 @@ typedef struct
 	int	resv4;
 }
 Z64;
-
-/* Detection functions */
-int          z64detect_raw     ( unsigned char * data, int size );
-int          z64detect_name    ( unsigned char * name           );
-const char * z64detect_fileext ( int id                         );
 
 /* Functions */
 Z64 * z64_open ( char * filename );

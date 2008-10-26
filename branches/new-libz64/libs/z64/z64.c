@@ -79,20 +79,13 @@ z64_discover_code ( Z64 * h )
 	int i, k;
 	unsigned char * tmp;
 	
-	/* Some unique bytes with which to identify it */
-	const guint8 code_ident[] = 
-	{
-		0x5A, 0x82, 0xA5, 0x7E, 0x30, 0xFC, 0x89, 0xBE, 
-		0x76, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-		0x18, 0xF9, 0x6A, 0x6E, 0xB8, 0xE3, 0x82, 0x76, 
-		0x47, 0x1D, 0x18, 0xF9, 0x82, 0x76, 0x6A, 0x6E, 
-		0x6A, 0x6E, 0x82, 0x76, 0xE7, 0x07, 0xB8, 0xE3, 
-		0x7D, 0x8A, 0x47, 0x1D, 0x6A, 0x6E, 0x18, 0xF9  
-	};
-	
 	/* Does this context already have one? */
 	if( h->f_code )
 		return TRUE;
+	
+	/* Have we already tried and failed? */
+	if( (h->status & Z64_NO_CODE) )
+		return FALSE;
 	
 	/*
 		The criteria for the code file are the following:
@@ -116,6 +109,7 @@ z64_discover_code ( Z64 * h )
 	}
 	
 	/* The file hasn't been found, no good */
+	h->status |= Z64_NO_CODE;
 	return FALSE;
 	
 file_found: ;
@@ -125,7 +119,7 @@ file_found: ;
 	z64_read_file( h, i, tmp );
 	
 	/* Scan for block */
-	if( !memcmp( tmp + ZFileVirtSize(h->fs, i) - sizeof(code_ident), code_ident, sizeof(code_ident) ) )
+	if( z64detect_raw( tmp, ZFileVirtSize(h->fs, i) ) == Z64_ASM )
 	{
 		/* We got it! */
 		h->f_code = z64fs_file( h->fs, i );
