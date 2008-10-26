@@ -34,7 +34,6 @@ typedef struct FileTypes
 {
     const char     * name;          /* Description              */
     const char     * suffix;        /* File extension           */
-    const char     * prefix;        /* Filename prefix (if any) */
     const CheckRaw   check_raw;     /* Analyze the raw data     */
     const CheckName  check_name;    /* Analyze filename         */
 }
@@ -57,12 +56,12 @@ static gboolean detect_zasm_name   ( unsigned char * );
 /* File type descriptor */
 static const FT ftypes[] =
 {
-    { "Unknown",     "zdata",  NULL,     NULL,              NULL               },
-    { "Actor file",  "zactor", "ovl",    detect_zactor_raw, detect_zactor_name },
-    { "Object file", "zobj",   "object", detect_zobj_raw,   detect_zobj_name   },
-    { "Room file",   "zmap",   NULL,     detect_zmap_raw,   detect_zmap_name   },
-    { "Scene file",  "zscene", NULL,     detect_zscene_raw, detect_zscene_name },
-    { "Game core",   "zasm",   NULL,     detect_zasm_raw,   detect_zasm_name   }
+    { "Unknown",     "zdata",  NULL,              NULL               },
+    { "Actor file",  "zactor", detect_zactor_raw, detect_zactor_name },
+    { "Object file", "zobj",   detect_zobj_raw,   detect_zobj_name   },
+    { "Room file",   "zmap",   detect_zmap_raw,   detect_zmap_name   },
+    { "Scene file",  "zscene", detect_zscene_raw, detect_zscene_name },
+    { "Game core",   "zasm",   detect_zasm_raw,   detect_zasm_name   }
 };
 
 

@@ -57,7 +57,7 @@ void z64_read_file ( Z64 * h, int id, unsigned char * dest )
     fread( dest, ZFileRealSize(h->fs, id), 1, h->handle );
     
     /* Do we need to decompress it? */
-    if( ZFileIsCompressed(h->fs, id) && !strncmp("Yaz0", dest, 4) )
+    if( ZFileIsCompressed(h->fs, id) && !strncmp("Yaz0", (char*)dest, 4) )
     {
         unsigned char * tmp = malloc(ZFileVirtSize(h->fs, id));
         
@@ -76,7 +76,7 @@ void z64_read_file ( Z64 * h, int id, unsigned char * dest )
 gboolean
 z64_discover_code ( Z64 * h )
 {
-	int i, k;
+	int i;
 	unsigned char * tmp;
 	
 	/* Does this context already have one? */
