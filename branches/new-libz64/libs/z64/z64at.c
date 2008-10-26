@@ -11,7 +11,7 @@
 
 /* Actor table identifier - it lies immediately after this */
 static const guint8 
-table_ident[] =
+table_ident_oot[] =
 {
 	0xE2, 0x00, 0x00, 0x1C, 0xC8, 0x10, 0x49, 0xF8,
 	0xE2, 0x00, 0x1E, 0x01, 0x00, 0x00, 0x00, 0x01,
@@ -21,7 +21,7 @@ table_ident[] =
 
 /* The list terminator (as far as I know) */
 static const guint8
-table_term[] = 
+table_term_oot[] = 
 {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -30,6 +30,18 @@ table_term[] =
     0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x10,
 	0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x40 
 };
+
+static const guint8
+table_ident_mm[] =
+{
+	0x04, 0x09, 0x21, 0xE0, 0x04, 0x09, 0x23, 0xE0,
+	0xAA, 0xFF, 0xFF, 0xFF, 0xC8, 0xC8, 0xFF, 0xFF,
+    0x00, 0x00, 0x00, 0x00, 0xBF, 0x80, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+static const guint8 *
+table_term_mm = table_term_oot;
 
 
 Z64AT * z64at_open ( Z64 * h )
@@ -46,9 +58,22 @@ Z64AT * z64at_open ( Z64 * h )
 		return NULL;
 	
 	/* Scan through it for the identifier */
-	for( i = 0; i < Z_FILESIZE_VIRT(h->f_code); i += 8 )
-		if( !memcmp( h->f_code_data + i, table_ident, sizeof(table_ident) ) )
+	for( i = 0; i < Z_FILESIZE_VIRT(h->f_code); i += 16 )
+	{
+		/* Check for OoT's */
+		if( !memcmp( h->f_code_data + i, table_ident_oot, sizeof(table_ident_oot) ) )
+		{
+			ret->start = i + sizeof(table_ident_oot);
 			goto found_table;
+		}
+		
+		/* Check for MM's */
+		if( !memcmp( h->f_code_data + i, table_ident_mm, sizeof(table_ident_mm) ) )
+		{
+			ret->start = i + sizeof(table_ident_mm);
+			goto found_table;
+		}
+	}
 			
 	/* Not found */
 	free( ret );
@@ -56,12 +81,18 @@ Z64AT * z64at_open ( Z64 * h )
 	
 	/* Located the table */
 found_table:
-	ret->start = i + sizeof(table_ident);
 	
 	/* Find the end of the table */
-	for( ; i < Z_FILESIZE_VIRT(h->f_code) - sizeof(table_term); i += 8 )
-		if( !memcmp( h->f_code_data + i, table_term, sizeof(table_term) ) )
+	for( ; i < Z_FILESIZE_VIRT(h->f_code) - 0x100; i += 16 )
+	{
+		/* Check for OoT's */
+		if( !memcmp( h->f_code_data + i, table_term_oot, sizeof(table_term_oot) ) )
 			goto found_end;
+		
+		/* Check for MM's */
+		if( !memcmp( h->f_code_data + i, table_term_mm, sizeof(table_term_oot) ) )
+			goto found_end;
+	}
 	
 	/* We've reached the end... */
 	free( ret );
