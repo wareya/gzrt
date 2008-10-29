@@ -20,7 +20,7 @@ void gzrt_wsplash_init ( int (*handler)( void ) )
 	gtk_window_set_position(     GTK_WINDOW(w->window), GTK_WIN_POS_CENTER_ALWAYS         );
 	gtk_window_set_default_size( GTK_WINDOW(w->window), GRT_SPLASH_W, GRT_SPLASH_H        );
 	gtk_window_set_deletable(    GTK_WINDOW(w->window), FALSE                             );
-	gtk_window_set_type_hint(    GTK_WINDOW(w->window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN );
+	gtk_window_set_modal(        GTK_WINDOW(w->window), TRUE                              );
 	
 	/* Invisible & fade */
 	#ifdef WIN32

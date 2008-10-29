@@ -46,14 +46,11 @@ endif
 # Build main app 
 all: $(PARTS)
 	make -C libs
+	make -C plugins
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
 
-# Build plugins only
-plugins:
-	make -C plugins
-
 # For creating final Win32 package
-win32: $(PARTS) plugins
+win32: $(PARTS)
 	make -C libs
 	make -C launcher
 	$(CC) $(CFLAGS) $(PARTS) $(LDFLAGS) -o $(PROJECT)
