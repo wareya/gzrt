@@ -4,7 +4,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 struct GSCode
 {
@@ -29,7 +29,7 @@ struct Game
 static GList         * games;
 static GKeyFile      * config;
 static GtkWidget     * combo;
-static GtkTreeSelection * select;
+static GtkTreeSelection * _sel;
 static GtkWidget     * view;
 static GtkListStore  * store;
 static GtkWidget     * cname;
@@ -207,7 +207,7 @@ nc_menu_bar_gen ( void )
 				continue;
 			}
 			
-			/* Create item */
+			/* Create item */http://www.64.vg/wiki/index.php?title=Main_Page
 			item = gtk_image_menu_item_new_with_mnemonic( f->name );
 			gtk_container_add( GTK_CONTAINER(submenu), item );
 			
@@ -236,7 +236,7 @@ static void
 nc_code_update ( void )
 {
 	GtkTreeModel * m = gtk_tree_view_get_model( view );
-	GList * l = gtk_tree_selection_get_selected_rows( select, &m );
+	GList * l = gtk_tree_selection_get_selected_rows( _sel, &m );
 	if( !l )
 		return;
 	char * b = gtk_tree_path_to_string(l->data);
@@ -281,8 +281,6 @@ nv_tree_view_populate ( void )
 	if( id < 0 )
 		return;
 	
-	if( store )
-		g_free( store );
 	store = gtk_list_store_new( 1, G_TYPE_STRING, -1 );
 	
 	/* Select game */
@@ -327,8 +325,8 @@ nc_tree_view_create ( void )
 	/* Set model */
 	gtk_tree_view_set_model( GTK_TREE_VIEW(view), GTK_TREE_MODEL(store) );
 	
-	select = gtk_tree_view_get_selection( GTK_TREE_VIEW(view) );
-	g_signal_connect( G_OBJECT(select), "changed", G_CALLBACK(nc_code_update), NULL );
+	_sel = gtk_tree_view_get_selection( GTK_TREE_VIEW(view) );
+	g_signal_connect( G_OBJECT(_sel), "changed", G_CALLBACK(nc_code_update), NULL );
 	
 	/* Return it */
 	return view;

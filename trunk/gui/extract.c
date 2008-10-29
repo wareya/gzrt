@@ -2,6 +2,7 @@
 * ROM Extraction Window *
 ************************/
 #include <gzrt.h>
+#include <glib.h>
 #include <string.h>
 
 /* Connect data to a widget */
@@ -23,6 +24,19 @@ OPT;
 /* List of parents */
 static GList * parents;
 static OPT	   options;
+
+/* Get time diff */
+static double
+timediff ( GTimeVal * a, GTimeVal * b )
+{
+	double r;
+	
+	r  = b->tv_sec * 1000000 + b->tv_usec;
+	r -= a->tv_sec * 1000000 + a->tv_usec;
+	r /= 1000000.0;
+	
+	return r;
+}
 
 /* Set options */
 static void opt_1 ( void )
@@ -133,10 +147,14 @@ static void extract ( GtkWidget * w )
 	const char * dest = gtk_entry_get_text( GTK_ENTRY(field) );
 	char name[2048];
 	int i;
+	GTimeVal start, end;
 	
 	/* GTK elements */
 	GtkWidget * window;
 	GtkWidget * pbar;
+	
+	/* Start time */
+	g_get_current_time( &start );
 	
 	/* Create window */
 	window = gtk_window_new( GTK_WINDOW_POPUP );
@@ -199,14 +217,15 @@ static void extract ( GtkWidget * w )
 	/* Free resources */
 	gzrt_free( buffer );
 	
-	/* Last progress bar update */
-	pbarset( pbar, 1.0, "%.2f%%", 100.0 );
-	
-	/* Display finished notice */
-	gzrt_notice( "Notice", "Extraction finished." );
-	
 	/* Destroy window */
 	gtk_widget_destroy( window );
+	
+	/* End time */
+	g_get_current_time( &end );
+	
+	/* Display finished notice */
+	sprintf( name, "Extraction finished. Time: %.2f seconds.", timediff(&start, &end) );
+	gzrt_notice( "Notice", name );
 }
 
 /* Initialize the window */
