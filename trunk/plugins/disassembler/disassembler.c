@@ -193,7 +193,7 @@ GtkWidget * dasm_window_text_box_create ( GtkTextBuffer * buffer )
 }
 
 /* Create a jump to address dialog */
-int jta_status;
+static int jta_status;
 void dasm_window_jump_to_address ( DASM * h )
 {
     GtkWidget *Jump_to_address;
@@ -379,6 +379,7 @@ void dasm_window_populate ( DASM * h )
     GtkWidget * winrows;
     GtkWidget * winstatus;
     GtkWidget * panel;
+	GdkPixbuf * img = gdk_pixbuf_new_from_file( "resources/dasm16x16.png", NULL );
 	char        buffer[128];
 	
 	/* Prepare title */
@@ -386,6 +387,7 @@ void dasm_window_populate ( DASM * h )
     
     /* Create the main window */
     h->window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+	gtk_window_set_icon( GTK_WINDOW(h->window), img );
     
     /* Set the title */
     gtk_window_set_title( GTK_WINDOW(h->window), buffer );
