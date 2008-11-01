@@ -805,10 +805,10 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	/* Create file listing */
 	flist_scroll = gtk_scrolled_window_new( NULL, NULL );
 	gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW(flist_scroll), GTK_SHADOW_IN );
+	gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(flist_scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC );
 	flist_tree = gzrt_wmain_tree_generate(w);
 	gtk_container_add( GTK_CONTAINER(flist_scroll), flist_tree );
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_scroll, TRUE, TRUE, 0 );
-	gtk_tree_view_columns_autosize( GTK_TREE_VIEW(flist_tree) );
 	
 	/* Set up the buttons */
 	flist_button_hbox = gtk_hbox_new( FALSE, 0 );
