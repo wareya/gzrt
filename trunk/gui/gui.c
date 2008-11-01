@@ -17,12 +17,13 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Set up icons */
 	N64Rom *ctx = NULL;
 	GList *list = NULL;
-	char *icons[] =
+	static const char *icons[] =
 	{
 		GZRT_GUI_ICON_1, GZRT_GUI_ICON_2,
 		GZRT_GUI_ICON_3, GZRT_GUI_ICON_4,
 		NULL
-	}, i;
+	};
+	int i;
 	
 	for( i = 0; icons[i]; i++ )
 	{

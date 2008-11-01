@@ -22,6 +22,7 @@ struct GZRTConfig
 extern struct GZRTConfig GZRTConfig;
 
 /* Functions */
-int gzrt_config_load ( void );
+int  gzrt_config_load ( void );
+void gzrt_config_save ( void );
 
 #endif /* __GZRT_SETTINGS_H */

@@ -74,3 +74,28 @@ int gzrt_config_load ( void )
 	/* Good */
 	return TRUE;
 }
+
+/* Write configuration */
+void gzrt_config_save ( void )
+{
+	FILE * out = fopen( CONFIGURATION_FILE, "wb" );
+	int i;
+	
+	fprintf( out, "[%s]\n", MAIN_GROUP_NAME );
+	
+	for( i = 0; i < sizeof(entries) / sizeof(struct ConfEntry); i++ )
+	{
+		if( entries[i].value ) switch( entries[i].type )
+		{
+			case tSTRING:
+			 fprintf( out, "%s = %s\n", entries[i].name, *(char**)entries[i].value );
+			break;
+			
+			default:
+			 g_print( "Unhandled type.\n" );
+		}
+	}
+	
+	fclose( out );
+}
+

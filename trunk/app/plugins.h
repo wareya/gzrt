@@ -124,6 +124,8 @@ void        gzrt_plugin_cleanup      ( struct PluginTransac * t    );
 GtkWidget * gzrt_plugins_preferences ( int action                  );
 void        gzrt_set_default_plugin  ( GtkWidget * window          );
 char *      gzrt_plugin_curname      ( void                        );
+GList *     gzrt_get_plugins         ( void                        );
+void        gzrt_plugin_set_default  ( char * name                 );
 
 #endif
 

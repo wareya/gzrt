@@ -115,14 +115,14 @@ GtkWidget * gzrt_plugins_menu ( void )
 			p = p->next;
 		}
 	
-	/* Create menu seperator */
+	/* Create menu seperator 
 	sep = gtk_separator_menu_item_new();
-	gtk_container_add( GTK_CONTAINER(menu), sep );
+	gtk_container_add( GTK_CONTAINER(menu), sep );*/
 	
-	/* Create plugin preferences entry */
+	/* Create plugin preferences entry 
 	item = gtk_menu_item_new_with_mnemonic( "Preferences" );
 	g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(gzrt_plugins_preferences), NULL );
-	gtk_container_add( GTK_CONTAINER(menu), item );
+	gtk_container_add( GTK_CONTAINER(menu), item );*/
 	
 	/* Initialized */
 	init++;
@@ -130,8 +130,28 @@ GtkWidget * gzrt_plugins_menu ( void )
 	/* Show all */
 	gtk_widget_show_all( menu );
 	
+	/* No plugins? */
+	gtk_widget_set_sensitive( menu_head, (plugins.dl ? TRUE : FALSE) );
+	
 	/* Return final product */
 	return menu_head;
+}
+
+/* Return a list of plugins */
+GList *
+gzrt_get_plugins ( void )
+{
+	GList * list = NULL;
+	PLUGINS * p = &plugins;
+	int i;
+	
+	while( p && p->dl )
+	{
+		list = g_list_append( list, p->fn + 8 );
+		p = p->next;
+	}
+	
+	return list;
 }
 
 /* Preferences menu */
@@ -250,6 +270,23 @@ void gzrt_set_default_plugin ( GtkWidget * window )
 		p = p->next;
 	}
 	
+}
+
+/* Set a default plugin from filename */
+void gzrt_plugin_set_default ( char * name )
+{
+	PLUGINS * p = &plugins;
+	int i;
+	
+	while( p && p->dl )
+	{
+		if( strstr( p->fn, name ) )
+		{
+			selected = p;
+			break;
+		}
+		p = p->next;
+	}
 }
 
 /* Add a plugin to list */
