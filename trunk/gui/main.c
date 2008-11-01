@@ -250,10 +250,10 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	
 	/* Set up window */
 	accel_group = gtk_accel_group_new ();
-	snprintf( buffer, sizeof(buffer), "%s%s: %s - \"%.24s\"",
-		GZRT_WMAIN_NAME,
+	snprintf( buffer, sizeof(buffer), "%s %s%s: %s - \"%.24s\"",
+		GZRT_WMAIN_NAME, GZRT_VERSION,
 	#ifdef GZRT_DEBUG
-	 "*DEBUG*",
+	 " *DEBUG*",
 	#else
 	 "",
 	#endif
@@ -811,13 +811,41 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_scroll, TRUE, TRUE, 0 );
 	
 	/* Set up the buttons */
-	flist_button_hbox = gtk_hbox_new( FALSE, 0 );
+	flist_button_hbox = gtk_hbox_new( TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_button_hbox, FALSE, TRUE, 0 );
 	
 	/* Create them */
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (b=create_button("Plugin",	"gtk-zoom-fit")), 	TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		FALSE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	FALSE, TRUE, 0 );
+	
+	{
+		const char * label = gzrt_plugin_default_get_short();
+		char * image = "gtk-zoom-fit";
+		GtkWidget * align;
+		GtkWidget * l;
+		GtkWidget * hbox;
+		GtkWidget * button;
+		GtkWidget * i;
+		
+		button = gtk_button_new();
+		align = gtk_alignment_new( 0.5f, 0.5f, 0.0f, 0.0f );
+		hbox = gtk_hbox_new( FALSE, 2 );
+		
+		gtk_container_add( GTK_CONTAINER(button), align);
+		gtk_container_add( GTK_CONTAINER(align), hbox );
+		
+		i = gtk_image_new_from_stock( image, GTK_ICON_SIZE_BUTTON );
+		gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
+		
+		l = gtk_label_new_with_mnemonic( label );
+		gtk_box_pack_start( GTK_BOX(hbox), l, FALSE, FALSE, 0 );
+		
+		w->plugin_label = l;
+		b = button;
+	}
+	
+	gtk_box_pack_start( GTK_BOX(flist_button_hbox), b, 	FALSE, TRUE, 0 );
+	
 	
 	/* Callbacks */
 	g_signal_connect_swapped( G_OBJECT(d), "clicked", G_CALLBACK(gzrt_wmain_extract), w );
@@ -834,6 +862,19 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	/* Return the final product */
 	return ret;
+}
+
+/* Set the label on the plugin button */
+void gzrt_wmain_set_plugin ( char * n )
+{
+	int i, l = g_list_length( instances );
+	
+	for( i = 0; i < l; i++ )
+	{
+		MAINWIN * cur = g_list_nth( instances, i )->data;
+		
+		gtk_label_set_text( GTK_LABEL(cur->plugin_label), n );
+	}
 }
 
 /* Extract a file */

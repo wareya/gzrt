@@ -14,6 +14,9 @@
 	(x)[3] = (w) & 0xFF;    \
 }
 
+/* Version */
+#define GZRT_VERSION "v0.2"
+
 /* Windows or Unix? */
 #ifdef WIN32
 

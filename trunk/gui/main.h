@@ -59,6 +59,15 @@ typedef struct _gzrt_wmain
 			Z64NT *t;
 		};
 	};
+	
+	/* The plugin action button text */
+	GtkWidget * plugin_label;
+	
+	/* Reserved... */
+	glong	reserved1;
+	glong	reserved2;
+	glong	reserved3;
+	glong	reserved4;
 }
 MAINWIN;
 
@@ -87,6 +96,7 @@ void gzrt_wmain_byteswap ( N64Rom * rc );
 void gzrt_wmain_extract ( MAINWIN * w );
 int gzrt_wmain_count ( void );
 void gzrt_wmain_action_button_text ( char * text );
+void gzrt_wmain_set_plugin ( char * n );
 
 
 		

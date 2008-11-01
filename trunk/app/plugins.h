@@ -121,11 +121,13 @@ GtkWidget * gzrt_plugins_menu        ( void                        );
 int         gzrt_plugins_count       ( void                        );
 void        gzrt_call_plugin         ( void * RomSpec, void * file );
 void        gzrt_plugin_cleanup      ( struct PluginTransac * t    );
-GtkWidget * gzrt_plugins_preferences ( int action                  );
 void        gzrt_set_default_plugin  ( GtkWidget * window          );
 char *      gzrt_plugin_curname      ( void                        );
 GList *     gzrt_get_plugins         ( void                        );
 void        gzrt_plugin_set_default  ( char * name                 );
+const char * gzrt_plugin_default_get_long ( void );
+const char * gzrt_plugin_default_get_short ( void );
+
 
 #endif
 

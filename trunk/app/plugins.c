@@ -82,7 +82,6 @@ GtkWidget * gzrt_plugins_menu ( void )
 	GtkWidget * menu_head;
 	GtkWidget * menu;
 	GtkWidget * item;
-	GtkWidget * sep;
 	PLUGINS   * p = &plugins;
 	static int  init;
 	
@@ -143,7 +142,6 @@ gzrt_get_plugins ( void )
 {
 	GList * list = NULL;
 	PLUGINS * p = &plugins;
-	int i;
 	
 	while( p && p->dl )
 	{
@@ -154,100 +152,18 @@ gzrt_get_plugins ( void )
 	return list;
 }
 
-/* Preferences menu */
-GtkWidget * gzrt_plugins_preferences ( int action )
+/* Return the short name of the default plugin */
+const char *
+gzrt_plugin_default_get_short ( void )
 {
-	GtkWidget * window;
-	GtkWidget * frame;
-	GtkWidget * label;
-	GtkWidget * hbox;
-	GtkWidget * vbox;
-	GtkWidget * align;
-	GtkWidget * select;
-	GtkWidget * ok;
-	PLUGINS   * p = &plugins;
-	static int  init;
-	int			i;
-	
-	/* Are we just cleaning up? */
-	if( action ) {
-		init = 0;
-		return NULL;
-	}
-	
-	/* Already init'd */
-	if( init )
-		return NULL;
-	
-	/* Create window */
-	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
-	gtk_window_set_title( GTK_WINDOW(window), "Plugin preferences" );
-	gtk_window_set_resizable( GTK_WINDOW(window), FALSE );
-	gtk_container_set_border_width( GTK_CONTAINER(window), 12 );
-	
-	/* Create vertical organizer */
-	vbox = gtk_vbox_new( FALSE, 8 );
-	
-	/* Create "default plugin" frame */
-	frame = gtk_frame_new( NULL );
-	label = gtk_label_new("<b>Default plugin</b>");
-	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
-	gtk_frame_set_label_widget( GTK_FRAME(frame), label );
-	
-	/* Create frame alignment */
-	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
-	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 12, 12 );
-	gtk_container_add( GTK_CONTAINER(frame), align );
-	
-	/* Create horizontal box for contents */
-	hbox = gtk_hbox_new( FALSE, 8 );
-	gtk_container_add( GTK_CONTAINER(align), hbox );
-	
-	/* Create combo box */
-	select = gtk_combo_box_entry_new_text();
-	
-	/* Populate */
-	if( plugins.dl )
-		for( i = 0; p; i++ )
-		{
-			/* Append */
-			gtk_combo_box_append_text( GTK_COMBO_BOX(select), p->meta->long_name );
-			
-			/* Default? */
-			if( p == selected )
-				gtk_combo_box_set_active( GTK_COMBO_BOX(select), i );
-			
-			/* Next */
-			p = p->next;
-		}
-	else
-		gtk_combo_box_append_text( GTK_COMBO_BOX(select), "None" );
-	
-	/* Create confirm button */
-	ok = gtk_button_new_with_label( "Apply" );
-	
-	/* Pack everything */
-	gtk_box_pack_start( GTK_BOX(hbox), select, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hbox), ok,     TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(vbox), frame,  TRUE, TRUE, 0 );
-	gtk_container_add( GTK_CONTAINER(window), vbox );
-	
-	/* Signals */
-	if( plugins.dl )
-		g_signal_connect_swapped( G_OBJECT(ok), "clicked", G_CALLBACK(gzrt_set_default_plugin), (gpointer)window );
-	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(gzrt_plugins_preferences), (gpointer)1 );
-	
-	/* Show everything */
-	gtk_widget_show_all( window );
-	
-	/* Hookup data */
-	HOOKUP( window, select, "select-box" );
-	
-	/* Set init status */
-	init = 1;
-	
-	/* Return it */
-	return window;
+	return selected->meta->short_name;
+}
+
+/* Return the long name of the default plugin */
+const char *
+gzrt_plugin_default_get_long ( void )
+{
+	return selected->meta->long_name;
 }
 
 /* Set default plugin */
@@ -276,7 +192,6 @@ void gzrt_set_default_plugin ( GtkWidget * window )
 void gzrt_plugin_set_default ( char * name )
 {
 	PLUGINS * p = &plugins;
-	int i;
 	
 	while( p && p->dl )
 	{
@@ -287,6 +202,8 @@ void gzrt_plugin_set_default ( char * name )
 		}
 		p = p->next;
 	}
+	
+	gzrt_wmain_set_plugin( p->meta->short_name );
 }
 
 /* Add a plugin to list */
