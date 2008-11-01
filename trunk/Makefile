@@ -58,7 +58,6 @@ win32: $(PARTS)
 	cp -v launcher/$(PROJECT).exe /c/GZRT/GZRT.exe
 	cp -v plugins/*.dll /c/GZRT/plugins/
 	cp -v libs/*.dll /c/GZRT/resources/bin/
-	cp -v resources/gzrt.ini /c/GZRT/resources/
 
 clean:
 	rm -vf `find . -name "*.o"` # Object files
