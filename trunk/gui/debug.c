@@ -124,12 +124,10 @@ int gzrt_gui_debug_mem ( void )
 	#endif
 	
 	/* Remove old? */
-	if( init )
-		gtk_statusbar_remove( GTK_STATUSBAR(w->bar), id, past );
+	gtk_statusbar_pop( w->bar, 0 );
 	
 	/* Push the new message */
-	id = gtk_statusbar_get_context_id( GTK_STATUSBAR(w->bar), buffer);
-	past = gtk_statusbar_push( GTK_STATUSBAR(w->bar), id, buffer );
+	gtk_statusbar_push( GTK_STATUSBAR(w->bar), 0, buffer );
 	
 	/* Update */
 	init++;

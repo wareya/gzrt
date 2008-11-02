@@ -11,7 +11,7 @@
 #define GZRT_WABOUT_MSG		"By ZZT32 (http://www.64.vg/)\nPlugins by their respective authors"
 
 /* Function definitions */
-void gzrt_wabout_show   ( void          );
+void gzrt_wabout_show   ( MAINWIN * c   );
 void gzrt_wabout_closed ( void          );
 void gzrt_wabout_close  ( GtkWidget * w );
 

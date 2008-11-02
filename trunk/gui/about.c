@@ -8,67 +8,48 @@
 static int status;
 
 /* Show the window */
-void gzrt_wabout_show ( void )
+void gzrt_wabout_show ( MAINWIN * c )
 {
-	GtkWidget * window;
-	GtkWidget * align;
-	GtkWidget * vbox;
-	GtkWidget * label;
-	GtkWidget * button;
-	GtkWidget * head;
-	GtkWidget * img;
+    const gchar * license =
+        "This program is free software; you can redistribute it and/or modify\n"
+        "it under the terms of the GNU General Public License as published by\n"
+        "the Free Software Foundation; either version 2 of the License, or\n"
+        "(at your option) any later version.\n"
+         "\n"
+        "This program is distributed in the hope that it will be useful,\n"
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+        "GNU General Public License for more details.\n"
+        "\n"
+        "You should have received a copy of the GNU General Public License\n"
+        "along with this program; if not, write to the\n"
+        "Free Software Foundation, Inc.,\n"
+        "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n";
 	
-	/* Already? */
-	if( status )
-		return;
+	const gchar * authors[] = 
+	{
+		"ZZT32",
+		"Cendamos",
+		"_Demo_ (Z64Viewer plugin)",
+		"Wareya (ZEV plugin)"
+	};
 	
-	/* Create */
-	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
-	align = gtk_alignment_new( 0.5, 0.5, 0.25, 0.25 );
+	GdkPixbuf * pixbuf = gdk_pixbuf_new_from_file( GZRT_GUI_ICON_DIR "ico128x128.png", NULL );
 	
-	/* Set window attributes */
-	gtk_window_set_position( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
-	gtk_container_set_border_width( GTK_CONTAINER(window), 12 );
-	gtk_window_set_title( GTK_WINDOW(window), "About" );
-	gtk_window_set_resizable( GTK_WINDOW(window), FALSE );
-	gtk_window_set_modal( GTK_WINDOW(window), TRUE );
-	
-	/* Create vbox */
-	vbox = gtk_vbox_new( FALSE, 8 );
-	gtk_container_add( GTK_CONTAINER(window), vbox );
-	
-	/* Create header */
-	head = gtk_label_new( "<b>GNU Zelda ROM Tool</b>" );
-	gtk_label_set_use_markup( GTK_LABEL(head), TRUE );
-	gtk_box_pack_start( GTK_BOX(vbox), head, FALSE, TRUE, 0 );
-		
-	/* Load image */
-	img = gtk_image_new_from_file( GZRT_GUI_ICON_DIR "ico128x128.png" );
-	
-	/* Pack image */
-	gtk_box_pack_start( GTK_BOX(vbox), img, FALSE, TRUE, 12 );
-	
-	/* Create label */
-	label = gtk_label_new( GZRT_WABOUT_MSG );
-	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
-	
-	/* Create button */
-	button = gtk_button_new_with_label( "Ok" );
-	
-	/* Pack! */
-	gtk_container_add( GTK_CONTAINER(align), button );
-	gtk_box_pack_start( GTK_BOX(vbox), label,  TRUE,  TRUE,  0 );
-	gtk_box_pack_start( GTK_BOX(vbox), align, FALSE, FALSE, 0 );
-	
-	/* When deleted, recreate */
-	g_signal_connect( G_OBJECT(window), "destroy", G_CALLBACK(gzrt_wabout_closed), NULL );
-	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(gzrt_wabout_close), window );
-	
-	/* SHow it */
-	gtk_widget_show_all( window );
-	
-	/* Set status */
-	status = TRUE;
+	gtk_show_about_dialog
+	( 
+		GTK_WINDOW(c->window), 
+		"version", GZRT_VERSION,
+		"copyright", "(c) 2008 ZZT32 (http://64.vg/)",
+		"license", license,
+		"website", "http://gzrt.googlecode.com/",
+		"comments", "GZRT is an open source ROM toolkit for N64 Zeldas.",
+		"authors", authors,
+		"logo", pixbuf,
+		"title", "About GZRT",
+		"program-name", "GZRT",
+		NULL
+	);
 }
 
 /* Window has been closed */

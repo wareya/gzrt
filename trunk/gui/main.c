@@ -375,7 +375,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	g_signal_connect_swapped( G_OBJECT(fix_crc1),        "activate", G_CALLBACK(gzrt_wcrc_show),         c );
 	
 	/* Signals - help menu */
-	g_signal_connect_swapped( G_OBJECT(about1),"activate", G_CALLBACK(gzrt_wabout_show), NULL );
+	g_signal_connect_swapped( G_OBJECT(about1),"activate", G_CALLBACK(gzrt_wabout_show), c );
 	
 	
 	/* Signals - window itself */
