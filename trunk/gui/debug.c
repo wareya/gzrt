@@ -110,9 +110,6 @@ void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... )
 int gzrt_gui_debug_mem ( void )
 {
 	char buffer[64];
-	static int init;
-	static int id;
-	static int past;
 	
 	/* Prepare buffer */
 	#ifndef __linux__
@@ -128,9 +125,6 @@ int gzrt_gui_debug_mem ( void )
 	
 	/* Push the new message */
 	gtk_statusbar_push( GTK_STATUSBAR(w->bar), 0, buffer );
-	
-	/* Update */
-	init++;
 	
 	/* Yes */
 	return TRUE;
