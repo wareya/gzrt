@@ -6,10 +6,10 @@
 #include <gtk/gtk.h>
 #include <stdarg.h>
 
-/* Load an icon from file */
+/* Load an icon from file 
 GtkWidget * 
 gzrt_gtk_icon_load ( char * name )
-{
+{*/
 	
 
 /* Return a horizontal box with a stock image and a label */
