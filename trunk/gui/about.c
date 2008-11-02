@@ -44,7 +44,6 @@ void gzrt_wabout_show ( MAINWIN * c )
 		"authors", authors,
 		"logo", pixbuf,
 		"title", "About GZRT",
-		"program-name", "GZRT",
 		NULL
 	);
 }

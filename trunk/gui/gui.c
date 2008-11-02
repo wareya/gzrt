@@ -34,6 +34,9 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Set default icon */
 	gtk_window_set_default_icon_list( list );
 	
+	/* Set application name */
+	g_set_application_name( "GZRT" );
+	
 	/* Show debug window */
 	#ifdef GZRT_DEBUG
 	 gzrt_gui_debug_create();
