@@ -70,6 +70,9 @@ GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c )
 		-1, Cols[i].title, r, "text", i, NULL );
 		col = gtk_tree_view_get_column( GTK_TREE_VIEW(tv), i );
 		gtk_tree_view_column_set_resizable( col, TRUE );
+		
+		if( i == 1 )
+		gtk_tree_view_column_set_expand( GTK_TREE_VIEW_COLUMN(col), TRUE );
 	}
 	
 	/* Generate data */

@@ -6,15 +6,22 @@
 #include <gtk/gtk.h>
 #include <stdarg.h>
 
-/* Load an icon from file 
+/* Load an icon from file */
 GtkWidget * 
 gzrt_gtk_icon_load ( char * name )
-{*/
+{
+	GtkWidget * image;
+	char buffer[128];
 	
+	snprintf( buffer, sizeof(buffer), "%s%s", GZRT_GUI_ICON_DIR, name );
+	image = gtk_image_new_from_file( buffer );
+	
+	return image;
+}
 
 /* Return a horizontal box with a stock image and a label */
 GtkWidget *
-gzrt_gtk_image_label ( char * stock, char * label )
+gzrt_gtk_image_label ( char * stock, GtkIconSize size, char * label )
 {
 	GtkWidget * align;
 	GtkWidget * l;
@@ -26,7 +33,7 @@ gzrt_gtk_image_label ( char * stock, char * label )
 	
 	gtk_container_add( GTK_CONTAINER(align), hbox );
 	
-	i = gtk_image_new_from_stock( stock, GTK_ICON_SIZE_BUTTON );
+	i = gtk_image_new_from_stock( stock, size );
 	gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
 	
 	l = gtk_label_new_with_mnemonic( label );
@@ -38,7 +45,7 @@ gzrt_gtk_image_label ( char * stock, char * label )
 
 /* Return a horizontal box with a stock image and a label (with formatting) */
 GtkWidget *
-gzrt_gtk_image_label_f ( char * stock, char * fmt, ... )
+gzrt_gtk_image_label_f ( char * stock, GtkIconSize size, char * fmt, ... )
 {
 	GtkWidget * align;
 	GtkWidget * l;
@@ -71,7 +78,7 @@ gzrt_gtk_image_label_f ( char * stock, char * fmt, ... )
 
 /* Create a button with an image and a label */
 GtkWidget * 
-gzrt_gtk_image_button ( char * stock, char * label )
+gzrt_gtk_image_button_stock ( char * stock, char * label )
 {
 	GtkWidget * align;
 	GtkWidget * l;
@@ -95,9 +102,9 @@ gzrt_gtk_image_button ( char * stock, char * label )
 	return button;
 }
 
-/* Create a button with an iamge and a label (with formatting) */
+/* Create a button with an image and a label (with formatting) */
 GtkWidget * 
-gzrt_gtk_image_button_f ( char * stock, char * fmt, ... )
+gzrt_gtk_image_button_stock_f ( char * stock, char * fmt, ... )
 {
 	GtkWidget * align;
 	GtkWidget * button;
@@ -133,7 +140,7 @@ gzrt_gtk_image_button_f ( char * stock, char * fmt, ... )
 
 /* Create a menu item with an image */
 GtkWidget * 
-gzrt_gtk_image_menu_item ( char * stock, GtkIconSize size, char * label )
+gzrt_gtk_image_menu_item_stock ( char * stock, GtkIconSize size, char * label )
 {
 	GtkWidget * image;
 	GtkWidget * menu;
@@ -143,4 +150,29 @@ gzrt_gtk_image_menu_item ( char * stock, GtkIconSize size, char * label )
 	gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM(menu), image );
 	
 	return menu;
+}
+
+/* Create a menu item with an icon */
+GtkWidget * 
+gzrt_gtk_image_menu_item ( char * icon, char * label )
+{
+	GtkWidget * image;
+	GtkWidget * menu;
+	
+	menu = gtk_image_menu_item_new_with_mnemonic( label );
+	image = gzrt_gtk_icon_load( icon );
+	gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM(menu), image );
+	
+	return menu;
+}
+
+/* Create a button with an arbitrary image */
+GtkWidget *
+gzrt_gtk_toolbar_button ( char * image, char * label )
+{
+	GtkWidget * button;
+	
+	button = (GtkWidget*)gtk_tool_button_new( gzrt_gtk_icon_load( image ), label );
+	
+	return button; 
 }

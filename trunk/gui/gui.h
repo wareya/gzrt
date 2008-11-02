@@ -6,7 +6,7 @@
 #define PRESENT(x)			gtk_window_present( GTK_WINDOW(x) )
 
 /* Resource dir */
-#define GZRT_GUI_ICON_DIR	"resources" GZRT_SLASH
+#define GZRT_GUI_ICON_DIR	"resources" GZRT_SLASH "icons" GZRT_SLASH
 
 /* Defines */
 #define GZRT_GUI_ICON_1		GZRT_GUI_ICON_DIR "ico16x16.png"

@@ -290,16 +290,16 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	File_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (File_menu), File_menu_menu);
 
-	open1 = gzrt_gtk_image_menu_item( GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Open" );
+	open1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Open" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), open1);
 	
-	reload1 = gzrt_gtk_image_menu_item( GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Settings" );
+	reload1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Settings" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), reload1 );
 	
-	close1 = gzrt_gtk_image_menu_item( GTK_STOCK_CLOSE, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Close" );
+	close1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_CLOSE, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Close" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), close1 );
 	
-	quit1 = gzrt_gtk_image_menu_item( GTK_STOCK_QUIT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Quit" );
+	quit1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_QUIT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Quit" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), quit1 );
 
 	Operations_menu = gtk_menu_item_new_with_mnemonic (_("_Operations"));
@@ -308,11 +308,10 @@ void gzrt_wmain_fill ( MAINWIN *c )
 
 	Operations_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (Operations_menu), Operations_menu_menu);
-
-	extract_files1 = gtk_menu_item_new_with_mnemonic (_("_Extract Files"));
-	gtk_widget_show (extract_files1);
-	gtk_container_add (GTK_CONTAINER (Operations_menu_menu), extract_files1);
-
+	
+	extract_files1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_DND_MULTIPLE, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Extract files" );
+	gtk_container_add( GTK_CONTAINER(Operations_menu_menu), extract_files1 );
+	
 	decompress_rom1 = gtk_menu_item_new_with_mnemonic (_("_Decompress ROM"));
 	gtk_widget_show (decompress_rom1);
 	gtk_container_add (GTK_CONTAINER (Operations_menu_menu), decompress_rom1);
@@ -345,7 +344,7 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	Help_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (Help_menu), Help_menu_menu);
 
-	about1 = gzrt_gtk_image_menu_item( GTK_STOCK_ABOUT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_About" );
+	about1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_ABOUT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_About" );
 	gtk_container_add( GTK_CONTAINER(Help_menu_menu), about1 );
 	
 	GtkWidget * M = gzrt_wmain_main_generate(c);
@@ -736,30 +735,6 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	return frame;
 }
 
-/* Create an hbox with label + image */
-static GtkWidget * 
-label_image ( char * label, char * image )
-{
-	GtkWidget * align;
-	GtkWidget * l;
-	GtkWidget * hbox;
-	GtkWidget * i;
-	
-	align = gtk_alignment_new( 0.5f, 0.5f, 0.0f, 0.0f );
-	hbox = gtk_hbox_new( FALSE, 4 );
-	
-	gtk_container_add( GTK_CONTAINER(align), hbox );
-	
-	i = gtk_image_new_from_stock( image, GTK_ICON_SIZE_BUTTON );
-	gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
-	
-	l = gtk_label_new_with_mnemonic( label );
-	gtk_box_pack_start( GTK_BOX(hbox), l, FALSE, FALSE, 0 );
-	
-	gtk_widget_show_all( align );
-	return align;
-}
-
 /* Populate the main window */
 GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 {
@@ -830,16 +805,16 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	GtkWidget * note = gtk_notebook_new();
 	flist_scroll = gtk_scrolled_window_new( NULL, NULL );
 	gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW(flist_scroll), GTK_SHADOW_IN );
-	gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(flist_scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC );
+	gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(flist_scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC );
 	flist_tree = gzrt_wmain_tree_generate(w);
 	gtk_container_add( GTK_CONTAINER(flist_scroll), flist_tree );
 	gtk_notebook_append_page( GTK_NOTEBOOK(note), flist_scroll, 
-		label_image( "Flat view", GTK_STOCK_DIRECTORY )
+		gzrt_gtk_image_label( GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_LARGE_TOOLBAR, "Flat view" )
 	);
 	gtk_notebook_append_page( GTK_NOTEBOOK(note), gtk_label_new( "Soon" ),  
-		label_image( "Filetype tree", GTK_STOCK_SELECT_COLOR ) );
+		gzrt_gtk_image_label( GTK_STOCK_SELECT_COLOR, GTK_ICON_SIZE_LARGE_TOOLBAR, "Filetype tree" ) );
 	gtk_notebook_append_page( GTK_NOTEBOOK(note), gtk_label_new( "Soon" ),  
-		label_image( "File info", GTK_STOCK_INFO ) );
+		gzrt_gtk_image_label( GTK_STOCK_INFO, GTK_ICON_SIZE_LARGE_TOOLBAR, "File info" ) );
 	gtk_box_pack_start( GTK_BOX(flist_vbox), note, TRUE, TRUE, 0 );
 	
 	/* Set up the buttons */

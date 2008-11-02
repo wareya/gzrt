@@ -15,7 +15,7 @@
 }
 
 /* Version */
-#define GZRT_VERSION "v0.2"
+#define GZRT_VERSION "v0.3"
 
 /* Windows or Unix? */
 #ifdef WIN32
