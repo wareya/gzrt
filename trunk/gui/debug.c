@@ -126,7 +126,7 @@ int gzrt_gui_debug_mem ( void )
 	/* Push the new message 
 	gtk_statusbar_push( GTK_STATUSBAR(w->bar), 0, buffer );*/
 	
-	g_print( "%gmb\n", buffer );
+	g_print( "%s\n", buffer );
 	
 	/* Yes */
 	return TRUE;
