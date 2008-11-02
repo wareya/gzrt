@@ -22,9 +22,22 @@ static GList * instances;
 int gzrt_wmain_create_new ( N64Rom * rc )
 {
 	MAINWIN * cur = gzrt_calloc( sizeof(MAINWIN) );
+	int i;
 	
 	/* Store the ROM context */
 	cur->c = rc;
+	
+	/* Is this ROM already open? */
+	for( i = 0; i < g_list_length(instances); i++ )
+	{
+		if( !strcmp((char*)rc->filename, (char*)((MAINWIN*)g_list_nth(instances, i)->data)->c->filename) )
+		{
+			gzrt_notice( "Notice", "This ROM is already open! ");
+			n64rom_close( rc );
+			gzrt_free( cur );
+			return FALSE;
+		}
+	}
 	
 	/* Byteswapped? */
 	if( rc->endian != N64_ENDIAN_BIG )
@@ -277,29 +290,17 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	File_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (File_menu), File_menu_menu);
 
-	open1 = gtk_image_menu_item_new_from_stock ("gtk-open", accel_group);
-	gtk_widget_show (open1);
-	gtk_container_add (GTK_CONTAINER (File_menu_menu), open1);
+	open1 = gzrt_gtk_image_menu_item( GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Open" );
+	gtk_container_add( GTK_CONTAINER(File_menu_menu), open1);
 	
-	reload1 = gtk_image_menu_item_new_with_mnemonic (_("_Settings"));
-	gtk_widget_show (reload1);
-	gtk_container_add (GTK_CONTAINER (File_menu_menu), reload1);
-
-	image5 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-	gtk_widget_show (image5);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (reload1), image5);
-
-	close1 = gtk_image_menu_item_new_with_mnemonic (_("_Close"));
-	gtk_widget_show (close1);
-	gtk_container_add (GTK_CONTAINER (File_menu_menu), close1);
-
-	image5 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_MENU);
-	gtk_widget_show (image5);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close1), image5);
-
-	quit1 = gtk_image_menu_item_new_from_stock ("gtk-quit", accel_group);
-	gtk_widget_show (quit1);
-	gtk_container_add (GTK_CONTAINER (File_menu_menu), quit1);
+	reload1 = gzrt_gtk_image_menu_item( GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Settings" );
+	gtk_container_add( GTK_CONTAINER(File_menu_menu), reload1 );
+	
+	close1 = gzrt_gtk_image_menu_item( GTK_STOCK_CLOSE, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Close" );
+	gtk_container_add( GTK_CONTAINER(File_menu_menu), close1 );
+	
+	quit1 = gzrt_gtk_image_menu_item( GTK_STOCK_QUIT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Quit" );
+	gtk_container_add( GTK_CONTAINER(File_menu_menu), quit1 );
 
 	Operations_menu = gtk_menu_item_new_with_mnemonic (_("_Operations"));
 	gtk_widget_show (Operations_menu);
@@ -344,9 +345,8 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	Help_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (Help_menu), Help_menu_menu);
 
-	about1 = gtk_menu_item_new_with_mnemonic (_("_About"));
-	gtk_widget_show (about1);
-	gtk_container_add (GTK_CONTAINER (Help_menu_menu), about1);
+	about1 = gzrt_gtk_image_menu_item( GTK_STOCK_ABOUT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_About" );
+	gtk_container_add( GTK_CONTAINER(Help_menu_menu), about1 );
 	
 	GtkWidget * M = gzrt_wmain_main_generate(c);
 	GtkWidget * MAIN_PANE = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
@@ -736,6 +736,30 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	return frame;
 }
 
+/* Create an hbox with label + image */
+static GtkWidget * 
+label_image ( char * label, char * image )
+{
+	GtkWidget * align;
+	GtkWidget * l;
+	GtkWidget * hbox;
+	GtkWidget * i;
+	
+	align = gtk_alignment_new( 0.5f, 0.5f, 0.0f, 0.0f );
+	hbox = gtk_hbox_new( FALSE, 4 );
+	
+	gtk_container_add( GTK_CONTAINER(align), hbox );
+	
+	i = gtk_image_new_from_stock( image, GTK_ICON_SIZE_BUTTON );
+	gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
+	
+	l = gtk_label_new_with_mnemonic( label );
+	gtk_box_pack_start( GTK_BOX(hbox), l, FALSE, FALSE, 0 );
+	
+	gtk_widget_show_all( align );
+	return align;
+}
+
 /* Populate the main window */
 GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 {
@@ -803,12 +827,20 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	gtk_container_add( GTK_CONTAINER(flist_align), flist_vbox );
 	
 	/* Create file listing */
+	GtkWidget * note = gtk_notebook_new();
 	flist_scroll = gtk_scrolled_window_new( NULL, NULL );
 	gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW(flist_scroll), GTK_SHADOW_IN );
 	gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(flist_scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC );
 	flist_tree = gzrt_wmain_tree_generate(w);
 	gtk_container_add( GTK_CONTAINER(flist_scroll), flist_tree );
-	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_scroll, TRUE, TRUE, 0 );
+	gtk_notebook_append_page( GTK_NOTEBOOK(note), flist_scroll, 
+		label_image( "Flat view", GTK_STOCK_DIRECTORY )
+	);
+	gtk_notebook_append_page( GTK_NOTEBOOK(note), gtk_label_new( "Soon" ),  
+		label_image( "Filetype tree", GTK_STOCK_SELECT_COLOR ) );
+	gtk_notebook_append_page( GTK_NOTEBOOK(note), gtk_label_new( "Soon" ),  
+		label_image( "File info", GTK_STOCK_INFO ) );
+	gtk_box_pack_start( GTK_BOX(flist_vbox), note, TRUE, TRUE, 0 );
 	
 	/* Set up the buttons */
 	flist_button_hbox = gtk_hbox_new( TRUE, 0 );

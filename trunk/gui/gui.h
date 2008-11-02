@@ -62,6 +62,7 @@ void      gzrt_window_close    ( WINDOW *w );
 extern int window_amount;
 
 /* Local headers */
+#include <gui/utility.h>
 #include <gui/debug.h>
 #include <gui/main.h>
 #include <gui/splash.h>

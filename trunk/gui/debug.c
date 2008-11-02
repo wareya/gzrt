@@ -120,13 +120,11 @@ int gzrt_gui_debug_mem ( void )
 	 sprintf( buffer, "Mem: %gmb", (double)info.uordblks/1024.0/1024.0 );
 	#endif
 	
-	/* Remove old? 
-	gtk_statusbar_pop( w->bar, 0 );*/
+	/* Remove old? */
+	gtk_statusbar_pop( GTK_STATUSBAR(w->bar), 0 );
 	
-	/* Push the new message 
-	gtk_statusbar_push( GTK_STATUSBAR(w->bar), 0, buffer );*/
-	
-	g_print( "%s\n", buffer );
+	/* Push the new message */
+	gtk_statusbar_push( GTK_STATUSBAR(w->bar), 0, buffer );
 	
 	/* Yes */
 	return TRUE;

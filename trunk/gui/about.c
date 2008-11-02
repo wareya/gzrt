@@ -4,9 +4,6 @@
 #include <gzrt.h>
 #include <gui/about.h>
 
-/* Does this window exist already? */
-static int status;
-
 /* Show the window */
 void gzrt_wabout_show ( MAINWIN * c )
 {
@@ -50,17 +47,4 @@ void gzrt_wabout_show ( MAINWIN * c )
 		"program-name", "GZRT",
 		NULL
 	);
-}
-
-/* Window has been closed */
-void gzrt_wabout_closed ( void )
-{
-	status = FALSE;
-}
-
-/* Close the window */
-void gzrt_wabout_close ( GtkWidget * w )
-{
-	status = FALSE;
-	gtk_widget_destroy( w );
 }
