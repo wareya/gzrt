@@ -820,6 +820,8 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	{
 		const char * label = gzrt_plugin_default_get_short();
+		if( !label )
+			label = "Plugin";
 		char * image = "gtk-zoom-fit";
 		GtkWidget * align;
 		GtkWidget * l;

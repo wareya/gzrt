@@ -156,14 +156,20 @@ gzrt_get_plugins ( void )
 const char *
 gzrt_plugin_default_get_short ( void )
 {
-	return selected->meta->short_name;
+	if( selected->meta )
+		return selected->meta->short_name;
+	else
+		return NULL;
 }
 
 /* Return the long name of the default plugin */
 const char *
 gzrt_plugin_default_get_long ( void )
 {
-	return selected->meta->long_name;
+	if( selected->meta )
+		return selected->meta->long_name;
+	else
+		return NULL;
 }
 
 /* Set default plugin */
