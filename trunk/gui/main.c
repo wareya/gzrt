@@ -822,10 +822,10 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	/* Progress bar */
 	gtk_progress_bar_set_orientation( GTK_PROGRESS_BAR(pbar), GTK_PROGRESS_TOP_TO_BOTTOM );
 	gtk_progress_bar_set_pulse_step( GTK_PROGRESS_BAR(pbar), 0.01 );
-	gtk_box_pack_start( GTK_BOX(hbox), pbar, FALSE, TRUE, 0 );
 	
-	extern gboolean pulse_bar ( GtkWidget * b );
-	gtk_timeout_add( 100, (void*)pulse_bar, pbar );
+	/* extern gboolean pulse_bar ( GtkWidget * b );
+	gtk_box_pack_start( GTK_BOX(hbox), pbar, FALSE, TRUE, 0 );
+	gtk_timeout_add( 100, (void*)pulse_bar, pbar ); */
 	gtk_timeout_add( 500, (void*)gzrt_wmain_mem_use, label );
 }
 	
