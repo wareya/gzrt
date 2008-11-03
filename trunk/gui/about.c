@@ -28,7 +28,8 @@ void gzrt_wabout_show ( MAINWIN * c )
 		"ZZT32",
 		"Cendamos",
 		"_Demo_ (Z64Viewer plugin)",
-		"Wareya (ZEV plugin)"
+		"Wareya (ZEV plugin)",
+		NULL
 	};
 	
 	GdkPixbuf * pixbuf = gdk_pixbuf_new_from_file( GZRT_GUI_ICON_DIR "ico128x128.png", NULL );
