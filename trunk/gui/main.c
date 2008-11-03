@@ -933,7 +933,7 @@ int gzrt_wmain_mem_use ( GtkWidget * label )
 	
 	snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %gmb", info.uordblks / 1024.0 / 1024.0 );
 	#else
-	sprintf( buffer, "J" );
+	snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %gmb", gzrt_mem_use() / 1024.0 / 1024.0 );
 	#endif
 	gtk_label_set_text( GTK_LABEL(label), buffer );
 	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
