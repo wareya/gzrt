@@ -795,7 +795,10 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	GtkWidget * align  = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
 	GtkWidget * vbox   = gtk_vbox_new( FALSE, 8 );
-	GtkWidget * text   = gtk_text_view_new_with_buffer( debug_console );
+	GtkWidget * text   = gtk_text_view_new_with_buffer
+	( 
+		(!debug_console ? debug_console = gtk_text_buffer_new(NULL) : debug_console) 
+	);
 	GtkWidget * scroll = gtk_scrolled_window_new( NULL, NULL );
 	GtkWidget * label  = gtk_label_new( "<b>Memory usage:</b>" );
 	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
@@ -924,9 +927,14 @@ write_file: ;
 int gzrt_wmain_mem_use ( GtkWidget * label )
 {
 	char buffer[128];
+	
+	#ifndef WIN32
 	struct mallinfo info = mallinfo();
 	
 	snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %gmb", info.uordblks / 1024.0 / 1024.0 );
+	#else
+	sprintf( buffer, "J" );
+	#endif
 	gtk_label_set_text( GTK_LABEL(label), buffer );
 	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
 	
