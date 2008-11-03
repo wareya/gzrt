@@ -16,20 +16,34 @@ static void save_settings ( MAINWIN * c );
 static void destroy       ( MAINWIN * c );
 static void destroyed     ( MAINWIN * c );
 
+/* Generation functions */
+static GtkWidget * frame_app_settings ( MAINWIN * c );
+static GtkWidget * frame_file_handler ( MAINWIN * c );
+
+/* Config tabs */
+typedef GtkWidget * (*GENFUNC)( MAINWIN * c );
+typedef struct
+{
+	const char * name;
+	GENFUNC      gen;
+}
+SPEC;
+static const SPEC
+tabs[] = 
+{
+	{ "Application defaults", frame_app_settings },
+	{ "File handlers",        frame_file_handler }
+};
+
 /* Create the window */
 void gzrt_wconf_show ( MAINWIN * c )
 {
 	GtkWidget * window;
 	GtkWidget * vbox;
-	GtkWidget * frame;
 	GtkWidget * align;
 	GtkWidget * hbox;
 	GtkWidget * button;
-	GtkWidget * label;
-	GtkWidget * entry;
-	GtkWidget * combo;
-	GtkWidget * table;
-	GList     * plugins;
+	GtkWidget * note;
 	gint        i;
 	
 	/* Does this parent already exist? */
@@ -53,14 +67,109 @@ void gzrt_wconf_show ( MAINWIN * c )
 	vbox = gtk_vbox_new( FALSE, 12 );
 	gtk_container_add( GTK_CONTAINER(window), vbox );
 	
-	/* Create frame */
-	frame = gtk_frame_new( "Application settings" );
-	gtk_box_pack_start( GTK_BOX(vbox), frame, TRUE, TRUE, 0 );
+	/* Generate notebook */
+	note = gtk_notebook_new();
+	for( i = 0; i < sizeof(tabs)/sizeof(SPEC); i++ )
+	{
+		gtk_notebook_append_page
+		( 
+			GTK_NOTEBOOK(note), 
+			tabs[i].gen(c), 
+			gtk_label_new(tabs[i].name)
+		);
+	}
+	gtk_box_pack_start( GTK_BOX(vbox), note, TRUE, TRUE, 0 );
+	
+	/* Create buttons */
+	align = gtk_alignment_new( 0.0f, 0.5f, 0.25f, 1.0f );
+	gtk_box_pack_start( GTK_BOX(vbox), align, FALSE, TRUE, 0 );
+	hbox = gtk_hbox_new( TRUE, 8 );
+	gtk_container_add( GTK_CONTAINER(align), hbox );
+	button = gtk_button_new_with_label( "Close" );
+	gtk_box_pack_start( GTK_BOX(hbox), button, TRUE, TRUE, 0 );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(destroy), c );
+	button = gtk_button_new_with_label( "Apply" );
+	gtk_box_pack_start( GTK_BOX(hbox), button, TRUE, TRUE, 0 );
+	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(save_settings), c );
+	
+	/* Show everything */
+	gtk_widget_show_all( window );
+}
+
+/* Create file handler frame */
+static GtkWidget *
+frame_file_handler ( MAINWIN * c )
+{
+	static const char *
+	names[] = 
+	{
+		"zdata",  "zactor",
+		"zobj",   "zmap",
+		"zscene", "zasm"
+	};
+	
+	GtkWidget * label;
+	GtkWidget * entry;
+	GtkWidget * table;
+	GtkWidget * align;
+	GtkWidget * button;
+	GtkWidget * hbox;
+	
+	char buffer[512];
+	
+	int i;
+	                   
+	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 12, 12 );
+	
+	/* Create table */
+	table = gtk_table_new( sizeof(names)/sizeof(char*), 2, FALSE );
+	gtk_table_set_row_spacings( GTK_TABLE(table), 8 );
+	gtk_table_set_col_spacings( GTK_TABLE(table), 8 );
+	gtk_container_add( GTK_CONTAINER(align), table );
+	
+	/* Generate */
+	for( i = 0; i < sizeof(names)/sizeof(char*); i++ )
+	{
+		/* Create label */
+		snprintf( buffer, sizeof(buffer), "<span font_desc=\"Courier\">%s</span> handler:", names[i] );
+		label = gtk_label_new( buffer );
+		gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
+		gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.5f );
+		gtk_table_attach( GTK_TABLE(table), label, 0, 1, i, i + 1, GTK_FILL, 0, 0, 0 );
+		
+		/* Create hbox */
+		hbox = gtk_hbox_new( FALSE, 4 );
+		entry = gtk_entry_new();
+		button = gtk_button_new_with_label( "Browse..." );
+		gtk_box_pack_start( GTK_BOX(hbox), entry, TRUE, TRUE, 0 );
+		gtk_box_pack_start( GTK_BOX(hbox), button, FALSE, FALSE, 0 );     
+		gtk_table_attach( GTK_TABLE(table), hbox, 1, 2, i, i + 1, GTK_FILL | GTK_EXPAND, 0, 0, 0 );
+	}
+	
+	/* Return the alignment */
+	return align;
+}
+
+/* Create the application settings frame */
+static GtkWidget * 
+frame_app_settings ( MAINWIN * c )
+{
+	GtkWidget * vbox;
+	GtkWidget * frame;
+	GtkWidget * align;
+	GtkWidget * hbox;
+	GtkWidget * button;
+	GtkWidget * label;
+	GtkWidget * entry;
+	GtkWidget * combo;
+	GtkWidget * table;
+	GList     * plugins;
+	gint        i;
 	
 	/* Create content alignment */
 	align = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
 	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 12, 12 );
-	gtk_container_add( GTK_CONTAINER(frame), align );
 	
 	/* Create table */
 	table = gtk_table_new( 2, 2, FALSE );
@@ -113,20 +222,7 @@ void gzrt_wconf_show ( MAINWIN * c )
 	}
 	g_list_free( plugins );
 	
-	/* Create buttons */
-	align = gtk_alignment_new( 0.0f, 0.5f, 0.25f, 1.0f );
-	gtk_box_pack_start( GTK_BOX(vbox), align, FALSE, TRUE, 0 );
-	hbox = gtk_hbox_new( TRUE, 8 );
-	gtk_container_add( GTK_CONTAINER(align), hbox );
-	button = gtk_button_new_with_label( "Close" );
-	gtk_box_pack_start( GTK_BOX(hbox), button, TRUE, TRUE, 0 );
-	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(destroy), c );
-	button = gtk_button_new_with_label( "Apply" );
-	gtk_box_pack_start( GTK_BOX(hbox), button, TRUE, TRUE, 0 );
-	g_signal_connect_swapped( G_OBJECT(button), "clicked", G_CALLBACK(save_settings), c );
-	
-	/* Show everything */
-	gtk_widget_show_all( window );
+	return align;
 }
 
 /* Close the window */

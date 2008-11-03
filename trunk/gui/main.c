@@ -795,17 +795,20 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	GtkWidget * align  = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
 	GtkWidget * vbox   = gtk_vbox_new( FALSE, 8 );
+	GtkWidget * hbox   = gtk_hbox_new( FALSE, 12 );
 	GtkWidget * text   = gtk_text_view_new_with_buffer
 	( 
 		(!debug_console ? debug_console = gtk_text_buffer_new(NULL) : debug_console) 
 	);
 	GtkWidget * scroll = gtk_scrolled_window_new( NULL, NULL );
 	GtkWidget * label  = gtk_label_new( "<b>Memory usage:</b>" );
+	GtkWidget * pbar = gtk_progress_bar_new();
+	gtk_box_pack_start( GTK_BOX(hbox), vbox, TRUE, TRUE, 0 );
 	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
 	gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.0f );
 	
 	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 8, 8 );
-	gtk_container_add( GTK_CONTAINER(align), vbox );
+	gtk_container_add( GTK_CONTAINER(align), hbox );
 	gtk_box_pack_start( GTK_BOX(vbox), label, FALSE, FALSE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), scroll, TRUE, TRUE, 0 );
 	
@@ -816,6 +819,13 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 		gzrt_gtk_image_label( GTK_STOCK_EXECUTE, GTK_ICON_SIZE_LARGE_TOOLBAR, "Console" ) );
 	gzrt_gtk_font_set( text, "Courier 10" );
 	
+	/* Progress bar */
+	gtk_progress_bar_set_orientation( GTK_PROGRESS_BAR(pbar), GTK_PROGRESS_TOP_TO_BOTTOM );
+	gtk_progress_bar_set_pulse_step( GTK_PROGRESS_BAR(pbar), 0.01 );
+	gtk_box_pack_start( GTK_BOX(hbox), pbar, FALSE, TRUE, 0 );
+	
+	extern gboolean pulse_bar ( GtkWidget * b );
+	gtk_timeout_add( 100, (void*)pulse_bar, pbar );
 	gtk_timeout_add( 500, (void*)gzrt_wmain_mem_use, label );
 }
 	
@@ -828,6 +838,12 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	
 	/* Return the final product */
 	return ret;
+}
+
+gboolean pulse_bar ( GtkWidget * b )
+{
+	gtk_progress_bar_pulse( GTK_PROGRESS_BAR(b) );
+	return TRUE;
 }
 
 /* Set the label on the plugin button */
