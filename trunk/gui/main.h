@@ -63,8 +63,10 @@ typedef struct _gzrt_wmain
 	/* The plugin action button text */
 	GtkWidget * plugin_label;
 	
+	/* The file listing */
+	GtkListStore * model;
+	
 	/* Reserved... */
-	glong	reserved1;
 	glong	reserved2;
 	glong	reserved3;
 	glong	reserved4;

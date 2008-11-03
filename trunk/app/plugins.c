@@ -208,8 +208,6 @@ void gzrt_plugin_set_default ( char * name )
 		}
 		p = p->next;
 	}
-	
-	gzrt_wmain_set_plugin( p->meta->short_name );
 }
 
 /* Add a plugin to list */
@@ -392,3 +390,4 @@ char * gzrt_plugin_curname ( void )
 {
 	return selected->meta->short_name;
 }
+

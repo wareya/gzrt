@@ -5,7 +5,7 @@
 #define __GZRT_WSPLASH_H
 
 /* Defines */
-#define GRT_SPLASH_IMAGE	GZRT_GUI_ICON_DIR "splash.png"
+#define GRT_SPLASH_IMAGE	"resources" GZRT_SLASH "splash.png"
 #define GRT_SPLASH_W		520
 #define GRT_SPLASH_H		253
 

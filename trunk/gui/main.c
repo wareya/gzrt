@@ -290,16 +290,16 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	File_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (File_menu), File_menu_menu);
 
-	open1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_OPEN, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Open" );
+	open1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_OPEN, GTK_ICON_SIZE_MENU, "_Open" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), open1);
 	
-	reload1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Settings" );
+	reload1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU, "_Settings" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), reload1 );
 	
-	close1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_CLOSE, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Close" );
+	close1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU, "_Close" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), close1 );
 	
-	quit1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_QUIT, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Quit" );
+	quit1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU, "_Quit" );
 	gtk_container_add( GTK_CONTAINER(File_menu_menu), quit1 );
 
 	Operations_menu = gtk_menu_item_new_with_mnemonic (_("_Operations"));
@@ -309,16 +309,18 @@ void gzrt_wmain_fill ( MAINWIN *c )
 	Operations_menu_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (Operations_menu), Operations_menu_menu);
 	
-	extract_files1 = gzrt_gtk_image_menu_item_stock( GTK_STOCK_DND_MULTIPLE, GTK_ICON_SIZE_LARGE_TOOLBAR, "_Extract files" );
+	extract_files1 = gtk_menu_item_new_with_mnemonic( "_Extract files" );
 	gtk_container_add( GTK_CONTAINER(Operations_menu_menu), extract_files1 );
 	
 	decompress_rom1 = gtk_menu_item_new_with_mnemonic (_("_Decompress ROM"));
 	gtk_widget_show (decompress_rom1);
 	gtk_container_add (GTK_CONTAINER (Operations_menu_menu), decompress_rom1);
 
+	/*
 	file_search1 = gtk_menu_item_new_with_mnemonic (_("_File search"));
 	gtk_widget_show (file_search1);
 	gtk_container_add (GTK_CONTAINER (Operations_menu_menu), file_search1);
+	*/
 
 	separator1 = gtk_separator_menu_item_new ();
 	gtk_widget_show (separator1);
@@ -821,52 +823,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	flist_button_hbox = gtk_hbox_new( TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(flist_vbox), flist_button_hbox, FALSE, TRUE, 0 );
 	
-	/* Create them */
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (d=create_button("Extract",	"gtk-save")), 		FALSE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), (c=create_button("Replace",	"gtk-jump-to")), 	FALSE, TRUE, 0 );
-	
-	{
-		const char * label = gzrt_plugin_default_get_short();
-		if( !label )
-			label = "Plugin";
-		char * image = "gtk-zoom-fit";
-		GtkWidget * align;
-		GtkWidget * l;
-		GtkWidget * hbox;
-		GtkWidget * button;
-		GtkWidget * i;
-		
-		button = gtk_button_new();
-		align = gtk_alignment_new( 0.5f, 0.5f, 0.0f, 0.0f );
-		hbox = gtk_hbox_new( FALSE, 2 );
-		
-		gtk_container_add( GTK_CONTAINER(button), align);
-		gtk_container_add( GTK_CONTAINER(align), hbox );
-		
-		i = gtk_image_new_from_stock( image, GTK_ICON_SIZE_BUTTON );
-		gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
-		
-		l = gtk_label_new_with_mnemonic( label );
-		gtk_box_pack_start( GTK_BOX(hbox), l, FALSE, FALSE, 0 );
-		
-		w->plugin_label = l;
-		b = button;
-	}
-	
-	gtk_box_pack_start( GTK_BOX(flist_button_hbox), b, 	FALSE, TRUE, 0 );
-	
-	
-	/* Callbacks */
-	g_signal_connect_swapped( G_OBJECT(d), "clicked", G_CALLBACK(gzrt_wmain_extract), w );
-	g_signal_connect_swapped( G_OBJECT(c), "clicked", G_CALLBACK(gzrt_wreplace_create), w );
-	g_signal_connect_swapped( G_OBJECT(b), "clicked", G_CALLBACK(gzrt_wmain_plugin_action), w );
-	
-	/* Are there plugins loaded? */
-	if( !gzrt_plugins_count() )
-		gtk_widget_set_sensitive( b, FALSE );
-	
 	/* Hookup objects */
-	HOOKUP( ret, b, "action-button" );
 	HOOKUP( ret, flist_tree, "file-tree" );
 	
 	/* Return the final product */
@@ -971,10 +928,4 @@ static void set_text ( MAINWIN * p, char * text )
 {
 	GtkWidget * b = get_object(p, "action-button");
 	gtk_button_set_label( GTK_BUTTON(b), text );
-}
-
-/* Set the action button text */
-void gzrt_wmain_action_button_text ( char * text )
-{
-	g_list_foreach( instances, (GFunc)set_text, text );
 }
