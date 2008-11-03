@@ -6,6 +6,7 @@
 #include <glib.h>
 #include <n64rom.h>
 #include <z64.h> 
+#include <malloc.h>
 
 /* Connect data to a widget */
 #define HOOKUP( component, widget, name )                       \
@@ -593,32 +594,6 @@ static GtkWidget * create_label ( char * fmt, ... )
 	/* Return it */
 	return label;
 }
-
-/* Create a button with image */
-static GtkWidget * create_button ( char * label, char * image )
-{
-	GtkWidget * align;
-	GtkWidget * l;
-	GtkWidget * hbox;
-	GtkWidget * button;
-	GtkWidget * i;
-	
-	button = gtk_button_new();
-	align = gtk_alignment_new( 0.5f, 0.5f, 0.0f, 0.0f );
-	hbox = gtk_hbox_new( FALSE, 2 );
-	
-	gtk_container_add( GTK_CONTAINER(button), align);
-	gtk_container_add( GTK_CONTAINER(align), hbox );
-	
-	i = gtk_image_new_from_stock( image, GTK_ICON_SIZE_BUTTON );
-	gtk_box_pack_start( GTK_BOX(hbox), i, FALSE, FALSE, 0 );
-	
-	l = gtk_label_new_with_mnemonic( label );
-	gtk_box_pack_start( GTK_BOX(hbox), l, FALSE, FALSE, 0 );
-	
-	return button;
-}
-	
 	
 /* Create ROM information frame */
 static GtkWidget * create_rom_info_frame ( MAINWIN * c )
@@ -755,10 +730,6 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	GtkWidget * flist_tree;				/* The tree containing file listing	  */
 	GtkWidget * flist_button_hbox;		/* For the action buttons			  */
 	
-	GtkWidget * b;
-	GtkWidget * c;
-	GtkWidget * d;
-	
 	/* Functions */
 	extern GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c );
 	
@@ -818,6 +789,32 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	gtk_notebook_append_page( GTK_NOTEBOOK(note), gtk_label_new( "Soon" ),  
 		gzrt_gtk_image_label( GTK_STOCK_INFO, GTK_ICON_SIZE_LARGE_TOOLBAR, "File info" ) );
 	gtk_box_pack_start( GTK_BOX(flist_vbox), note, TRUE, TRUE, 0 );
+	
+	/* Debug tab */ {
+	extern int gzrt_wmain_mem_use ( GtkWidget * label );
+	
+	GtkWidget * align  = gtk_alignment_new( 0.5f, 0.5f, 1.0f, 1.0f );
+	GtkWidget * vbox   = gtk_vbox_new( FALSE, 8 );
+	GtkWidget * text   = gtk_text_view_new_with_buffer( debug_console );
+	GtkWidget * scroll = gtk_scrolled_window_new( NULL, NULL );
+	GtkWidget * label  = gtk_label_new( "<b>Memory usage:</b>" );
+	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
+	gtk_misc_set_alignment( GTK_MISC(label), 0.0f, 0.0f );
+	
+	gtk_alignment_set_padding( GTK_ALIGNMENT(align), 8, 8, 8, 8 );
+	gtk_container_add( GTK_CONTAINER(align), vbox );
+	gtk_box_pack_start( GTK_BOX(vbox), label, FALSE, FALSE, 0 );
+	gtk_box_pack_start( GTK_BOX(vbox), scroll, TRUE, TRUE, 0 );
+	
+	gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW(scroll), GTK_SHADOW_IN );
+	gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC );
+	gtk_container_add( GTK_CONTAINER(scroll), text );
+	gtk_notebook_append_page( GTK_NOTEBOOK(note), align, 
+		gzrt_gtk_image_label( GTK_STOCK_EXECUTE, GTK_ICON_SIZE_LARGE_TOOLBAR, "Console" ) );
+	gzrt_gtk_font_set( text, "Courier 10" );
+	
+	gtk_timeout_add( 500, (void*)gzrt_wmain_mem_use, label );
+}
 	
 	/* Set up the buttons */
 	flist_button_hbox = gtk_hbox_new( TRUE, 0 );
@@ -920,12 +917,18 @@ write_file: ;
 	fclose( h );
 	
 	/* Done */
-	gzrt_notice("Notice", "File written.");
+	gtk_message_dialog_new( GTK_WINDOW(w->window), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "File written successfully." );
 }
 
-/* Set button text */
-static void set_text ( MAINWIN * p, char * text )
+/* Update memory usage */
+int gzrt_wmain_mem_use ( GtkWidget * label )
 {
-	GtkWidget * b = get_object(p, "action-button");
-	gtk_button_set_label( GTK_BUTTON(b), text );
+	char buffer[128];
+	struct mallinfo info = mallinfo();
+	
+	snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %gmb", info.uordblks / 1024.0 / 1024.0 );
+	gtk_label_set_text( GTK_LABEL(label), buffer );
+	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
+	
+	return TRUE;
 }

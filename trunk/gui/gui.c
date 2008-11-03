@@ -37,11 +37,6 @@ void gzrt_gui_init ( int argc, char **argv )
 	/* Set application name */
 	g_set_application_name( "GZRT" );
 	
-	/* Show debug window */
-	#ifdef GZRT_DEBUG
-	 gzrt_gui_debug_create();
-	#endif
-	
 	/* Load configuration */
 	gzrt_config_load();
 	

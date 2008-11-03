@@ -11,24 +11,11 @@
 # define GZRT_WDEBUG_ICO	GZRT_GUI_ICON_DIR "icodebug.png"
 # define GZRT_WDEBUG_I		((int)-34)
  
-/* Data structure */
-struct _gzrt_wdebug 
-{
-	GtkWidget * window;
- 	GtkWidget * scroll;
-	GtkWidget * text;
-	GtkWidget * buffer;
-	
-	/* Memory usage */
-	GtkWidget * bar;;
-	GError    * err;
-	GThread   * thread;
-};
- 
 /* Function declarations */
-void gzrt_gui_debug_create ( void );
 void gzrt_gui_debug_add ( char *file, int line, char *fmt, ... );
-int gzrt_gui_debug_mem ( void );
+
+/* Globals */
+extern GtkTextBuffer * debug_console;
 
 /* Macros */
 #ifdef GZRT_DEBUG

@@ -176,3 +176,11 @@ gzrt_gtk_toolbar_button ( char * image, char * label )
 	
 	return button; 
 }
+
+/* Set the font of a widget */
+void gzrt_gtk_font_set ( GtkWidget * w, char * font )
+{
+	PangoFontDescription * font_desc =
+		pango_font_description_from_string( font );
+	gtk_widget_modify_font( w, font_desc );
+}

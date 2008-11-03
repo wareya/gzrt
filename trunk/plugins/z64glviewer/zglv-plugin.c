@@ -74,7 +74,10 @@ int z64v_init ( const struct Functions * f )
 /* Call from menu */
 int z64v_main ( const struct Functions * f, const struct RomSpec * r )
 {
-	DEBUG( "Not implemented.\n" );
+	GtkWidget * j;
+	gtk_dialog_run(j = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "This feature is not yet implemented." ));
+	gtk_widget_destroy(j);
+	DEBUG( "Not implemented." );
 }
 
 /* Open a file from Zelda */
