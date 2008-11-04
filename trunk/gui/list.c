@@ -50,11 +50,28 @@ Cols[] =
 	{ "End",	  FONT, (COLGEN)gen_vend   }
 };
 
+static gboolean
+click_handler ( GtkWidget * widget, GdkEventButton * event, gpointer data )
+{
+    if( event->type == GDK_BUTTON_PRESS )
+		if( event->button == 3 )
+			gtk_menu_popup(GTK_MENU(data), NULL, NULL, NULL, NULL, event->button, event->time);
+	return FALSE;
+}
+
 /* Generate the tree view */
 GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c )
 {
+    GtkWidget* menu, * item;
 	GtkWidget    * tv = gtk_tree_view_new();
 	GtkListStore * ls = gtk_list_store_new( sizeof(Cols) / sizeof(struct ColumnSpec), G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, -1 );
+	
+	/* Right click handler */
+    menu = gtk_menu_new();
+	item = gtk_menu_item_new_with_label("Play Rom");
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+	gtk_widget_show_all( menu );
+	g_signal_connect(tv, "button-press-event", G_CALLBACK(click_handler), (gpointer)menu);
 	
 	/* Create columns */
 	for( int i = 0; i < sizeof(Cols) / sizeof(struct ColumnSpec); i++ )
