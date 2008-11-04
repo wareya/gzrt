@@ -48,6 +48,24 @@ Cols[] =
 	{ "Filename", NULL, (COLGEN)gen_name   },
 	{ "Start",	  FONT, (COLGEN)gen_vstart },
 	{ "End",	  FONT, (COLGEN)gen_vend   }
+}; 
+
+typedef void (*CBACK)( MAINWIN * c );
+struct MenuSpec
+{
+	char * name;
+	char * image;
+	CBACK  handler;
+}
+Menu[] =
+{
+	{ "_Open",           GTK_STOCK_OPEN,       NULL                     },
+	{ NULL,              NULL,                 NULL                     }, /* H-sep */
+	{ "_Default plugin", GTK_STOCK_DISCONNECT, gzrt_wmain_plugin_action },
+	{ "_Plugins...",     GTK_STOCK_ZOOM_FIT,   NULL                     },
+	{ NULL,              NULL,                 NULL                     }, /* H-sep */
+	{ "_Extract",        GTK_STOCK_SAVE,       gzrt_wmain_extract       },
+	{ "_Replace",        GTK_STOCK_JUMP_TO,    gzrt_wreplace_create     }
 };
 
 static gboolean
@@ -55,22 +73,51 @@ click_handler ( GtkWidget * widget, GdkEventButton * event, gpointer data )
 {
     if( event->type == GDK_BUTTON_PRESS )
 		if( event->button == 3 )
+		{
 			gtk_menu_popup(GTK_MENU(data), NULL, NULL, NULL, NULL, event->button, event->time);
+			return FALSE;
+		}
 	return FALSE;
 }
 
-/* Generate the tree view */
-GtkWidget * gzrt_wmain_tree_generate ( MAINWIN * c )
+/* Generate a menu */
+static GtkWidget * 
+menu_generate ( MAINWIN * c )
 {
-    GtkWidget* menu, * item;
+	GtkWidget * menu = gtk_menu_new();
+	GtkWidget * item;
+	gint		i;
+	
+	for( i = 0; i < sizeof(Menu) / sizeof(struct MenuSpec); i++ )
+	{
+		if( !Menu[i].name && !Menu[i].handler )
+			item = gtk_separator_menu_item_new();
+		else
+		if( Menu[i].image )
+			item = gzrt_gtk_image_menu_item_stock( Menu[i].image, GTK_ICON_SIZE_MENU, Menu[i].name );
+		else
+			item = gtk_image_menu_item_new_with_mnemonic( Menu[i].name );
+		
+		if( Menu[i].handler )
+			g_signal_connect_swapped( G_OBJECT(item), "activate", G_CALLBACK(Menu[i].handler), c );
+		
+		gtk_menu_shell_append( GTK_MENU_SHELL(menu), item );
+	}
+	
+	gtk_widget_show_all( menu );
+	return menu;
+}
+	
+
+/* Generate the tree view */
+GtkWidget * 
+gzrt_wmain_tree_generate ( MAINWIN * c )
+{
+    GtkWidget    * menu = menu_generate( c );
 	GtkWidget    * tv = gtk_tree_view_new();
 	GtkListStore * ls = gtk_list_store_new( sizeof(Cols) / sizeof(struct ColumnSpec), G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, -1 );
 	
 	/* Right click handler */
-    menu = gtk_menu_new();
-	item = gtk_menu_item_new_with_label("Play Rom");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	gtk_widget_show_all( menu );
 	g_signal_connect(tv, "button-press-event", G_CALLBACK(click_handler), (gpointer)menu);
 	
 	/* Create columns */
