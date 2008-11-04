@@ -191,6 +191,10 @@ decompress_rom: ;
 	for( i = ftell( out ); i < 64 * 1024 * 1024; i++ )
 		fputc( 0x00, out );
 	
+	/* Fix CRCs */
+	pbarset( pbar, 1.0, "Fixing CRCs..." );
+	n64rom_crc_quick( out );
+	
 	/* Finished */
 	gtk_widget_destroy( window );
 	fclose( out );
