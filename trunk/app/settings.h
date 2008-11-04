@@ -16,6 +16,13 @@ struct GZRTConfig
 {
 	char * default_rom;
 	char * default_plugin;
+	
+	char * handler_zdata;
+	char * handler_zactor;
+	char * handler_zobj;
+	char * handler_zmap;
+	char * handler_zscene;
+	char * handler_zasm;
 };
 
 /* Global configuration struct */
