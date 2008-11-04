@@ -66,8 +66,10 @@ typedef struct _gzrt_wmain
 	/* The file listing */
 	GtkListStore * model;
 	
+	/* Timeouts that need to be stopped */
+	GList * timeouts;
+	
 	/* Reserved... */
-	glong	reserved2;
 	glong	reserved3;
 	glong	reserved4;
 }
@@ -99,6 +101,8 @@ void gzrt_wmain_extract ( MAINWIN * w );
 int gzrt_wmain_count ( void );
 void gzrt_wmain_action_button_text ( char * text );
 void gzrt_wmain_set_plugin ( char * n );
+void gzrt_wmain_timeout_add ( MAINWIN * c, guint32 interval, void * func, void * object );
+void gzrt_wmain_remove_timeouts ( MAINWIN * c );
 
 
 		

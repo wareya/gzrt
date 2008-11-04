@@ -202,6 +202,9 @@ void gzrt_wmain_closed ( MAINWIN *w )
 	if( w->t )
 		z64nt_close( w->t );
 	
+	/* List of timeouts */
+	gzrt_wmain_remove_timeouts(w);
+	
 	/* Is this the last window? If so, we can just quit */
 	if( g_list_length( instances ) == 1 )
 		gzrt_gui_quit();
@@ -826,7 +829,7 @@ GtkWidget * gzrt_wmain_main_generate ( MAINWIN * w )
 	/* extern gboolean pulse_bar ( GtkWidget * b );
 	gtk_box_pack_start( GTK_BOX(hbox), pbar, FALSE, TRUE, 0 );
 	gtk_timeout_add( 100, (void*)pulse_bar, pbar ); */
-	gtk_timeout_add( 500, (void*)gzrt_wmain_mem_use, label );
+	gzrt_wmain_timeout_add( w, 500, (void*)gzrt_wmain_mem_use, label );
 }
 	
 	/* Set up the buttons */
@@ -939,20 +942,45 @@ write_file: ;
 	gtk_message_dialog_new( GTK_WINDOW(w->window), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "File written successfully." );
 }
 
+
 /* Update memory usage */
 int gzrt_wmain_mem_use ( GtkWidget * label )
 {
 	char buffer[128];
 	
-	#ifndef WIN32
-	struct mallinfo info = mallinfo();
+	if( !label ) 
+		return FALSE;
 	
-	snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %gmb", info.uordblks / 1024.0 / 1024.0 );
+	#ifndef WIN32
+	 struct mallinfo info = mallinfo();
+	 snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %gmb", info.uordblks / 1024.0 / 1024.0 );
 	#else
-	snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %u bytes", gzrt_mem_use() );
+	 snprintf( buffer, sizeof(buffer), "<b>Memory usage:</b> %u bytes", gzrt_mem_use() );
 	#endif
 	gtk_label_set_text( GTK_LABEL(label), buffer );
 	gtk_label_set_use_markup( GTK_LABEL(label), TRUE );
 	
 	return TRUE;
+}
+
+/* Add a timeout */
+void gzrt_wmain_timeout_add ( MAINWIN * c, guint32 interval, void * func, void * object )
+{
+	gint id = gtk_timeout_add( interval, func, object );
+	c->timeouts = g_list_append( c->timeouts, (gpointer)id );
+}
+
+/* Remove all timeouts */
+void gzrt_wmain_remove_timeouts ( MAINWIN * c )
+{
+	gint count = g_list_length( c->timeouts ), i;
+	
+	for( i = 0; i < count; i++ )
+	{
+		GList * cur = g_list_nth( c->timeouts, i );
+		
+		gtk_timeout_remove( (guint)cur->data );
+	}
+	
+	g_list_free( c->timeouts );
 }
