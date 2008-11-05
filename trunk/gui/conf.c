@@ -155,8 +155,6 @@ frame_file_handler ( MAINWIN * c )
 static GtkWidget * 
 frame_app_settings ( MAINWIN * c )
 {
-	GtkWidget * vbox;
-	GtkWidget * frame;
 	GtkWidget * align;
 	GtkWidget * hbox;
 	GtkWidget * button;
