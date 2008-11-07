@@ -3,6 +3,7 @@
 ***********************/
 #include <z64.h>
 #include <glib.h>
+#include <stdlib.h>
 
 /* Table identifier - MM */
 static const guint8 
@@ -13,7 +14,6 @@ table_ident_mm[] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
 };
 
-
 /* Table terminator - MM */
 static const guint8 
 table_term_mm[] =
@@ -21,6 +21,7 @@ table_term_mm[] =
     0x12, 0x00, 0x41, 0x02, 0x12, 0x01, 0x41,
 	0x02, 0x12, 0x02, 0x41, 0x02
 };
+
 
 /* Table identifier - OoT */
 static const guint8 
@@ -32,10 +33,30 @@ table_ident_oot[] =
 	0x5C, 0x08, 0x41, 0x83, 0x5C, 0x08, 0x41, 0x83 
 };
 
-
 /* Table terminator - OoT */
 static const guint8 
 table_term_oot[] =
 {
 	0xDB, 0x06, 0x00, 0x24
 };
+
+
+/* Open the scene table */
+Z64ST * z64st_open ( Z64 * h )
+{
+	Z64ST * ret;
+	int     i;
+	
+	/* We need the code file to be identified */
+	if( !z64_discover_code( h ) )
+		return NULL;
+	
+	/* Allocate memory */
+	if( !(ret = calloc( sizeof(Z64ST), 1 )) )
+		return NULL;
+	
+	/* Find the start */
+	for( i = 0; i < Z_FILESIZE_VIRT(h->f_code); i += 16 )
+	{
+	}
+}

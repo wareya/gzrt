@@ -16,12 +16,23 @@ Z64 * z64_open ( char * filename )
 	if( !(ret = calloc( sizeof(Z64), 1 )) )
 		return NULL;
 	
-	/* Create file handle for ROM */
-	ret->handle = fopen( filename, "rb" );
+	/* Open the ROM */
+	if( !(ret->rom = n64rom_load( filename )) )
+	{
+		free( ret );
+		return NULL;
+	}
+	
+	/* Copy file handle for ROM */
+	ret->handle = ret->rom->handle;
 	
 	/* Read filesystem */
 	if( !(ret->fs = z64fs_open( ret->handle )) )
+	{
+		n64rom_close( ret->rom );
+		free( ret );
 		return NULL;
+	}
 	ret->status |= Z64_LOADED_FS;
 	
 	/* Read the name table */
@@ -45,7 +56,7 @@ void z64_close ( Z64 * h )
 	z64nt_close( h->nt );
 	free( h->filename );
 	free( h->f_code_data );
-	fclose( h->handle );
+	n64rom_close( h->rom );
 	free( h );
 }
 

@@ -6,6 +6,11 @@
 
 #include <stdio.h>
 #include <glib.h>
+
+/* N64 ROM Library */
+#include <n64rom.h>
+
+/* Zelda 64 deps */
 #include "z64fs.h"
 #include "z64nt.h"
 #include "z64at.h"
@@ -39,9 +44,10 @@ enum
 typedef struct
 {
 	/* ROM information */
-	char * filename;
-	FILE * handle;
-	int	   filesize;
+	char   * filename;
+	FILE   * handle;
+	int	     filesize;
+	N64Rom * rom;
 
 	/* Context status (what's loaded, errors etc) */
 	int    status;
