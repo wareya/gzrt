@@ -43,8 +43,12 @@ Z64 * z64_open ( char * filename )
 	if( (ret->at = z64at_open( ret )) )
 		ret->status |= Z64_LOADED_AT;
 	
+	/* Read the scene table */
+	if( (ret->st = z64st_open( ret )) )
+		ret->status |= Z64_LOADED_ST;
+	
 	/* Store filename */
-	ret->filename = strdup( filename );
+	ret->filename = (char*)ret->rom->filename;
 	
 	return ret;
 }

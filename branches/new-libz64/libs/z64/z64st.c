@@ -4,6 +4,16 @@
 #include <z64.h>
 #include <glib.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define U32(x) ((x)[0] << 24 | (x)[1] << 16 | (x)[2] << 8 | (x)[3])
+
+/* Local functions */
+static guint32 z64st_discover_mm  ( Z64 * h 			   );
+static guint32 z64st_find_end_mm  ( Z64 * h, guint32 start );
+static guint32 z64st_discover_oot ( Z64 * h                );
+static guint32 z64st_find_end_oot ( Z64 * h, guint32 start );
+static void *  z64st_read_entries ( Z64 * h, Z64ST * s     );
 
 /* Table identifier - MM */
 static const guint8 
@@ -45,7 +55,6 @@ table_term_oot[] =
 Z64ST * z64st_open ( Z64 * h )
 {
 	Z64ST * ret;
-	int     i;
 	
 	/* We need the code file to be identified */
 	if( !z64_discover_code( h ) )
@@ -55,8 +64,106 @@ Z64ST * z64st_open ( Z64 * h )
 	if( !(ret = calloc( sizeof(Z64ST), 1 )) )
 		return NULL;
 	
-	/* Find the start */
-	for( i = 0; i < Z_FILESIZE_VIRT(h->f_code); i += 16 )
-	{
+	/* Find the start of the table */
+	if( (ret->start = z64st_discover_oot( h )) )
+		ret->game = GameOOT;
+	else if( (ret->start = z64st_discover_mm( h )) )
+		ret->game = GameMM;
+	else {
+		free( ret );
+		return NULL;
 	}
+	
+	g_print( "Start: %X %u\nEnd: %X\n", ret->start, FALSE, ret->end );
+	
+	/* Discover end */
+	ret->end = 
+	( 
+		ret->game == GameOOT ? 
+		z64st_find_end_oot( h, ret->start ) : z64st_find_end_mm( h, ret->start ) 
+	);
+	if( !(ret->end) )
+	{
+		free( ret );
+		return NULL;
+	}
+	
+	/* Read the table */
+	ret->entries = z64st_read_entries( h, ret );
+	
+	return ret;
 }
+
+/* Discover the scene table for MM */
+static guint32
+z64st_discover_mm ( Z64 * h )
+{
+	int i;
+	
+	for( i = 0; i < Z_FILESIZE_VIRT(h->f_code) - sizeof(table_ident_mm); i += 16 )
+	
+		/* Compare signature */
+		if( !memcmp( h->f_code_data + i, table_ident_mm, sizeof(table_ident_mm) ) )
+			return( i + sizeof(table_ident_mm) );
+	
+	return TRUE;
+}
+
+/* Discover the scene table for OoT */
+static guint32
+z64st_discover_oot ( Z64 * h )
+{
+	int i;
+	
+	for( i = 0; i < Z_FILESIZE_VIRT(h->f_code) - sizeof(table_ident_oot); i += 16 )
+	
+		/* Compare signature */
+		if( !memcmp( h->f_code_data + i, table_ident_oot, sizeof(table_ident_oot) ) )
+			return( i + sizeof(table_ident_oot) );
+	
+	return FALSE;
+}
+
+/* Discover the end of the scene table for MM */
+static guint32
+z64st_find_end_mm ( Z64 * h, guint32 start )
+{
+	int i = 0;
+	
+	for( i = start; i < Z_FILESIZE_VIRT(h->f_code) - sizeof(table_term_mm); i += 4 )
+	
+		/* Compare signature */
+		if( !memcmp( h->f_code_data + i, table_term_mm, sizeof(table_term_mm) ) )
+			return i;
+	
+	return FALSE;
+}
+
+/* Discover the end of the scene table for OoT */
+static guint32
+z64st_find_end_oot ( Z64 * h, guint32 start )
+{
+	int i = 0;
+	
+	for( i = start; i < Z_FILESIZE_VIRT(h->f_code) - sizeof(table_term_oot); i += 4 )
+	
+		/* Compare signature */
+		if( !memcmp( h->f_code_data + i, table_term_oot, sizeof(table_term_oot) ) )
+			return i;
+	
+	return FALSE;
+}
+
+/* Read the tables */
+static void *
+z64st_read_entries ( Z64 * h, Z64ST * s )
+{
+	guint32 * table = calloc( s->end - s->start, 1 );
+	guint32   i;
+	
+	for( i = 0; i < s->end - s->start; i += 4 )
+		table[i] = U32( h->f_code_data + s->start + i );
+	
+	return table;
+}
+

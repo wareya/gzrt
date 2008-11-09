@@ -60,7 +60,7 @@ typedef struct
 	Z64NT * nt;		/* Name table   */
 	Z64AT * at;		/* Actor table  */
 	void  * ot;		/* Object table */
-	void  * st;		/* Scene table  */
+	Z64ST * st;		/* Scene table  */
 
 	/* Important files */
 	const Z64FSEntry * f_code;	/* The game's Code file */
@@ -75,10 +75,11 @@ typedef struct
 Z64;
 
 /* Functions */
-Z64 * z64_open ( char * filename );
-void z64_close ( Z64 * h );
-void z64_read_file ( Z64 * h, int id, unsigned char * dest );
-gboolean z64_discover_code ( Z64 * h );
-Z64AT * z64at_open ( Z64 * );
+extern Z64 *     z64_open          ( char *                      );
+extern void      z64_close         ( Z64 *                       );
+extern void      z64_read_file     ( Z64 *, int, unsigned char * );
+extern gboolean  z64_discover_code ( Z64 *                       );
+extern Z64AT *   z64at_open        ( Z64 *                       );
+extern Z64ST *   z64st_open        ( Z64 *                       );
 
 #endif

@@ -4,6 +4,8 @@
 #ifndef __LZ64_SCENE_TABLE
 #define __LZ64_SCENE_TABLE
 
+typedef enum { GameOOT, GameMM } SceneTableGame;
+
 struct SceneEntryOOT
 {
 	guint32		addr_start;		/* Address of scene       */
@@ -23,10 +25,10 @@ struct SceneEntryMM
 
 typedef struct
 {
-	guint32		start;	/* Address, relative to code file */
-	guint32		end;	/* Address, relative to code file */
-	guint32		count;	/* Amount of scenes listed        */   
-	int			game;	/* What game (OoT or MM) 		  */
+	guint32			start;	/* Address, relative to code file */
+	guint32			end;	/* Address, relative to code file */
+	guint32			count;	/* Amount of scenes listed        */   
+	SceneTableGame	game;	/* What game (OoT or MM) 		  */
 	
 	void * entries;                     
 }
