@@ -13,6 +13,7 @@ This tutorial will cover the essentials for utilizing the N64 Toolchain (aka, GN
 = Tutorial =
 
 First of all, download the toolchain package, and extract it to C:\. Next, download the current hacks, and extract the folders within the hacks-rev1 folder to C:\n64tree-win32.
+
 [http://64.vg/files/n64tree-tutorial/02.png]
 
 Now, just to clear up some executable location issues:
