@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Setting up the Nintendo 64 toolchain for hacks
 
 = Introduction =
 This tutorial will cover the essentials for utilizing the N64 Toolchain (aka, GNU toolchain targeting the MIPS R4300) provided on this project page. It's for Windows users, obviously - not because I use Windows myself, but because everyone else does!
