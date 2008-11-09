@@ -1,9 +1,11 @@
 chdir exepath
+open cons for output as #2
 
 #include once "GL/gl.bi"
 #include once "GL/glu.bi"
 #include once "crt.bi"          '' scanf is used to parse data file
 #include once "fbgfx.bi"        '' for Scan code constants
+#include once "zev2.l.bas"
 
 
 dim shared as ubyte abyte
@@ -44,9 +46,10 @@ dim shared as uinteger trialo = 0
 dim shared as ubyte dlist = 0
 dim shared as uinteger entry = 0
 dim shared as uinteger curentry = 0
-dim shared as byte bank06 = 0
+dim shared as ubyte bank06 = 0
 
 dim shared as string filename
+redim shared as ubyte file(1)
 
 
 '' Setup our booleans
@@ -69,7 +72,7 @@ type VERTEX                      '' Build Our Vertex Structure called VERTEX
 end type
 
 type TRIANGLE                    '' Build Our Triangle Structure called TRIANGLE
-	v(0 to 2) as VERTEX          '' Array Of Three Vertices
+	v(0 to 2) as byte          '' Array Of Three Vertices
 end type
 
 redim shared as TRIANGLE triangles(0 to 1)
@@ -77,27 +80,18 @@ redim shared as TRIANGLE triangles(0 to 1)
 
 
 ''------------------------------------------------------------------------------
-declare sub Load()
 declare sub Rend()
+declare sub Decode()
 
-dim shared filter as uinteger                  '' Which Filter To Use
-dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
-	
-	dim shared blend as integer                    '' Blending OFF/ON?
-	dim shared fp as integer                       '' F Pressed?
-	dim shared bp as integer                       '' B Pressed?
-
-	dim shared heading as single              '' direction of movement
+	dim shared heading as single
 	dim shared xpos as single                 '' X position
-	dim shared zpos as single                 '' Y position
 	dim shared ypos as single                 '' Y position
+	dim shared zpos as single                 '' Z position
 	
-	dim shared yrot as single                 '' Y Rotation = heading
-	dim shared walkbias as single             '' used with walkbiasangle for bouncing effect
-	dim shared walkbiasangle as single        '' used with walkbias for bouncing effect
-	dim shared lookupdown as single           '' View direction
+	dim shared yrot as single
+    dim shared lookupdown as single
 	
-	dim shared x_m as single            '' Floating Point For Temp X, Y, Z, U And V Vertices
+	dim shared x_m as single
 	dim shared y_m as single
 	dim shared z_m as single
     
@@ -123,11 +117,11 @@ dim shared texture(0 to 2) as uinteger         '' Storage For 3 Textures
 	dim shared as integer loop_m        '' Loop counter
     
 
-	screen 18, 16, , 2.
     dim shared as byte start = 0
 Start:
     start = 0
     Load()
+	screen 18, 16, , 2.
 	'' ReSizeGLScene
 	glViewport 0, 0, 640, 480                      '' Reset The Current Viewport
 	glMatrixMode GL_PROJECTION                     '' Select The Projection Matrix
@@ -179,52 +173,16 @@ sub Rend()
 		
 		xtrans = - xpos
 		ztrans = - zpos
-		ytrans = - ypos                      '' Used For Bouncing Motion Up And Down
-		sceneroty = 360.0 - yrot                        '' 360 Degree Angle For Player Direction
+		ytrans = - ypos
+		sceneroty = 360.0 - yrot
 		
-		glRotatef lookupdown, 1.0, 0,0                  '' Rotate Up And Down To Look Up And Down
-		glRotatef sceneroty, 0, 1.0, 0                  '' Rotate Depending On Direction Player Is Facing
+		glRotatef lookupdown, 1.0, 0,0
+		glRotatef sceneroty, 0, 1.0, 0
 		
-		glTranslatef xtrans, ytrans, ztrans             '' Translate The Scene Based On Player Position
-		glBindTexture GL_TEXTURE_2D, texture(filter)    '' Select A Texture Based On filter
+		glTranslatef xtrans, ytrans, ztrans
 		
-		' Process Each Triangle
-		for loop_m = 0 to curt - 1
-		
-			glBegin GL_TRIANGLES                          '' Start Drawing Triangles
-            
-				glNormal3f 0.0, 0.0, 1.0
-				r_m = triangles(loop_m).v(0).r
-				g_m = triangles(loop_m).v(0).g
-				b_m = triangles(loop_m).v(0).b
-				a_m = triangles(loop_m).v(0).a
-				x_m = triangles(loop_m).v(0).x
-				y_m = triangles(loop_m).v(0).y
-				z_m = triangles(loop_m).v(0).z
-                glcolor4ub r_m, g_m, b_m, a_m
-			    glVertex3f x_m, y_m, z_m
-                
-				r_m = triangles(loop_m).v(1).r
-				g_m = triangles(loop_m).v(1).g
-				b_m = triangles(loop_m).v(1).b
-				a_m = triangles(loop_m).v(1).a
-                glcolor4ub r_m, g_m, b_m, a_m
-				x_m = triangles(loop_m).v(1).x
-				y_m = triangles(loop_m).v(1).y
-				z_m = triangles(loop_m).v(1).z
-			    glVertex3f x_m, y_m, z_m
-                
-				r_m = triangles(loop_m).v(2).r
-				g_m = triangles(loop_m).v(2).g
-				b_m = triangles(loop_m).v(2).b
-				a_m = triangles(loop_m).v(2).a
-                glcolor4ub r_m, g_m, b_m, a_m
-				x_m = triangles(loop_m).v(2).x
-				y_m = triangles(loop_m).v(2).y
-				z_m = triangles(loop_m).v(2).z
-                glVertex3f x_m, y_m, z_m
-			glEnd
-		next
+        decode()
+        
 		'' Keyboard handlers
         if MULTIKEY(FB.SC_PLUS) then
             if (pressedu = 0) then
@@ -274,23 +232,23 @@ sub Rend()
         if (camspeed <= 0) then camspeed =.5 end if
         
 		if MULTIKEY(FB.SC_W) then
-			xpos = xpos - sin(heading*piover180) * camspeed    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos - cos(heading*piover180) * camspeed    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos - sin(heading*piover180) * camspeed
+			zpos = zpos - cos(heading*piover180) * camspeed
         end if
 	
 		if MULTIKEY(FB.SC_S) then
-			xpos = xpos + sin(heading*piover180) * camspeed    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos + cos(heading*piover180) * camspeed    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos + sin(heading*piover180) * camspeed
+			zpos = zpos + cos(heading*piover180) * camspeed
 		end if
 	
 		if MULTIKEY(FB.SC_A) then
-			xpos = xpos - sin(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos - cos(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos - sin(heading*piover180+(3.141592654/2)) * camspeed
+			zpos = zpos - cos(heading*piover180+(3.141592654/2)) * camspeed
  		end if
 	
 		if MULTIKEY(FB.SC_D) then
-			xpos = xpos + sin(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The X-Plane Based On Player Direction
-			zpos = zpos + cos(heading*piover180+(3.141592654/2)) * camspeed    '' Move On The Z-Plane Based On Player Direction
+			xpos = xpos + sin(heading*piover180+(3.141592654/2)) * camspeed
+			zpos = zpos + cos(heading*piover180+(3.141592654/2)) * camspeed
  		end if
         
         if MULTIKEY(FB.SC_R) then
@@ -315,12 +273,12 @@ sub Rend()
         
         
 		if MULTIKEY(FB.SC_RIGHT) then
-			heading = heading - 2.5        '' Rotate The Scene To The Left
+			heading = heading - 2.5
 			yrot = heading
 		end if
 
 		if MULTIKEY(FB.SC_LEFT) then
-			heading = heading + 2.5        '' Rotate The Scene To The Right
+			heading = heading + 2.5
 			yrot = heading
 		end if
         
@@ -337,41 +295,19 @@ sub Rend()
         else
             pressedc = 0
         end if
-        
-        if MULTIKEY(FB.SC_TAB) then start = 1
-        
-		flip  '' flip or crash
+                
+		flip
 
-	'' Empty keyboard buffer
+
 end sub
-sub load
 
-open cons for output as #2
-open Cons For Input As #3
+sub decode()
 
 chdir exepath
 
 sleep 1
 
-filename = Command(1)
-
-dim as string strentry
-print #2, "Which E7 command to load?"
-Line Input #3,strentry
-entry=val(strentry)
-
-dim as string tstring
-dim as byte all
-print #2, "Load all of file from there?(y/o)"
-Line Input #3,tstring
-if (tstring="y") then all=1 else all=0 end if
-
-
-Open filename for Binary as #1
-
 sleep 1
-
-filesize = Lof ( 1 )
 
 redim triangles ( 0 to ( filesize / 16 ) )
 
@@ -380,48 +316,46 @@ sleep 1
 dlist = 0
 curt = 0
 
-print #2, "Loading..."
-
 address = 1
 taddress = address
+
 while ( address < filesize )
     
-    
-    Get #1, address, abyte, 1
+    abyte = file(address)
     select case abyte
     case &hE7
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             case 0
             
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             case 0
             
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             case 0
             
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             case 0
             
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             case 0
             
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             case 0
             
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             select case tbyte
             
             case 0
@@ -429,11 +363,7 @@ while ( address < filesize )
             
             if dlist = 0 then
             if (curentry >= entry) then
-            print #2, curentry, "/", entry
             dlist = 1
-            print #2, "Display List:"
-            print #2,
-            print #2,
             end if
             end if
         
@@ -445,50 +375,38 @@ while ( address < filesize )
             end select
             end select
     case &hDF
-            
             if dlist = 1 then
                 dlist = 0
-                print #2, "...End display list."
                 if all = 0 then
                     exit while
                 end if
             end if
-            print #2,
-            print #2,
     
     case 1
         dim as integer which = 0
         if dlist = 1 then
-            
             taddress += 4
-            Get #1, taddress, tbyte
-            print #2, "Bank: "; hex(tbyte)
-            print #2,
+            tbyte = file(taddress)
             if tbyte = 6 then
             bank06=1
             taddress -= 3
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             len01 = tbyte * 256
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             len01 += tbyte
             
-            print #2, "Length: "; hex(len01)
-            print #2,
-            
             taddress += 3
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             spot01 = tbyte * &h10000
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             spot01 += tbyte * 256
             taddress += 1
-            Get #1, taddress, tbyte
+            tbyte = file(taddress)
             spot01 += tbyte
             
             
-            print #2, "Spot: "; hex(spot01)
-            print #2,
             spot01 /= 2
             
             redim xverts(0 to len01)
@@ -504,39 +422,39 @@ while ( address < filesize )
             
             while taddress < spot01 + len01
                 
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 xverts(which) = tbyte * 256
                 taddress += 1
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 xverts(which) += tbyte
                 taddress += 1
                 
                 
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 yverts(which) = tbyte * 256
                 taddress += 1
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 yverts(which) += tbyte
                 taddress += 1
                 
                 
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 zverts(which) = tbyte * 256
                 taddress += 1
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 zverts(which) += tbyte
                 taddress += 7
                 
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 rverts(which) = tbyte
                 taddress += 1
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 gverts(which) = tbyte
                 taddress += 1
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 bverts(which) = tbyte
                 taddress += 1
-                Get #1, taddress + spot01, tbyte
+                tbyte = file(taddress)
                 averts(which) = tbyte
                 taddress += 1
                 
@@ -547,129 +465,55 @@ while ( address < filesize )
             else
                 taddress += 4
                 bank06=0
-                print #2, "Incompatible bank."
             endif
         end if
     case 6
         if dlist = 1 then
         if bank06 = 1 then
             taddress += 1
-            print
-            Get #1, taddress, tri051
-            Print #2, "1: "; xverts(tri051 / 2);
-            Print #2, ", "; yverts(tri051 / 2);
-            Print #2, ", "; zverts(tri051 / 2);
-            Print #2, "; "; rverts(tri051 / 2);
-            Print #2, ", "; gverts(tri051 / 2);
-            Print #2, ", "; bverts(tri051 / 2);
-            Print #2, ", "; averts(tri051 / 2)
-            triangles(curt).v(curv).x = xverts(tri051 / 2)
-            triangles(curt).v(curv).y = yverts(tri051 / 2)
-            triangles(curt).v(curv).z = zverts(tri051 / 2)
-            triangles(curt).v(curv).r = rverts(tri051 / 2)
-            triangles(curt).v(curv).g = gverts(tri051 / 2)
-            triangles(curt).v(curv).b = bverts(tri051 / 2)
-            triangles(curt).v(curv).a = averts(tri051 / 2)
+            
+            glBegin GL_TRIANGLES
+            glNormal3f 0.0, 0.0, 1.0
+            tri051 = file(taddress)
+            glcolor4ub rverts(tri051 / 2), gverts(tri051 / 2), bverts(tri051 / 2), averts(tri051 / 2)
+            glVertex3f xverts(tri051 / 2), yverts(tri051 / 2), zverts(tri051 / 2)
             taddress += 1
             curv = 1
             
-            Get #1, taddress, tri052
-            Print #2, "2: "; xverts(tri052 / 2);
-            Print #2, ", "; yverts(tri052 / 2);
-            Print #2, ", "; zverts(tri052 / 2);
-            Print #2, "; "; rverts(tri052 / 2);
-            Print #2, ", "; gverts(tri052 / 2);
-            Print #2, ", "; bverts(tri052 / 2);
-            Print #2, ", "; averts(tri052 / 2)
-            triangles(curt).v(curv).x = xverts(tri052 / 2)
-            triangles(curt).v(curv).y = yverts(tri052 / 2)
-            triangles(curt).v(curv).z = zverts(tri052 / 2)
-            triangles(curt).v(curv).r = rverts(tri052 / 2)
-            triangles(curt).v(curv).g = gverts(tri052 / 2)
-            triangles(curt).v(curv).b = bverts(tri052 / 2)
-            triangles(curt).v(curv).a = averts(tri052 / 2)
-            
-            
+            tri052 = file(taddress)
+            glcolor4ub rverts(tri052 / 2), gverts(tri052 / 2), bverts(tri052 / 2), averts(tri052 / 2)
+            glVertex3f xverts(tri052 / 2), yverts(tri052 / 2), zverts(tri052 / 2)
             taddress += 1
             curv = 2
             
-            Get #1, taddress, tri053
-            Print #2, "3: "; xverts(tri053 / 2);
-            Print #2, ", "; yverts(tri053 / 2);
-            Print #2, ", "; zverts(tri053 / 2);
-            Print #2, "; "; rverts(tri053 / 2);
-            Print #2, ", "; gverts(tri053 / 2);
-            Print #2, ", "; bverts(tri053 / 2);
-            Print #2, ", "; averts(tri053 / 2)
-            triangles(curt).v(curv).x = xverts(tri053 / 2)
-            triangles(curt).v(curv).y = yverts(tri053 / 2)
-            triangles(curt).v(curv).z = zverts(tri053 / 2)
-            triangles(curt).v(curv).r = rverts(tri053 / 2)
-            triangles(curt).v(curv).g = gverts(tri053 / 2)
-            triangles(curt).v(curv).b = bverts(tri053 / 2)
-            triangles(curt).v(curv).a = averts(tri053 / 2)
+            tri053 = file(taddress)
+            glcolor4ub rverts(tri053 / 2), gverts(tri053 / 2), bverts(tri053 / 2), averts(tri053 / 2)
+            glVertex3f xverts(tri053 / 2), yverts(tri053 / 2), zverts(tri053 / 2)
+            glEnd
             
-
             
             taddress += 2
             curv = 0
             curt += 1
             
-            Get #1, taddress, tri061
-            Print #2, "4: "; xverts(tri061 / 2);
-            Print #2, ", "; yverts(tri061 / 2);
-            Print #2, ", "; zverts(tri061 / 2);
-            Print #2, "; "; rverts(tri061 / 2);
-            Print #2, ", "; gverts(tri061 / 2);
-            Print #2, ", "; bverts(tri061 / 2);
-            Print #2, ", "; averts(tri061 / 2)
-            triangles(curt).v(curv).x = xverts(tri061 / 2)
-            triangles(curt).v(curv).y = yverts(tri061 / 2)
-            triangles(curt).v(curv).z = zverts(tri061 / 2)
-            triangles(curt).v(curv).r = rverts(tri061 / 2)
-            triangles(curt).v(curv).g = gverts(tri061 / 2)
-            triangles(curt).v(curv).b = bverts(tri061 / 2)
-            triangles(curt).v(curv).a = averts(tri061 / 2)
-            
-            
+            glBegin GL_TRIANGLES
+            glNormal3f 0.0, 0.0, 1.0
+            tri061 = file(taddress)
+            glcolor4ub rverts(tri061 / 2), gverts(tri061 / 2), bverts(tri061 / 2), averts(tri061 / 2)
+            glVertex3f xverts(tri061 / 2), yverts(tri061 / 2), zverts(tri061 / 2)
             taddress += 1
             curv = 1
             
-            Get #1, taddress, tri062
-            Print #2, "5: "; xverts(tri062 / 2);
-            Print #2, ", "; yverts(tri062 / 2);
-            Print #2, ", "; zverts(tri062 / 2);
-            Print #2, "; "; rverts(tri062 / 2);
-            Print #2, ", "; gverts(tri062 / 2);
-            Print #2, ", "; bverts(tri062 / 2);
-            Print #2, ", "; averts(tri062 / 2)
-            triangles(curt).v(curv).x = xverts(tri062 / 2)
-            triangles(curt).v(curv).y = yverts(tri062 / 2)
-            triangles(curt).v(curv).z = zverts(tri062 / 2)
-            triangles(curt).v(curv).r = rverts(tri062 / 2)
-            triangles(curt).v(curv).g = gverts(tri062 / 2)
-            triangles(curt).v(curv).b = bverts(tri062 / 2)
-            triangles(curt).v(curv).a = averts(tri062 / 2)
-            
-            
+            tri062 = file(taddress)
+            glcolor4ub rverts(tri062 / 2), gverts(tri062 / 2), bverts(tri052 / 2), averts(tri062 / 2)
+            glVertex3f xverts(tri062 / 2), yverts(tri062 / 2), zverts(tri052 / 2)
             taddress += 1
             curv = 2
             
-            Get #1, taddress, tri063
-            Print #2, "6: "; xverts(tri063 / 2);
-            Print #2, ", "; yverts(tri063 / 2);
-            Print #2, ", "; zverts(tri063 / 2);
-            Print #2, "; "; rverts(tri063 / 2);
-            Print #2, ", "; gverts(tri063 / 2);
-            Print #2, ", "; bverts(tri063 / 2);
-            Print #2, ", "; averts(tri063 / 2)
-            triangles(curt).v(curv).x = xverts(tri063 / 2)
-            triangles(curt).v(curv).y = yverts(tri063 / 2)
-            triangles(curt).v(curv).z = zverts(tri063 / 2)
-            triangles(curt).v(curv).r = rverts(tri063 / 2)
-            triangles(curt).v(curv).g = gverts(tri063 / 2)
-            triangles(curt).v(curv).b = bverts(tri063 / 2)
-            triangles(curt).v(curv).a = averts(tri063 / 2)
+            tri063 = file(taddress)
+            glcolor4ub rverts(tri063 / 2), gverts(tri063 / 2), bverts(tri063 / 2), averts(tri063 / 2)
+            glVertex3f xverts(tri063 / 2), yverts(tri063 / 2), zverts(tri063 / 2)
+            glEnd
 
             
             curv = 0
@@ -683,64 +527,27 @@ while ( address < filesize )
         if bank06 = 1 then
             taddress += 1
             
-            Get #1, taddress, tri051
-            Print #2, "1: "; xverts(tri051 / 2);
-            Print #2, ", "; yverts(tri051 / 2);
-            Print #2, ", "; zverts(tri051 / 2)
-            Print #2, "; "; rverts(tri051 / 2);
-            Print #2, ", "; gverts(tri051 / 2);
-            Print #2, ", "; bverts(tri051 / 2);
-            Print #2, ", "; averts(tri051 / 2)
-            triangles(curt).v(curv).x = xverts(tri051 / 2)
-            triangles(curt).v(curv).y = yverts(tri051 / 2)
-            triangles(curt).v(curv).z = zverts(tri051 / 2)
-            triangles(curt).v(curv).r = rverts(tri051 / 2)
-            triangles(curt).v(curv).g = gverts(tri051 / 2)
-            triangles(curt).v(curv).b = bverts(tri051 / 2)
-            triangles(curt).v(curv).a = averts(tri051 / 2)
-            
-
+            glBegin GL_TRIANGLES
+            glNormal3f 0.0, 0.0, 1.0
+            tri051=file(taddress)
+            glcolor4ub rverts(tri051 / 2), gverts(tri051 / 2), bverts(tri051 / 2), averts(tri051 / 2)
+            glVertex3f xverts(tri051 / 2), yverts(tri051 / 2), zverts(tri051 / 2)
             taddress += 1
             curv = 1
             
-            Get #1, taddress, tri052
-            Print #2, "2: "; xverts(tri052 / 2);
-            Print #2, ", "; yverts(tri052 / 2);
-            Print #2, ", "; zverts(tri052 / 2)
-            Print #2, "; "; rverts(tri052 / 2);
-            Print #2, ", "; gverts(tri052 / 2);
-            Print #2, ", "; bverts(tri052 / 2);
-            Print #2, ", "; averts(tri052 / 2)
-            triangles(curt).v(curv).x = xverts(tri052 / 2)
-            triangles(curt).v(curv).y = yverts(tri052 / 2)
-            triangles(curt).v(curv).z = zverts(tri052 / 2)
-            triangles(curt).v(curv).r = rverts(tri052 / 2)
-            triangles(curt).v(curv).g = gverts(tri052 / 2)
-            triangles(curt).v(curv).b = bverts(tri052 / 2)
-            triangles(curt).v(curv).a = averts(tri052 / 2)
-            
-
+            tri052 =file(taddress)
+            glcolor4ub rverts(tri052 / 2), gverts(tri052 / 2), bverts(tri052 / 2), averts(tri052 / 2)
+            glVertex3f xverts(tri052 / 2), yverts(tri052 / 2), zverts(tri052 / 2)
             taddress += 1
             curv = 2
             
-            Get #1, taddress, tri053
-            Print #2, "3: "; xverts(tri053 / 2);
-            Print #2, ", "; yverts(tri053 / 2);
-            Print #2, ", "; zverts(tri053 / 2);
-            Print #2, "; "; rverts(tri053 / 2);
-            Print #2, ", "; gverts(tri053 / 2);
-            Print #2, ", "; bverts(tri053 / 2);
-            Print #2, ", "; averts(tri053 / 2)
-            triangles(curt).v(curv).x = xverts(tri053 / 2)
-            triangles(curt).v(curv).y = yverts(tri053 / 2)
-            triangles(curt).v(curv).z = zverts(tri053 / 2)
-            triangles(curt).v(curv).r = rverts(tri053 / 2)
-            triangles(curt).v(curv).g = gverts(tri053 / 2)
-            triangles(curt).v(curv).b = bverts(tri053 / 2)
-            triangles(curt).v(curv).a = averts(tri053 / 2)
+            tri053 = file(taddress)
+            glcolor4ub rverts(tri053 / 2), gverts(tri053 / 2), bverts(tri053 / 2), averts(tri053 / 2)
+            glVertex3f xverts(tri053 / 2), yverts(tri053 / 2), zverts(tri053 / 2)
+            glEnd
             
             
-            taddress += 1
+            taddress += 5
             curv = 0
             curt += 1
         end if
@@ -752,9 +559,6 @@ while ( address < filesize )
     
 wend
 
-print #2, "Loaded."
-print #2, "Preliminary Vertex Alpha."
-Print #2, ""
-Print #2, "Version: GZRT Plug 0.9A"
-
 end sub
+
+
