@@ -59,8 +59,8 @@ const true  = not false
 const piover180 = 0.0174532925f
 ''------------------------------------------------------------------------------
 '' Types used by the model
-type VERTEX                      '' Build Our Vertex Structure called VERTEX
-	x as short                  '' 3D Coordinates (x, y, z)
+type VERTEX
+	x as short
 	y as short
 	z as short
     r as ubyte
@@ -71,8 +71,8 @@ type VERTEX                      '' Build Our Vertex Structure called VERTEX
     v as single
 end type
 
-type TRIANGLE                    '' Build Our Triangle Structure called TRIANGLE
-	v(0 to 2) as byte          '' Array Of Three Vertices
+type TRIANGLE
+	v(0 to 2) as byte
 end type
 
 redim shared as TRIANGLE triangles(0 to 1)
@@ -108,13 +108,13 @@ declare sub Decode()
 	dim shared b_m as single
 	dim shared a_m as single
 	
-	dim shared xtrans as single         '' Used For Player Translation
-	dim shared ztrans as single         '' Used For Player Translation
-	dim shared ytrans as single         '' Used For Bouncing Motion Up And Down
-	dim shared sceneroty as single      '' 360 Degree Angle For Player Direction
+	dim shared xtrans as single
+	dim shared ztrans as single
+	dim shared ytrans as single
+	dim shared sceneroty as single
 
-	dim shared as integer numtriangles  '' Integer To Hold The Number Of Triangles
-	dim shared as integer loop_m        '' Loop counter
+	dim shared as integer numtriangles
+	dim shared as integer loop_m
     
 
     dim shared as byte start = 0
@@ -122,23 +122,23 @@ Start:
     start = 0
     Load()
 	screen 18, 16, , 2.
-	'' ReSizeGLScene
-	glViewport 0, 0, 640, 480                      '' Reset The Current Viewport
-	glMatrixMode GL_PROJECTION                     '' Select The Projection Matrix
-	glLoadIdentity                                 '' Reset The Projection Matrixy
-	gluPerspective 45.0f, 640.0/480.0, 1.0f, 999999'' Calculate The Aspect Ratio Of The Window
-	glMatrixMode GL_MODELVIEW                      '' Select The Modelview Matrix
-	glLoadIdentity                                 '' Reset The Modelview Matrix
+	
+	glViewport 0, 0, 640, 480
+	glMatrixMode GL_PROJECTION
+	glLoadIdentity
+	gluPerspective 45.0f, 640.0/480.0, 1.0f, 999999
+	glMatrixMode GL_MODELVIEW
+	glLoadIdentity
 
-	'' All Setup For OpenGL Goes Here
+	
     glEnable GL_BLEND
     glBlendFunc GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-	glShadeModel GL_SMOOTH                         '' Enable Smooth Shading
-	glClearColor 0.4, 0.6, 0.8, 0.5                       '' Black Background
-	glClearDepth 1.0                               '' Depth Buffer Setup
-	glEnable GL_DEPTH_TEST                         '' Enables Depth Testing
-	glDepthFunc GL_LEQUAL                          '' The Type Of Depth Testing To Do
-	glHint GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST    '' Really Nice Perspective Calculations
+	glShadeModel GL_SMOOTH
+	glClearColor 0.4, 0.6, 0.8, 0.5
+	glClearDepth 1.0
+	glEnable GL_DEPTH_TEST
+	glDepthFunc GL_LEQUAL
+	glHint GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST
 
 
 dim as integer per10 = 0
@@ -168,8 +168,8 @@ loop
 while inkey <> "": wend
 end
 sub Rend()
-		glClear GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT      '' Clear Screen And Depth Buffer
-		glLoadIdentity()                                        '' Reset The View
+		glClear GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT
+		glLoadIdentity()
 		
 		xtrans = - xpos
 		ztrans = - zpos
@@ -183,7 +183,7 @@ sub Rend()
 		
         decode()
         
-		'' Keyboard handlers
+		
         if MULTIKEY(FB.SC_PLUS) then
             if (pressedu = 0) then
                 camspeed += 2.5
@@ -261,11 +261,11 @@ sub Rend()
 
 
 		if MULTIKEY(FB.SC_UP) then
-			lookupdown = lookupdown - 2.5  '' look up
+			lookupdown = lookupdown - 2.5
 		end if
 
 		if MULTIKEY(FB.SC_DOWN) then
-			lookupdown = lookupdown + 2.5  '' look down
+			lookupdown = lookupdown + 2.5
 		end if
         
         if (lookupdown > 90) then lookupdown = 90
