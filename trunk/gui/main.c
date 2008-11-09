@@ -984,3 +984,31 @@ void gzrt_wmain_remove_timeouts ( MAINWIN * c )
 	
 	g_list_free( c->timeouts );
 }
+
+/* Copy file offsets to clipboard */
+void gzrt_wmain_voffset_clipboard ( MAINWIN * c )
+{
+	GtkClipboard * clip;
+	char buffer[64];
+	int len, id = gzrt_select_file_id(c);
+	
+	clip = gtk_clipboard_get_for_display( gdk_display_get_default(), GDK_SELECTION_CLIPBOARD );
+	len = snprintf( buffer, sizeof(buffer), "%08X %08X", ZFileVirtStart(c->z, id), ZFileVirtEnd(c->z, id) );
+	gtk_clipboard_set_text( GTK_CLIPBOARD(clip), buffer, len );
+	
+	gtk_clipboard_store( clip );
+}
+
+/* Copy file offsets to clipboard */
+void gzrt_wmain_roffset_clipboard ( MAINWIN * c )
+{
+	GtkClipboard * clip;
+	char buffer[64];
+	int len, id = gzrt_select_file_id(c);
+	
+	clip = gtk_clipboard_get_for_display( gdk_display_get_default(), GDK_SELECTION_CLIPBOARD );
+	len = snprintf( buffer, sizeof(buffer), "%08X %08X", ZFileRealStart(c->z, id), ZFileRealEnd(c->z, id) );
+	gtk_clipboard_set_text( clip, buffer, len );
+	
+	gtk_clipboard_store( clip );
+}

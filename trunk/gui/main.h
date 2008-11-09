@@ -103,7 +103,7 @@ void gzrt_wmain_action_button_text ( char * text );
 void gzrt_wmain_set_plugin ( char * n );
 void gzrt_wmain_timeout_add ( MAINWIN * c, guint32 interval, void * func, void * object );
 void gzrt_wmain_remove_timeouts ( MAINWIN * c );
+void gzrt_wmain_voffset_clipboard ( MAINWIN * c );
+void gzrt_wmain_roffset_clipboard ( MAINWIN * c );
 
-
-		
 #endif /* __GZRT_WMAIN_H */

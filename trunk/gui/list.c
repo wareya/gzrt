@@ -59,13 +59,16 @@ struct MenuSpec
 }
 Menu[] =
 {
-	{ "_Open",           GTK_STOCK_OPEN,       NULL                     },
-	{ NULL,              NULL,                 NULL                     }, /* H-sep */
-	{ "_Default plugin", GTK_STOCK_DISCONNECT, gzrt_wmain_plugin_action },
-	{ "_Plugins...",     GTK_STOCK_ZOOM_FIT,   NULL                     },
-	{ NULL,              NULL,                 NULL                     }, /* H-sep */
-	{ "_Extract",        GTK_STOCK_SAVE,       gzrt_wmain_extract       },
-	{ "_Replace",        GTK_STOCK_JUMP_TO,    gzrt_wreplace_create     }
+	{ "_Open",           	   GTK_STOCK_OPEN,       NULL                         },
+	{ NULL,              	   NULL,                 NULL                         }, /* H-sep */
+	{ "_Default plugin", 	   GTK_STOCK_DISCONNECT, gzrt_wmain_plugin_action     },
+	{ "_Plugins...",     	   GTK_STOCK_ZOOM_FIT,   NULL                         },
+	{ NULL,              	   NULL,                 NULL                         }, /* H-sep */
+	{ "_Extract",        	   GTK_STOCK_SAVE,       gzrt_wmain_extract           },
+	{ "_Replace",        	   GTK_STOCK_JUMP_TO,    gzrt_wreplace_create         },
+	{ NULL,				 	   NULL,				 NULL						  },
+	{ "_Copy real address",    GTK_STOCK_COPY,	     gzrt_wmain_roffset_clipboard },
+	{ "_Copy virtual address", GTK_STOCK_COPY,	     gzrt_wmain_voffset_clipboard }
 };
 
 static gboolean
