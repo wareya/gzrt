@@ -1,11 +1,12 @@
 /******************************
 * Zelda 64 Filesystem Library *
 ******************************/
+#include <z64.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <z64fs.h>
 #include <z64yaz0.h>
+#include <z64fs.h>
 
 /* Constants */
 #define SEARCH_STRING   "zelda@"
@@ -17,18 +18,12 @@
 
 /* Create a filesystem context */
 struct Zelda64FileTable *
-z64fs_open ( char * filename )
+z64fs_open ( FILE * handle )
 {
     unsigned char * buffer, * seek;
     Z64FS         * ret;
     unsigned        i, count, tstart, k;
     unsigned        dmad_start, dmad_end;
-    FILE          * handle;
-    
-    /* Open file */
-    if( !(handle = fopen(filename, "rb")) )
-        return NULL;
-    fseek( handle, 0, SEEK_SET );
     
     /* Create return */
     ret = calloc( sizeof(Z64FS), 1 );
@@ -111,9 +106,6 @@ fs_found:
         ret->files[i/16].end    = U32(buffer + tstart + i + 12);
     }
     
-    /* Store file handle */
-    ret->fhandle = handle;
-    
     /* All done */
     free( buffer );
     return ret;
@@ -122,41 +114,9 @@ fs_found:
     
     /* Filesystem not found */
 fs_not_found:
-    fflush(stdout);
     free( buffer );
     free( ret    );
     return NULL;
-}
-
-/* Return a pointer to the file entry of an id */
-const Z64FSEntry * z64fs_file ( Z64FS * h, int id )
-{
-    return &h->files[id];
-}
-
-/* Read a file based on ID (and decompress, if necessary */
-void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest )
-{
-    Z64FSEntry * f = (void*)z64fs_file( h, id );
-    
-    /* Read the file */
-    fseek( h->fhandle, ZFileRealStart(h, id), SEEK_SET );
-    fread( dest, ZFileRealSize(h, id), 1, h->fhandle );
-    
-    /* Do we need to decompress it? */
-    if( ZFileIsCompressed(h, id) && !strncmp("Yaz0", dest, 4) )
-    {
-        unsigned char * tmp = malloc(ZFileVirtSize(h, id));
-        
-        /* Decode it */
-        z64yaz0_decode( dest + 16, tmp, ZFileVirtSize(h, id) );
-        
-        /* Copy it to destination */
-        memcpy( dest, tmp, ZFileVirtSize(h, id) );
-        
-        /* Free temp */
-        free(tmp);
-    }
 }
 
 /* Return the decompressed size of a filesystem */
@@ -194,8 +154,24 @@ unsigned z64fs_size_phys ( Z64FS * h )
 /* Close a handle */
 void z64fs_close ( Z64FS * h )
 {
-    fclose( h->fhandle );
     free( h->files );
     free( h );
 }
 
+/* Read a file */
+void z64fs_read_file ( Z64 * h, int id, unsigned char * dest )
+{
+	const Z64FSEntry * f = z64fs_file( h->fs, id );
+	
+	fseek( h->handle, f->start, SEEK_SET );
+	fread( dest, 1, Z_FILESIZE_PHYS(f), h->handle );
+	
+	/* Compressed? */
+	if( Z_COMPRESSED(f) )
+	{
+		unsigned char * tmp = malloc( 1 * 1024 * 1024 );
+		z64yaz0_decode( dest + 16, tmp, Z_FILESIZE_VIRT(f) );
+		memcpy( dest, tmp, Z_FILESIZE_VIRT(f) );
+		free( tmp );
+	}
+}

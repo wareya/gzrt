@@ -1,8 +1,10 @@
 /******************************
 * Zelda 64 Filetype Detection *
 ******************************/
+#include <z64.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <glib.h>
 
 /* Macros */
@@ -34,7 +36,6 @@ typedef struct FileTypes
 {
     const char     * name;          /* Description              */
     const char     * suffix;        /* File extension           */
-    const char     * prefix;        /* Filename prefix (if any) */
     const CheckRaw   check_raw;     /* Analyze the raw data     */
     const CheckName  check_name;    /* Analyze filename         */
 }
@@ -57,12 +58,12 @@ static gboolean detect_zasm_name   ( unsigned char * );
 /* File type descriptor */
 static const FT ftypes[] =
 {
-    { "Unknown",     "zdata",  NULL,     NULL,              NULL               },
-    { "Actor file",  "zactor", "ovl",    detect_zactor_raw, detect_zactor_name },
-    { "Object file", "zobj",   "object", detect_zobj_raw,   detect_zobj_name   },
-    { "Room file",   "zmap",   NULL,     detect_zmap_raw,   detect_zmap_name   },
-    { "Scene file",  "zscene", NULL,     detect_zscene_raw, detect_zscene_name },
-    { "Game core",   "zasm",   NULL,     detect_zasm_raw,   detect_zasm_name   }
+    { "Unknown",     "zdata",  NULL,              NULL               },
+    { "Actor file",  "zactor", detect_zactor_raw, detect_zactor_name },
+    { "Object file", "zobj",   detect_zobj_raw,   detect_zobj_name   },
+    { "Room file",   "zmap",   detect_zmap_raw,   detect_zmap_name   },
+    { "Scene file",  "zscene", detect_zscene_raw, detect_zscene_name },
+    { "Game core",   "zasm",   detect_zasm_raw,   detect_zasm_name   }
 };
 
 
@@ -259,7 +260,22 @@ detect_zscene_raw ( unsigned char * data, int size )
 static gboolean
 detect_zasm_raw ( unsigned char * data, int size )
 {
-    return FALSE;
+	/* Some unique bytes with which to identify it */
+	const guint8 code_ident[] = 
+	{
+		0x5A, 0x82, 0xA5, 0x7E, 0x30, 0xFC, 0x89, 0xBE, 
+		0x76, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x18, 0xF9, 0x6A, 0x6E, 0xB8, 0xE3, 0x82, 0x76, 
+		0x47, 0x1D, 0x18, 0xF9, 0x82, 0x76, 0x6A, 0x6E, 
+		0x6A, 0x6E, 0x82, 0x76, 0xE7, 0x07, 0xB8, 0xE3, 
+		0x7D, 0x8A, 0x47, 0x1D, 0x6A, 0x6E, 0x18, 0xF9  
+	};
+	
+	/* Compare... */
+	if( !memcmp( data + size - sizeof(code_ident), code_ident, sizeof(code_ident) ) )
+		return TRUE;
+	else
+		return FALSE;
 }
 
 
@@ -271,6 +287,45 @@ detect_zasm_raw ( unsigned char * data, int size )
 **                                                                            **
 ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **
 /*                                                                            */
+
+/* Detect filetype */
+int z64detect ( Z64 * h, int id )
+{
+	/* Functions */
+	extern gint z64at_lookup ( Z64 * h, int id );
+	extern gint z64st_lookup ( Z64 * h, int id );
+	
+	/* Variables */
+	unsigned char * buffer;
+	int ret;
+	
+	/* Does this ROM have filenames? */
+	if( h->nt )
+	{
+		const char * name;
+		
+		/* Yes, try this first */
+		if( (name = z64nt_filename( h->nt, id )) )
+			
+			/* Name found. Use it */
+			return z64detect_name( (unsigned char *)name );
+	}
+	
+	/* Nope, try using a few tables */
+	if( h->at )
+		if( z64at_lookup( h, id ) >= 0 )
+			return Z64_ACTOR;
+	if( h->st )
+		if( z64st_lookup( h, id ) >= 0 )
+			return Z64_SCENE;
+		
+	/* Nothing, use raw detection */
+	buffer = malloc( Z_FILESIZE_VIRT( z64fs_file( h->fs, id ) ) );
+	z64fs_read_file( h, id, buffer );
+	ret = z64detect_raw( buffer, Z_FILESIZE_VIRT( z64fs_file( h->fs, id ) ) );
+	
+	return ret;
+}
 
 /* Detect filetype based on data */
 int
