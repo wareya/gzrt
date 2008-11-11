@@ -176,42 +176,42 @@ static void extract ( GtkWidget * w )
 	buffer = gzrt_malloc( 8 * 1024 * 1024 );
 	
 	/* Begin */
-	for( i = 0; i < z64fs_entries(c->z); i++ )
+	for( i = 0; i < z64fs_entries(c->z->fs); i++ )
 	{
 		char * nptr = name;
 		int type;
 		
 		/* Does this file exist? */
-		if( !ZFileExists(c->z, i) )
+		if( !ZFileExists(c->z->fs, i) )
 			continue;
 		
 		/* Read the file */
 		z64fs_read_file( c->z, i, buffer );
 		
 		/* Detect type */
-		if( c->t )
-			type = z64detect_name( (unsigned char*)z64nt_filename(c->t, i) );
+		if( c->z->nt )
+			type = z64detect_name( (unsigned char*)z64nt_filename(c->z->nt, i) );
 		else
-			type = z64detect_raw( buffer, ZFileVirtSize(c->z, i) );
+			type = z64detect_raw( buffer, ZFileVirtSize(c->z->fs, i) );
 		
 		/* Prepare filename */
 		nptr += sprintf( nptr, "%s" GZRT_SLASH, dest );
 		if( options.add_fid_prefix )
 			nptr += sprintf( nptr, "%04u - ", i );
-		if( c->t )
-			nptr += sprintf( nptr, "%s", z64nt_filename(c->t, i) );
+		if( c->z->nt )
+			nptr += sprintf( nptr, "%s", z64nt_filename(c->z->nt, i) );
 		else
-			nptr += sprintf( nptr, "0x%08X - 0x%08X", ZFileVirtStart(c->z, i), ZFileVirtEnd(c->z, i) );
+			nptr += sprintf( nptr, "0x%08X - 0x%08X", ZFileVirtStart(c->z->fs, i), ZFileVirtEnd(c->z->fs, i) );
 		nptr += sprintf( nptr, ".%s", z64detect_fileext(type) );
 		
 		/* Write it */
 		out = fopen( name, "wb" );
-		fwrite( buffer, 1, ZFileVirtSize(c->z, i), out );
+		fwrite( buffer, 1, ZFileVirtSize(c->z->fs, i), out );
 		fclose( out );
 		
 		/* Update progress bar */
-		if( !((i + 1) % (z64fs_entries(c->z) / 32)) )
-			pbarset( pbar, (double)i / z64fs_entries(c->z), "%.2f%%", (double)i / z64fs_entries(c->z) * 100.0 );
+		if( !((i + 1) % (z64fs_entries(c->z->fs) / 32)) )
+			pbarset( pbar, (double)i / z64fs_entries(c->z->fs), "%.2f%%", (double)i / z64fs_entries(c->z->fs) * 100.0 );
 	}
 	
 	/* Free resources */

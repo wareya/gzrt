@@ -55,8 +55,7 @@ typedef struct _gzrt_wmain
 			N64Rom *c;
 			
 			/* Zelda Filesystem */
-			Z64FS *z;
-			Z64NT *t;
+			Z64 * z;
 		};
 	};
 	

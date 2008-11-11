@@ -17,7 +17,7 @@ CFLAGS += -Ilibs/z64 -Ilibs/n64rom
 CFLAGS += -Wfatal-errors -Wall -Wno-char-subscripts
 
 # Linker flags
-LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0` -Llibs -lz64 -ln64rom
+LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0` -Llibs -ln64rom -lz64
 
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o gui/main.o \

@@ -79,25 +79,14 @@ int gzrt_wmain_create_new ( N64Rom * rc )
 	}
 	
 	/* Identify Zelda filesystem elements */
-	if( !(cur->z = z64fs_open( (char*)rc->filename )) )
+	if( !(cur->z = z64_open( rc )) )
 	{
-		GZRTD_MESG( "Could not find filesystem!" );
-		gzrt_notice( "Error", "Unable to find filesystem in ROM." );
+		GZRTD_MESG( "z64_open() failed!" );
+		gzrt_notice( "Error", "This is not a valid Zelda 64 ROM." );
 		n64rom_close( rc );
 		free( cur );
 		return 0;
 	}
-	
-	/* Identify Zelda 64 name table elements */
-	if( !(cur->t = z64nt_open( rc->handle )) )
-	{
-		GZRTD_MESG( "No name table in this ROM." );
-	}
-	
-	/* Information */
-	GZRTD_MESG( "Name table p:  $%08X", cur->t );
-	GZRTD_MESG( "File table p:  $%08X", cur->z );
-	GZRTD_MESG( "ROM context p: $%08X", rc	   );
 	
 	/* Fill struct with GTK elements & update count */
 	gzrt_wmain_fill( cur );
@@ -196,11 +185,7 @@ void gzrt_wmain_closed ( MAINWIN *w )
 	n64rom_close( w->c );
 	
 	/* Close filesystem context */
-	z64fs_close( w->z );
-	
-	/* Close name table context, if applicable */
-	if( w->t )
-		z64nt_close( w->t );
+	z64_close( w->z );
 	
 	/* List of timeouts */
 	gzrt_wmain_remove_timeouts(w);
@@ -483,10 +468,10 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 {
 	struct PluginFileSpec * file = gzrt_calloc( sizeof(struct PluginFileSpec) );
 	int	id =  gzrt_select_file_id(w);
-	const Z64FSEntry * j = z64fs_file( w->z, id );
+	const Z64FSEntry * j = z64fs_file( w->z->fs, id );
 	
 	/* Check */
-	if( !ZFileExists(w->z, id) )
+	if( !ZFileExists(w->z->fs, id) )
 	{
 		gzrt_notice("Notice", "This file does not physically exist within the ROM.\n"
 		"No operation can be performed on it." );
@@ -500,11 +485,11 @@ void gzrt_wmain_plugin_action ( MAINWIN * w )
 	file->vend		= j->vend;
 	file->start		= j->start;
 	file->end		= j->end;
-	file->filesize  = ZFileVirtSize(w->z,id);
+	file->filesize  = ZFileVirtSize(w->z->fs,id);
 	
 	/* Write filename */
-	if( w->t )
-		strncpy( file->filename, z64nt_filename(w->t, id), sizeof(file->filename) - 1 );
+	if( w->z->nt )
+		strncpy( file->filename, z64nt_filename(w->z->nt, id), sizeof(file->filename) - 1 );
 	else
 		snprintf( file->filename, sizeof(file->filename), "0x%08X - 0x%08X",
 		j->vstart, j->vend );
@@ -674,14 +659,14 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	/* Pack info */
 	#define MONO(x) "<span font_desc=\"Courier\">", x, "</span>"
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->start)), 
+		create_label("Filesystem start: %s0x%08X%s", MONO(c->z->fs->start)), 
 	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->end)), 
+		create_label("Filesystem end: %s0x%08X%s", MONO(c->z->fs->end)), 
 	FALSE, TRUE, 0 );
 	
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("File count: %u", z64fs_entries( c->z )), 
+		create_label("File count: %u", z64fs_entries( c->z->fs )), 
 	FALSE, TRUE, 0 );
 	/*
 	gtk_box_pack_start( GTK_BOX(vbox), 
@@ -689,20 +674,20 @@ static GtkWidget * create_bin_info_frame ( MAINWIN * c )
 	TRUE, TRUE, 0 );
 	*/
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Creator: %s%s%s", MONO(c->z->creator) ), 
+		create_label("Creator: %s%s%s", MONO(c->z->fs->creator) ), 
 	FALSE, TRUE, 0 );
 	gtk_box_pack_start( GTK_BOX(vbox), 
-		create_label("Date: %s%s%s", MONO(c->z->date) ), 
+		create_label("Date: %s%s%s", MONO(c->z->fs->date) ), 
 	FALSE, TRUE, 0 );
 	
 	/* Name table? */
-	if( c->t )
+	if( c->z->nt )
 	{
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table start: %s0x%08X%s", MONO(z64nt_start(c->t))), 
+			create_label("Name table start: %s0x%08X%s", MONO(z64nt_start(c->z->nt))), 
 		FALSE, TRUE, 0 );
 		gtk_box_pack_start( GTK_BOX(vbox), 
-			create_label("Name table end: %s0x%08X%s", MONO(z64nt_end(c->t))), 
+			create_label("Name table end: %s0x%08X%s", MONO(z64nt_end(c->z->nt))), 
 		FALSE, TRUE, 0 );
 	}
 	else
@@ -929,13 +914,13 @@ void gzrt_wmain_extract ( MAINWIN * w )
 	/* Write file */
 write_file: ;
 	
-	unsigned char * buffer = malloc(ZFileVirtSize(w->z, id));
+	unsigned char * buffer = malloc(ZFileVirtSize(w->z->fs, id));
 	
 	/* Read it */
 	z64fs_read_file( w->z, id, buffer );
 	
 	/* Write it */
-	fwrite( buffer, 1, ZFileVirtSize(w->z, id), h );
+	fwrite( buffer, 1, ZFileVirtSize(w->z->fs, id), h );
 	fclose( h );
 	
 	/* Done */
@@ -993,7 +978,7 @@ void gzrt_wmain_voffset_clipboard ( MAINWIN * c )
 	int len, id = gzrt_select_file_id(c);
 	
 	clip = gtk_clipboard_get_for_display( gdk_display_get_default(), GDK_SELECTION_CLIPBOARD );
-	len = snprintf( buffer, sizeof(buffer), "%08X %08X", ZFileVirtStart(c->z, id), ZFileVirtEnd(c->z, id) );
+	len = snprintf( buffer, sizeof(buffer), "%08X %08X", ZFileVirtStart(c->z->fs, id), ZFileVirtEnd(c->z->fs, id) );
 	gtk_clipboard_set_text( GTK_CLIPBOARD(clip), buffer, len );
 	
 	gtk_clipboard_store( clip );
@@ -1007,7 +992,7 @@ void gzrt_wmain_roffset_clipboard ( MAINWIN * c )
 	int len, id = gzrt_select_file_id(c);
 	
 	clip = gtk_clipboard_get_for_display( gdk_display_get_default(), GDK_SELECTION_CLIPBOARD );
-	len = snprintf( buffer, sizeof(buffer), "%08X %08X", ZFileRealStart(c->z, id), ZFileRealEnd(c->z, id) );
+	len = snprintf( buffer, sizeof(buffer), "%08X %08X", ZFileRealStart(c->z->fs, id), ZFileRealEnd(c->z->fs, id) );
 	gtk_clipboard_set_text( clip, buffer, len );
 	
 	gtk_clipboard_store( clip );

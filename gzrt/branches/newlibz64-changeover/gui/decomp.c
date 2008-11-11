@@ -146,16 +146,16 @@ decompress_rom: ;
 	buffer = gzrt_malloc( 8 * 1024 * 1024 );
 	
 	/* Create a new FS table */
-	ftable = gzrt_malloc(ZFSEnd(c->z) - ZFSStart(c->z));
+	ftable = gzrt_malloc(ZFSEnd(c->z->fs) - ZFSStart(c->z->fs));
 	
 	/* Begin decompression */
-	for( i = 0; i < z64fs_entries(c->z); i++ )
+	for( i = 0; i < z64fs_entries(c->z->fs); i++ )
 	{
 		/* Does this file exist? */
-		if( !ZFileExists(c->z, i) )
+		if( !ZFileExists(c->z->fs, i) )
 		{
-			WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z, i) );
-			WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i)   );
+			WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z->fs, i) );
+			WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z->fs, i)   );
 			WRITE_ENTRY( ftable, i, 2, 0xFFFFFFFF 			   );
 			WRITE_ENTRY( ftable, i, 3, 0xFFFFFFFF 			   );
 			continue;
@@ -165,23 +165,23 @@ decompress_rom: ;
 		z64fs_read_file( c->z, i, buffer );
 		
 		/* Write it */
-		fwrite( buffer, ZFileVirtSize(c->z, i), 1, out );
+		fwrite( buffer, ZFileVirtSize(c->z->fs, i), 1, out );
 		
 		/* Update new file table */
-		WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z, i) );
-		WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z, i)   );
-		WRITE_ENTRY( ftable, i, 2, ZFileVirtStart(c->z, i) );
+		WRITE_ENTRY( ftable, i, 0, ZFileVirtStart(c->z->fs, i) );
+		WRITE_ENTRY( ftable, i, 1, ZFileVirtEnd(c->z->fs, i)   );
+		WRITE_ENTRY( ftable, i, 2, ZFileVirtStart(c->z->fs, i) );
 		WRITE_ENTRY( ftable, i, 3, 0 					   );
 		
 		/* Update progress bar */
-		if( !((i + 1) % (z64fs_entries(c->z) / 32)) )
-			pbarset( pbar, (double)i / z64fs_entries(c->z), "%.2f%%", (double)i / z64fs_entries(c->z) * 100.0 );
+		if( !((i + 1) % (z64fs_entries(c->z->fs) / 32)) )
+			pbarset( pbar, (double)i / z64fs_entries(c->z->fs), "%.2f%%", (double)i / z64fs_entries(c->z->fs) * 100.0 );
 	}
 	
 	/* Write new file table */
 	int tmp = ftell(out);
-	fseek( out, ZFSStart(c->z), SEEK_SET );
-	fwrite( ftable, 1, ZFSEnd(c->z) - ZFSStart(c->z), out );
+	fseek( out, ZFSStart(c->z->fs), SEEK_SET );
+	fwrite( ftable, 1, ZFSEnd(c->z->fs) - ZFSStart(c->z->fs), out );
 	fseek( out, tmp, SEEK_SET );
 	
 	/* Set 100% */
@@ -193,7 +193,7 @@ decompress_rom: ;
 	
 	/* Fix CRCs */
 	pbarset( pbar, 1.0, "Fixing CRCs..." );
-	n64rom_crc_quick( out );
+	/* n64rom_crc_quick( out ); */
 	
 	/* Finished */
 	gtk_widget_destroy( window );

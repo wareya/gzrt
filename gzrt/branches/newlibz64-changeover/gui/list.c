@@ -12,23 +12,23 @@ static void gen_id ( char * dest, int id, MAINWIN * c )
 
 static void gen_vstart ( char * dest, int id, MAINWIN * c )
 {
-	sprintf( dest, "0x%08X", ZFileVirtStart(c->z, id) );
+	sprintf( dest, "0x%08X", ZFileVirtStart(c->z->fs, id) );
 }
 
 static void gen_vend ( char * dest, int id, MAINWIN * c )
 {
-	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z, id) );
+	sprintf( dest, "0x%08X", ZFileVirtEnd(c->z->fs, id) );
 }
 
 static void gen_name ( char * dest, int id, MAINWIN * c )
 {
-		if( !c->t )
+		if( c->z->nt )
 		{
 			strcpy( dest, "-" );
 			return;
 		}
 		
-		const char * s = z64nt_filename( c->t, id );
+		const char * s = z64nt_filename( c->z->nt, id );
 		if( !s )
 			strcpy( dest, "-" );
 		else
@@ -143,7 +143,7 @@ gzrt_wmain_tree_generate ( MAINWIN * c )
 	}
 	
 	/* Generate data */
-	for( int i = 0; i < z64fs_entries( c->z ); i++ )
+	for( int i = 0; i < z64fs_entries( c->z->fs ); i++ )
 	{
 		GtkTreeIter j;
 		
