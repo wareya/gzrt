@@ -25,11 +25,9 @@ PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o gui/main.o \
 	gui/list.o gui/replace.o gui/debug.o gui/conf.o gui/utility.o
 
 # Parts - other
-PARTS += app/generic.o
-PARTS += app/plugins.o
-PARTS += app/mem.o
-PARTS += app/settings.o
-
+PARTS += app/generic.o app/plugins.o app/mem.o app/settings.o app/md5.o \
+	app/cache.o
+	
 # Debug!
 ifeq ($(DEBUG), 1)
 	CFLAGS += -DGZRT_DEBUG
