@@ -18,7 +18,10 @@
 #include "z64detect.h"
 #include "z64yaz0.h"
 
-/* Macros */
+/* Handle macros */
+#define Z_FS_COUNT( z )			((z)->fs->filecount)
+
+/* Filesystem macros */
 #define Z_PHYS_START( e )       ((e)->start)
 #define Z_PHYS_END( e )       	(!(e)->end ? Z_PHYS_START(e) + Z_FILESIZE_VIRT(e) : (e)->end)
 #define Z_VIRT_START( e )		((e)->vstart)
@@ -63,8 +66,8 @@ typedef struct
 	Z64ST * st;		/* Scene table  */
 
 	/* Important files */
-	const Z64FSEntry * f_code;	/* The game's Code file */
-	guint8           * f_code_data;
+	const Z64FSEntry * f_code;			/* The game's Code file */
+	guint8           * f_code_data;		/* Code file data 		*/
 
 	/* Reserved... */
 	int	resv1;
@@ -74,12 +77,42 @@ typedef struct
 }
 Z64;
 
-/* Functions */
-extern Z64 *     z64_open          ( char *                      );
-extern void      z64_close         ( Z64 *                       );
-extern void      z64_read_file     ( Z64 *, int, unsigned char * );
-extern gboolean  z64_discover_code ( Z64 *                       );
-extern Z64AT *   z64at_open        ( Z64 *                       );
-extern Z64ST *   z64st_open        ( Z64 *                       );
+/*
+ * Open a filename for use
+*/
+extern Z64 * z64_open ( char * );
+
+/*
+ * Close an active Z64 handle
+*/
+extern void z64_close ( Z64 * );
+
+/*
+ * Read a file from the filesystem. Args are: handle, id, dest
+*/
+extern void z64_read_file ( Z64 *, int, unsigned char * );
+
+/*
+ * Discover the game's code file (private use only)
+*/
+extern gboolean z64_discover_code ( Z64 * );
+
+/*
+ * Table functions 
+*/
+extern Z64AT * z64at_open ( Z64 * );	/* Actor table */
+extern Z64ST * z64st_open ( Z64 * );	/* Scene table */
+
+/*
+ * Set an error message (private use only)
+*/
+extern const char * z64_set_error ( Z64 *, char *, ... );
+
+/*
+ * Return a pointer to the latest diagnostic message from the library
+*/
+extern const char * z64_error ( Z64 * );
+
+extern void z64fs_read_file ( Z64 * h, int id, unsigned char * dest, int size );
 
 #endif

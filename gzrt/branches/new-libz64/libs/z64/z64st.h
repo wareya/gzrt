@@ -34,4 +34,10 @@ typedef struct
 }
 Z64ST;
 
+/* Macros */
+#define Z_ST_COUNT( z )	((z)->st->count)
+#define Z_ST_OOT( s )	((struct SceneEntryOOT *)(s))
+#define Z_ST_MM( s )	((struct SceneEntryMM *)(s))
+	
+
 #endif /* __LZ64_SCENE_TABLE */

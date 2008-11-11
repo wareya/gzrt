@@ -44,7 +44,8 @@ static const guint8 *
 table_term_mm = table_term_oot;
 
 
-Z64AT * z64at_open ( Z64 * h )
+Z64AT * 
+z64at_open ( Z64 * h )
 {
 	int i;
 	Z64AT * ret;
@@ -115,4 +116,42 @@ found_end:
 	}
 	
 	return ret;
+}
+
+/* Lookup a file offset */
+gint
+z64at_offset_lookup ( Z64 * h, guint32 vstart )
+{
+	int i;
+	
+	for( i = 0; i < Z_AT_COUNT(h); i++ )
+		if( h->at->entries[i].addr_start == vstart )
+			return i;
+	
+	return -1; /* Not found */
+}
+
+/* Lookup a file*/
+gint
+z64at_lookup ( Z64 * h, int id )
+{
+	int i;
+	const Z64FSEntry * f = z64fs_file( h->fs, id );
+	
+	for( i = 0; i < Z_AT_COUNT(h); i++ )
+		if( h->at->entries[i].addr_start == f->vstart )
+			return i;
+	
+	return -1; /* Not found */
+}
+
+/* Get an actor entry */
+struct ActorEntry *
+z64at_entry_get ( Z64 * h, guint32 id )
+{
+	return 
+	(	/* Watch the limits! */
+		id > Z_AT_COUNT(h) ?
+		NULL : &h->at->entries[id]
+	);
 }

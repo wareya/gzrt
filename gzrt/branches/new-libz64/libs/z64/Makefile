@@ -21,7 +21,7 @@ CC = gcc
 LDFLAGS = -shared -W1,-soname,$(TARGET) `pkg-config --libs glib-2.0` \
 	-L.. -ln64rom
 CFLAGS  = `pkg-config --cflags glib-2.0` --std=gnu99 -g -fPIC -I. \
-	-funsigned-char -I../n64rom -Wall
+	-funsigned-char -I../n64rom
 
 # Win32 again
 ifeq ($(WIN32) ,1)

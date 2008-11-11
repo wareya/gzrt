@@ -32,6 +32,7 @@ typedef struct
 } 
 Z64AT;
 
-/* Functions */
+/* Macros */
+#define Z_AT_COUNT( z )		(((z)->at->end - (z)->at->start)/sizeof(struct ActorEntry))
 
 #endif /* __LZ64_ACTOR_TABLE_H */

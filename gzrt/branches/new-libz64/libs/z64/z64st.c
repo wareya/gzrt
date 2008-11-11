@@ -162,8 +162,63 @@ z64st_read_entries ( Z64 * h, Z64ST * s )
 	guint32   i;
 	
 	for( i = 0; i < s->end - s->start; i += 4 )
+	{
 		table[i] = U32( h->f_code_data + s->start + i );
+		s->count++;
+	}
 	
 	return table;
 }
 
+/* Lookup a file offset */
+gint
+z64st_offset_lookup ( Z64 * h, guint32 vstart )
+{
+	int i;
+	
+	g_print( "%i, %08X\n", h->st->game, vstart );
+	
+	if( h->st->game == GameOOT )
+	{
+		for( i = 0; i < Z_ST_COUNT(h); i++ )
+			if( Z_ST_OOT(h->st->entries)[i].addr_start == vstart )
+				return i;
+		
+		return -1;
+	}
+	else
+	{
+		for( i = 0; i < Z_ST_COUNT(h); i++ )
+			if( Z_ST_MM(h->st->entries)[i].addr_start == vstart )
+				return i;
+		
+		return -1;
+	}
+}
+
+
+
+/* Lookup a file*/
+gint
+z64st_lookup ( Z64 * h, int id )
+{
+	int i;
+	const Z64FSEntry * f = z64fs_file( h->fs, id );
+	
+	if( h->st->game == GameOOT )
+	{
+		for( i = 0; i < Z_ST_COUNT(h); i++ )
+			if( Z_ST_OOT(h->st->entries)[i].addr_start == f->vstart )
+				return i;
+		
+		return -1;
+	}
+	else
+	{
+		for( i = 0; i < Z_ST_COUNT(h); i++ )
+			if( Z_ST_MM(h->st->entries)[i].addr_start == f->vstart )
+				return i;
+		
+		return -1;
+	}
+}

@@ -33,8 +33,6 @@ Z64FS;
 
 /* Functions */
 Z64FS * z64fs_open ( FILE * handle );
-const Z64FSEntry * z64fs_file ( Z64FS * h, int id );
-void z64fs_read_file ( Z64FS * h, int id, unsigned char * dest );
 void z64fs_close ( Z64FS * h );
 unsigned z64fs_size_virt ( Z64FS * h );
 unsigned z64fs_size_phys ( Z64FS * h );
@@ -56,5 +54,16 @@ unsigned z64fs_size_phys ( Z64FS * h );
 
 /* Function macros */
 #define z64fs_entries(h)    (((h)->filecount))
+
+/*
+** Fast functions
+*/
+
+/* Return a pointer to the file entry of an id */
+static inline const Z64FSEntry * 
+z64fs_file ( Z64FS * h, int id )
+{
+    return &h->files[id];
+}
 
 #endif /* __LZ64_FILE_TABLE_H */

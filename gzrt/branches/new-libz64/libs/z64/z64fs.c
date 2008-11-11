@@ -1,11 +1,12 @@
 /******************************
 * Zelda 64 Filesystem Library *
 ******************************/
+#include <z64.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <z64fs.h>
 #include <z64yaz0.h>
+#include <z64fs.h>
 
 /* Constants */
 #define SEARCH_STRING   "zelda@"
@@ -118,12 +119,6 @@ fs_not_found:
     return NULL;
 }
 
-/* Return a pointer to the file entry of an id */
-const Z64FSEntry * z64fs_file ( Z64FS * h, int id )
-{
-    return &h->files[id];
-}
-
 /* Return the decompressed size of a filesystem */
 unsigned z64fs_size_virt ( Z64FS * h )
 {
@@ -163,3 +158,20 @@ void z64fs_close ( Z64FS * h )
     free( h );
 }
 
+/* Read a file */
+void z64fs_read_file ( Z64 * h, int id, unsigned char * dest, int size )
+{
+	const Z64FSEntry * f = z64fs_file( h->fs, id );
+	
+	fseek( h->handle, f->start, SEEK_SET );
+	fread( dest, 1, Z_FILESIZE_PHYS(f), h->handle );
+	
+	/* Compressed? */
+	if( Z_COMPRESSED(f) )
+	{
+		unsigned char * tmp = malloc( Z_FILESIZE_VIRT(f) );
+		z64yaz0_decode( tmp, dest + 16, Z_FILESIZE_VIRT(f) );
+		memcpy( dest, tmp, Z_FILESIZE_VIRT(f) );
+		free( tmp );
+	}
+}
