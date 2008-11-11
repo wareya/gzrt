@@ -159,7 +159,7 @@ void z64fs_close ( Z64FS * h )
 }
 
 /* Read a file */
-void z64fs_read_file ( Z64 * h, int id, unsigned char * dest, int size )
+void z64fs_read_file ( Z64 * h, int id, unsigned char * dest )
 {
 	const Z64FSEntry * f = z64fs_file( h->fs, id );
 	
@@ -169,8 +169,8 @@ void z64fs_read_file ( Z64 * h, int id, unsigned char * dest, int size )
 	/* Compressed? */
 	if( Z_COMPRESSED(f) )
 	{
-		unsigned char * tmp = malloc( Z_FILESIZE_VIRT(f) );
-		z64yaz0_decode( tmp, dest + 16, Z_FILESIZE_VIRT(f) );
+		unsigned char * tmp = malloc( 1 * 1024 * 1024 );
+		z64yaz0_decode( dest + 16, tmp, Z_FILESIZE_VIRT(f) );
 		memcpy( dest, tmp, Z_FILESIZE_VIRT(f) );
 		free( tmp );
 	}

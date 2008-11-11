@@ -112,7 +112,7 @@ found_end:
 		int k;
 		
 		for( k = 0; k < 8; k++ )
-			((guint32*)ret->entries)[(i - ret->start)/32 + k] = U32( h->f_code_data + i + k * 4 );
+			((guint32*)ret->entries)[(i - ret->start)/32*8 + k] = U32( h->f_code_data + i + k * 4 );
 	}
 	
 	return ret;
@@ -138,9 +138,19 @@ z64at_lookup ( Z64 * h, int id )
 	int i;
 	const Z64FSEntry * f = z64fs_file( h->fs, id );
 	
+	if( !id )
+		return -1;
+	
 	for( i = 0; i < Z_AT_COUNT(h); i++ )
+	{
 		if( h->at->entries[i].addr_start == f->vstart )
+		{
+			/* g_print( "Found! [%i]%08X == %08X\n", i, h->at->entries[i].addr_start, f->vstart ); */
 			return i;
+		}
+		
+		/* g_print( "%08X - %08X\n", h->at->entries[i].addr_start, h->at->entries[i].addr_end ); */
+	}
 	
 	return -1; /* Not found */
 }

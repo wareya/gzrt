@@ -313,17 +313,17 @@ int z64detect ( Z64 * h, int id )
 	
 	/* Nope, try using a few tables */
 	if( h->at )
-		if( z64at_lookup( h, id ) )
+		if( z64at_lookup( h, id ) >= 0 )
 			return Z64_ACTOR;
 	if( h->st )
-		if( z64st_lookup( h, id ) )
+		if( z64st_lookup( h, id ) >= 0 )
 			return Z64_SCENE;
 		
 	/* Nothing, use raw detection */
 	buffer = malloc( Z_FILESIZE_VIRT( z64fs_file( h->fs, id ) ) );
-	z64fs_read_file( h, id, buffer, Z_FILESIZE_VIRT( z64fs_file( h->fs, id ) ) );
+	z64fs_read_file( h, id, buffer );
 	ret = z64detect_raw( buffer, Z_FILESIZE_VIRT( z64fs_file( h->fs, id ) ) );
-	free( buffer );
+	
 	return ret;
 }
 

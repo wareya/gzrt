@@ -205,6 +205,11 @@ z64st_lookup ( Z64 * h, int id )
 	int i;
 	const Z64FSEntry * f = z64fs_file( h->fs, id );
 	
+	g_print( "Looking for #%i...\n", id );
+	
+	if( !id )
+		return -1;
+	
 	if( h->st->game == GameOOT )
 	{
 		for( i = 0; i < Z_ST_COUNT(h); i++ )

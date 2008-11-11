@@ -28,7 +28,7 @@
 #define Z_VIRT_END( e )			((e)->vend)
 #define Z_FILESIZE_VIRT( e )	(Z_VIRT_END(e) - Z_VIRT_START(e))
 #define Z_FILESIZE_PHYS( e )	(Z_PHYS_END(e) - Z_PHYS_START(e))
-#define Z_COMPRESSED( e )		(Z_PHYS_END(e))
+#define Z_COMPRESSED( e )		((e)->end)
 #define Z_EXISTS( e )			((~Z_PHYS_START(e))|(~Z_PHYS_END(e)))
 
 /* Status flags */
@@ -80,7 +80,7 @@ Z64;
 /*
  * Open a filename for use
 */
-extern Z64 * z64_open ( char * );
+Z64 * z64_open ( N64Rom * rom );
 
 /*
  * Close an active Z64 handle
@@ -113,6 +113,6 @@ extern const char * z64_set_error ( Z64 *, char *, ... );
 */
 extern const char * z64_error ( Z64 * );
 
-extern void z64fs_read_file ( Z64 * h, int id, unsigned char * dest, int size );
+extern void z64fs_read_file ( Z64 * h, int id, unsigned char * dest );
 
 #endif

@@ -8,7 +8,7 @@
 #include <glib.h>
 
 /* Open a Zelda 64 ROM */
-Z64 * z64_open ( char * filename )
+Z64 * z64_open ( N64Rom * rom )
 {
 	Z64 * ret;
 	
@@ -16,20 +16,15 @@ Z64 * z64_open ( char * filename )
 	if( !(ret = calloc( sizeof(Z64), 1 )) )
 		return NULL;
 	
-	/* Open the ROM */
-	if( !(ret->rom = n64rom_load( filename )) )
-	{
-		free( ret );
-		return NULL;
-	}
+	/* Store the ROM handle */
+	ret->rom = rom;
 	
 	/* Copy file handle for ROM */
-	ret->handle = ret->rom->handle;
+	ret->handle = rom->handle;
 	
 	/* Read filesystem */
 	if( !(ret->fs = z64fs_open( ret->handle )) )
 	{
-		n64rom_close( ret->rom );
 		free( ret );
 		return NULL;
 	}
@@ -48,7 +43,7 @@ Z64 * z64_open ( char * filename )
 		ret->status |= Z64_LOADED_ST;
 	
 	/* Store filename */
-	ret->filename = (char*)ret->rom->filename;
+	ret->filename = strdup((char*)rom->filename);
 	
 	return ret;
 }
@@ -60,7 +55,6 @@ void z64_close ( Z64 * h )
 	z64nt_close( h->nt );
 	free( h->filename );
 	free( h->f_code_data );
-	n64rom_close( h->rom );
 	free( h );
 }
 
