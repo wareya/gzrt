@@ -227,7 +227,7 @@ int ghe_op_open ( int argc, char ** argv )
 {
 	static GheFile * c;
 	
-	c = ghe_file_open( argv[1] );
+	c = ghe_file_open( argv[1], NULL );
 	
 	if( c )
 		ghe_print( "Opened file \"%s\" successfully.\n", argv[1] );

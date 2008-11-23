@@ -34,7 +34,7 @@ extern int ghe_debug ( char *, ... );
 extern int ghe_debug_summary ( int, char ** );
 
 /* Functions - file.c */
-extern GheFile * ghe_file_open ( char * path );
+extern GheFile * ghe_file_open ( char *, char * );
 extern GheBuffer * ghe_buffer_new ( void );
 extern int ghe_buffer_append ( GheBuffer *, const ubyte *, int );
 
@@ -42,6 +42,7 @@ extern int ghe_buffer_append ( GheBuffer *, const ubyte *, int );
 extern int read_input ( char *, size_t, FILE * );
 extern double ghe_runtime ( void );
 extern double ghe_timesince ( struct timeval * );
+extern char * filename ( char * str );
 
 /* Functions - ops.c */
 extern int ghe_register_handler ( char *, OpHandle );

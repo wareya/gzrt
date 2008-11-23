@@ -4,6 +4,7 @@
 #include <ghe.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <string.h>
 
 int read_input ( char * buffer, size_t len, FILE * in )
 {
@@ -38,4 +39,15 @@ double ghe_timesince ( struct timeval * tv )
 	y = (double)ghe_start.tv_sec * 1000000.0 + (double)ghe_start.tv_usec;
 	
 	return (x - y) / 1000000.0;
+}
+
+char * filename ( char * str )
+{
+	int len = strlen( str ), i;
+	
+	for( i = len - 1; i >= 0; i-- )
+		if( str[i] == '/' )
+			return &str[i+1];
+	
+	return str;
 }
