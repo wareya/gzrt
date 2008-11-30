@@ -38,22 +38,20 @@ unsigned z64fs_size_virt ( Z64FS * h );
 unsigned z64fs_size_phys ( Z64FS * h );
 
 /* Macros */
-#define ZFileStart(h, id)           ((h)->files[id].start)
-#define ZFileEnd(h, id)             (!(h)->files[id].end ? (h)->files[id].start + (h)->files[id].vend - (h)->files[id].vstart : (h)->files[id].end)
-#define ZFileSize(h, id)            (ZFileEnd(h, id) - ZFileStart(h, id))
-#define ZFileRealStart(h, id)       ((h)->files[id].start)
-#define ZFileRealEnd(h, id)         (ZFileEnd(h, id))
-#define ZFileRealSize(h, id)        (ZFileRealEnd(h, id) - ZFileRealStart(h, id))
-#define ZFileVirtStart(h, id)       ((h)->files[id].vstart)
-#define ZFileVirtEnd(h, id)         ((h)->files[id].vend)
-#define ZFileVirtSize(h, id)        (ZFileVirtEnd(h, id) - ZFileVirtStart(h, id))
-#define ZFileIsCompressed(h, id)    ((h)->files[id].end ? 1 : 0)
-#define ZFileExists(h, id)          ((~(h)->files[id].end)|(~(h)->files[id].start))
-#define ZFSStart(h)                 ((h)->start)
-#define ZFSEnd(h)                   ((h)->end)
+#define ZFSStart(h)				((h)->start)
+#define ZFSEnd(h)				((h)->end)
+#define ZFSCount(h)				(ZFSEnd(h) - ZFSStart(h))
+#define ZFvSize(h, id)			(ZFvEnd(h, id) - ZFvStart(h, id))
+#define ZFSize(h, id)			(ZFEnd(h, id) - ZFStart(h, id))
+#define ZFvStart(h, id)			((h)->files[id].vstart)
+#define ZFvEnd(h, id)			((h)->files[id].vend)
+#define ZFStart(h, id)			((h)->files[id].start)
+#define ZFEnd(h, id)			(!(h)->files[id].end ? (ZFStart(h, id) + ZFvSize(h, id)) : (h)->files[id].end)
+#define ZFExists(h, id)			((~(h)->files[id].end)|(~(h)->files[id].start))
+#define ZFCompressed(h, id)		(!(h)->files[id].end)
 
-/* Function macros */
-#define z64fs_entries(h)    (((h)->filecount))
+/* Functions that are really macros */
+#define z64fs_entries(h)    	(((h)->filecount))
 
 /*
 ** Fast functions

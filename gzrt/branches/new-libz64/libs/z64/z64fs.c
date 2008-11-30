@@ -128,8 +128,8 @@ unsigned z64fs_size_virt ( Z64FS * h )
     for( i = 0; i < z64fs_entries(h); i++ )
     {
         /* Does this file exist? */
-        if( ZFileExists(h, i) )
-            total += ZFileVirtSize(h, i);
+        if( ZFExists(h, i) )
+            total += ZFvSize(h, i);
     }
     
     return total;
@@ -144,8 +144,8 @@ unsigned z64fs_size_phys ( Z64FS * h )
     for( i = 0; i < z64fs_entries(h); i++ )
     {
         /* Does this file exist? */
-        if( ZFileExists(h, i) )
-            total += ZFileRealSize(h, i);
+        if( ZFExists(h, i) )
+            total += ZFSize(h, i);
     }
     
     return total;
@@ -158,20 +158,3 @@ void z64fs_close ( Z64FS * h )
     free( h );
 }
 
-/* Read a file */
-void z64fs_read_file ( Z64 * h, int id, unsigned char * dest )
-{
-	const Z64FSEntry * f = z64fs_file( h->fs, id );
-	
-	fseek( h->handle, f->start, SEEK_SET );
-	fread( dest, 1, Z_FILESIZE_PHYS(f), h->handle );
-	
-	/* Compressed? */
-	if( Z_COMPRESSED(f) )
-	{
-		unsigned char * tmp = malloc( 1 * 1024 * 1024 );
-		z64yaz0_decode( dest + 16, tmp, Z_FILESIZE_VIRT(f) );
-		memcpy( dest, tmp, Z_FILESIZE_VIRT(f) );
-		free( tmp );
-	}
-}

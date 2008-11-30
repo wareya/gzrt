@@ -62,19 +62,19 @@ void z64_close ( Z64 * h )
 void z64_read_file ( Z64 * h, int id, unsigned char * dest )
 {
 	/* Read the file */
-    fseek( h->handle, ZFileRealStart(h->fs, id), SEEK_SET );
-    fread( dest, ZFileRealSize(h->fs, id), 1, h->handle );
+    fseek( h->handle, ZFStart(h->fs, id), SEEK_SET );
+    fread( dest, ZFSize(h->fs, id), 1, h->handle );
     
     /* Do we need to decompress it? */
-    if( ZFileIsCompressed(h->fs, id) && !strncmp("Yaz0", (char*)dest, 4) )
+    if( ZFCompressed(h->fs, id) && !strncmp("Yaz0", (char*)dest, 4) )
     {
-        unsigned char * tmp = malloc(ZFileVirtSize(h->fs, id));
+        unsigned char * tmp = malloc(ZFvSize(h->fs, id));
         
         /* Decode it */
-        z64yaz0_decode( dest + 16, tmp, ZFileVirtSize(h->fs, id) );
+        z64yaz0_decode( dest + 16, tmp, ZFvSize(h->fs, id) );
         
         /* Copy it to destination */
-        memcpy( dest, tmp, ZFileVirtSize(h->fs, id) );
+        memcpy( dest, tmp, ZFvSize(h->fs, id) );
         
         /* Free temp */
         free(tmp);
@@ -107,8 +107,8 @@ z64_discover_code ( Z64 * h )
 	for( i = 10; i < 40; i++ )
 	{
 		/* Size a match? */
-		if( ZFileVirtSize(h->fs, i) > 400 * 1024 && 
-			ZFileVirtSize(h->fs, i) < 2 * 1024 * 1024 )
+		if( ZFvSize(h->fs, i) > 400 * 1024 && 
+			ZFvSize(h->fs, i) < 2 * 1024 * 1024 )
 		{
 			goto file_found;
 			
@@ -124,11 +124,11 @@ z64_discover_code ( Z64 * h )
 file_found: ;
 	
 	/* Read it in */
-	tmp = malloc( ZFileVirtSize(h->fs, i) );
+	tmp = malloc( ZFSize(h->fs, i) );
 	z64_read_file( h, i, tmp );
 	
 	/* Scan for block */
-	if( z64detect_raw( tmp, ZFileVirtSize(h->fs, i) ) == Z64_ASM )
+	if( z64detect_raw( tmp, ZFvSize(h->fs, i) ) == Z64_ASM )
 	{
 		/* We got it! */
 		h->f_code = z64fs_file( h->fs, i );
