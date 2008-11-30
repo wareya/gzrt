@@ -5,11 +5,11 @@
 
 /* Debug */
 #define STATUS( fmt, ... )  printf( fmt, ##__VA_ARGS__ )
-#define LogRelocation( section, type, address, fmt, ... )	\
-{															\
-	printf( "%s:%s:%08X\t\t", section, type, address );		\
-	printf( fmt, ##__VA_ARGS__ );							\
-	fflush( stdout );										\
+#define LogRelocation( section, type, address, fmt, ... )   \
+{                                                           \
+    printf( "%s:%s:%08X\t\t", section, type, address );     \
+    printf( fmt, ##__VA_ARGS__ );                           \
+    fflush( stdout );                                       \
 }
 
 /* Macros - read */
@@ -198,7 +198,7 @@ RELOC * reloc_init ( Z64 * rom, u32 id )
     unsigned    head_addr, i, p;
     
     /* Load file */
-	ret->file = malloc( ZFvSize(rom->fs, id) );
+    ret->file = malloc( ZFvSize(rom->fs, id) );
     z64_read_file( rom, id, ret->file );
     
     /* Get size */
@@ -219,10 +219,10 @@ RELOC * reloc_init ( Z64 * rom, u32 id )
     /* Read each word */
     for( i = 0; i < sizeof(struct ActorHeader); i += 4 )
         ((unsigned*)&ret->header)[i/4] = U32(ret->file + head_addr + i);
-	
-	/* Actor file */
-	if( !(ret->f = z64at_entry_get(rom, z64at_lookup(rom, id))) )
-		exit( 27 );
+    
+    /* Actor file */
+    if( !(ret->f = z64at_entry_get(rom, z64at_lookup(rom, id))) )
+        exit( 27 );
     
     /*
     ** Load relocation table
@@ -307,15 +307,15 @@ void reloc_apply ( RELOC * h, unsigned address )
               d -= h->f->dma_start;
               
               /* Debug */
-			  LogRelocation
-			  ( 
-					strsection(h->rt.table[i].section), 
-					strtype(h->rt.table[i].type), 
-					h->rt.table[i].address,
-					"%08X -> %08X\n",
-					data<<16|next&0xFFFF, d
-			  );
-			  
+              LogRelocation
+              ( 
+                    strsection(h->rt.table[i].section), 
+                    strtype(h->rt.table[i].type), 
+                    h->rt.table[i].address,
+                    "%08X -> %08X\n",
+                    data<<16|next&0xFFFF, d
+              );
+              
               /* Skip ahead one */
               i++;
             }
@@ -328,15 +328,15 @@ void reloc_apply ( RELOC * h, unsigned address )
               unsigned d = data - h->f->dma_start;
               
               /* Debug */
-			  LogRelocation
-			  ( 
-					strsection(h->rt.table[i].section), 
-					strtype(h->rt.table[i].type), 
-					h->rt.table[i].address,
-					"%08X -> %08X\n",
-					data, d
-			  );
-			  
+              LogRelocation
+              ( 
+                    strsection(h->rt.table[i].section), 
+                    strtype(h->rt.table[i].type), 
+                    h->rt.table[i].address,
+                    "%08X -> %08X\n",
+                    data, d
+              );
+              
               /* Write it */
               WU32( ((unsigned char*)src), d );
             }
@@ -349,35 +349,35 @@ void reloc_apply ( RELOC * h, unsigned address )
               unsigned o = data & 0xFC000000;           /* Opcode bitmask   */
               unsigned t = (((data & 0x03FFFFFF) << 2)&0x7FFFFF);
               unsigned d = o | ((t - h->f->dma_start) >> 2);
-			  
-			  /* Check range */
-			  if( t >= (h->f->dma_start - 0x80800000) && t < (h->f->dma_end - 0x80800000) )
-			  {
-				/* Debug */
-				LogRelocation
-				( 
-					strsection(h->rt.table[i].section), 
-					strtype(h->rt.table[i].type), 
-					h->rt.table[i].address,
-					"%08X -> %08X\n",
-					t, t - (h->f->dma_start - 0x80800000)
-				);
-				
+              
+              /* Check range */
+              if( t >= (h->f->dma_start - 0x80800000) && t < (h->f->dma_end - 0x80800000) )
+              {
+                /* Debug */
+                LogRelocation
+                ( 
+                    strsection(h->rt.table[i].section), 
+                    strtype(h->rt.table[i].type), 
+                    h->rt.table[i].address,
+                    "%08X -> %08X\n",
+                    t, t - (h->f->dma_start - 0x80800000)
+                );
+                
                 /* Write it */
                 WU32( ((unsigned char*)src), d );
-			  }
-			  else
-			  {
-				/* Debug */
-				LogRelocation
-				( 
-					strsection(h->rt.table[i].section), 
-					strtype(h->rt.table[i].type), 
-					h->rt.table[i].address,
-					"%08X -> External call, %d bytes offset\n",
-					t, (int)(t - (h->f->dma_start - 0x80800000)) 
-				);
-			  }
+              }
+              else
+              {
+                /* Debug */
+                LogRelocation
+                ( 
+                    strsection(h->rt.table[i].section), 
+                    strtype(h->rt.table[i].type), 
+                    h->rt.table[i].address,
+                    "%08X -> External call, %d bytes offset\n",
+                    t, (int)(t - (h->f->dma_start - 0x80800000)) 
+                );
+              }
             }
             break;
             
@@ -433,8 +433,8 @@ void reloc_info ( RELOC * h )
 int main ( int argc, char **argv )
 {
     struct OoTFile  f;
-	Z64 * h;
-	N64Rom * rom;
+    Z64 * h;
+    N64Rom * rom;
     RELOC * j;
     
     if( argc != 3 )
@@ -442,39 +442,39 @@ int main ( int argc, char **argv )
         printf( "Prototype:\n  %s [rom] [file id]\n", argv[0] );
         exit( -1 );
     }
-	
-	/* Open the ROM */
-	if( !(rom = n64rom_load(argv[1])) )
-	{
-		printf( "Unable to open ROM.\n" );
-		exit( -1 );
-	}
-	
-	/* Process the ROM */
-	if( !(h = z64_open(rom)) )
-	{
-		printf( "Unable to load game elements.\n" );
-		exit( -1 );
-	}
     
-	/* Show handle status */
-	printf
-	( 
-		"ROM status:\n"
-		" - FS:   %i\n"
-		" - NT:   %i\n"
-		" - AT:   %i\n"
-		" - OT:   %i\n"
-		" - ST:   %i\n"
-		" - Code: %i\n",
-		!!ZLoadedFS(h),
-		!!ZLoadedNT(h),
-		!!ZLoadedAT(h),
-		!!ZLoadedOT(h),
-		!!ZLoadedST(h),
-		!!ZLoadedCode(h)
-	);
-	
+    /* Open the ROM */
+    if( !(rom = n64rom_load(argv[1])) )
+    {
+        printf( "Unable to open ROM.\n" );
+        exit( -1 );
+    }
+    
+    /* Process the ROM */
+    if( !(h = z64_open(rom)) )
+    {
+        printf( "Unable to load game elements.\n" );
+        exit( -1 );
+    }
+    
+    /* Show handle status */
+    printf
+    ( 
+        "ROM status:\n"
+        " - FS:   %i\n"
+        " - NT:   %i\n"
+        " - AT:   %i\n"
+        " - OT:   %i\n"
+        " - ST:   %i\n"
+        " - Code: %i\n",
+        !!ZLoadedFS(h),
+        !!ZLoadedNT(h),
+        !!ZLoadedAT(h),
+        !!ZLoadedOT(h),
+        !!ZLoadedST(h),
+        !!ZLoadedCode(h)
+    );
+    
     printf( "Scanning relocations...\n" );
     
     if( !(j = reloc_init( h, atoi(argv[2]) )) )
