@@ -20,9 +20,28 @@ struct Code
 	unsigned value;
 };
 
+/* Return status */
+enum CodeStatus
+{
+	Skip,
+	Continue
+};
+
+/* A handler */
+typedef enum CodeStatus (*CodeHandler)( struct Code * );
+
+/* GS handler jump table */
+extern CodeHandler gs_handlers[];
+
 /* Function definitions */
-extern enum CodeStatus gs_apply ( struct Code * c );
 extern void gs_process ( struct Code * list, int length );
 extern int dma_read ( void * dst, void * src, u32 length );
+
+/* Apply a single gameshark code */
+static inline enum CodeStatus
+gs_apply ( struct Code * c )
+{
+	return gs_handlers[c->type](c);
+}
 
 #endif /* __GS64_H__ */

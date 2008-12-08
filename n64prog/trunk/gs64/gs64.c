@@ -1,7 +1,7 @@
 /*************************
 * Builtin Gameshark Hack *
 *************************/
-#include <gs64.h>
+#include "gs64.h"
 
 /* Local variables */
 static int loaded;

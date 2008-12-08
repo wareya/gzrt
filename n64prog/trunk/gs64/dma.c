@@ -1,7 +1,7 @@
 /****************************
 * Nintendo 64 DMA Functions *
 ****************************/
-#include <gs64.h>
+#include "gs64.h"
 
 /* DMA regs struct */
 typedef struct

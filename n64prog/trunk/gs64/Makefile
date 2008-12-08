@@ -21,7 +21,7 @@ BINCODE = bin2code
 ASFLAGS = -march=vr4300 -mabi=32
 LDFLAGS = -T $(PROGRAM).x -L .
 CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mtune=vr4300 \
-		  -I../include -I. $(NOBUILTIN) -Os -mabi=32 -mgpopt -g
+		  -I../include -Os -mabi=32
 
 # Compile binary
 all: $(PROGRAM).bin

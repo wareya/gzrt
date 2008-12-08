@@ -1,11 +1,4 @@
-#include <gs64.h>
-
-/* Return status */
-enum CodeStatus
-{
-	Skip,
-	Continue
-};
+#include "gs64.h"
 
 /* Define a handler */
 #define GS_HANDLER( name )	\
@@ -36,9 +29,6 @@ struct RepeaterCode
 	unsigned x : 16;
 	signed	 inc : 16;
 };
-
-/* A handler */
-typedef enum CodeStatus (*CodeHandler)( struct Code * );
 
 /* Functions */
 enum CodeStatus gs_apply ( struct Code * c );
@@ -134,8 +124,7 @@ GS_HANDLER( gs_type_rep )
 }
 
 /* Jump table */
-static CodeHandler 
-gs_handlers[256] =
+CodeHandler gs_handlers[256] =
 {
 	/* 0 -> 31 */
 	gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid,
@@ -185,13 +174,6 @@ gs_handlers[256] =
 	gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid,
 	gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid, gs_invalid
 };
-
-/* Apply a single gameshark code */
-enum CodeStatus
-gs_apply ( struct Code * c )
-{
-	return gs_handlers[c->type](c);
-}
 
 /* Process an array of gameshark codes */
 void gs_process ( struct Code * list, int length )

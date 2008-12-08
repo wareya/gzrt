@@ -1,40 +1,32 @@
+#include "regs.h"
 
-# We've hooked into a function call located at 0x800027A4. It's called
-# frequently enough to suit our needs.
-
-#define	replaced_func	0x00002964
-
-	.set	noat
-
-load:
-	
-	# Store the return address
-	la		$at, tmpstor
-	sw		$ra, 0($at)
-	
-	# Call the function we replaced
-	jal		replaced_func
+init:
 	
 	# Grab some stack space...
 	addi	$sp, -4
 	
-	# Preserve return value
-	sw		$2, 0($sp)
+	# Store the return address
+	sw		$ra, 0($sp)
 	
 	# Initialize data pointer
 	la		$gp, _gp
+	
+	# Clear BSS
+	la		$v0, __bss_start
+	la		$v1, __bss_end - 8
+bss_clear:
+	sw		$zero, ($v0)
+	addi	$v0, 4
+	bltu	$v0, $v1, bss_clear
 	
 	# Call our function
 	jal		n64start
 	
 	# Restore stuff
-	la		$at, tmpstor
-	lw		$ra, 0($at)
-	lw		$2, 0($sp)
+	lw		$ra, 0($sp)
+	
+	# Restore stack pointer
 	addi	$sp, 4
 	
 	# Return
 	jr		$ra
-	
-tmpstor:
-	.word 0x00000000
