@@ -1,5 +1,5 @@
 #
-# This will write a hook which will handle the gameshark codes.
+# This will hook into a function without fucking things up.
 #  - 0x80002964 <- function to be called
 #  - 0x800027A4 <- call location
 #
