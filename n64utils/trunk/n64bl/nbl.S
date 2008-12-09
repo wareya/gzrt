@@ -41,7 +41,7 @@ wait:
 	bnez	$v0, wait
 	
 	# Call it
-	li		$v0, 0x90000000
-	xor		$v0, $a0, $v0
+	li		$v0, 0x80000000
+	or		$v0, $a0, $v0
 	jr		$v0
 
