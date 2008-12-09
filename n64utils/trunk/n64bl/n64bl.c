@@ -1,17 +1,29 @@
-/*********************
-* N64 Binary Patcher *
-*********************/
+/*
+*   Nintendo 64 Binary Loader
+*   Copyright (c) 2002  ZZT32 [mbr@64.vg]
+*
+*   This program is free software; you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation; either version 2 of the License, or
+*   any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public
+*   Licence along with this program; if not, write to the Free
+*   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+*   Boston, MA  02110-1301, USA
+*/
+
+/********************
+* N64 Binary Loader *
+********************/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-/*
-	Nintendo 64 Binary Patcher
-	--------------------------
-	(c) 2008 ZZT32 [mbr@64.vg]
-	
-	This is free software licensed under the GPL v2.
-*/
 
 #define LOADER_ADDRESS	0x1000
 
@@ -78,10 +90,17 @@ unsigned rom_size;
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-/*
-	Application prototype:
-	 n64bl [rom] [binary] [rom address] [ram entrypoint]
-*/
+void prototype ( int argc, char ** argv )
+{
+	printf
+	( 
+		"Application prototype:\n"
+		" %s [rom] [binary] [rom address] [ram entrypoint]\n",
+		argv[0] 
+	);
+	fflush( stdout );
+	exit( -1 );
+}
 
 int main ( int argc, char ** argv )
 {
@@ -90,7 +109,7 @@ int main ( int argc, char ** argv )
 	
 	/* Check arguments */
 	if( argc != 5 )
-		return -1;
+		prototype( argc, argv );
 	
 	/* Open ROM for reading */
 	rom_h = fopen( argv[1], "rb+" );
