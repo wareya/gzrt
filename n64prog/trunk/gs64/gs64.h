@@ -5,26 +5,26 @@
 #define __GS64_H__
 
 /* Storage in ROM of codes */
-#define GS_ROM_OFFSET	(0xB0000000 | ((32 * 1024 * 1024) - (1024)))
+#define GS_ROM_OFFSET   (0xB0000000 | ((32 * 1024 * 1024) - (1024)))
 
 /* Data types */
-typedef unsigned int	u32;
-typedef unsigned short	u16;
-typedef unsigned char	u8;
+typedef unsigned int    u32;
+typedef unsigned short  u16;
+typedef unsigned char   u8;
 
 /* Code data type */
 struct Code
 {
-	unsigned type : 8;
-	unsigned address : 24;
-	unsigned value;
+    unsigned type : 8;
+    unsigned address : 24;
+    unsigned value;
 };
 
 /* Return status */
 enum CodeStatus
 {
-	Skip,
-	Continue
+    Skip,
+    Continue
 };
 
 /* A handler */
@@ -41,7 +41,7 @@ extern int dma_read ( void * dst, void * src, u32 length );
 static inline enum CodeStatus
 gs_apply ( struct Code * c )
 {
-	return gs_handlers[c->type](c);
+    return gs_handlers[c->type](c);
 }
 
 #endif /* __GS64_H__ */
