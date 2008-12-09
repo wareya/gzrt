@@ -93,6 +93,7 @@ SECTIONS {
 	*(COMMON)
 	*(.bss)
 	__bss_end = . ;
+	_end = . ;
 	end = . ;
    }
 

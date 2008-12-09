@@ -36,8 +36,8 @@ int dma_read ( void * dst, void * src, u32 length )
     while( dmaregs->status & DMA_BUSY );
     
     /* Write addresses */
-    dmaregs->ramp = (void*)((u32)src & 0x00FFFFFF); /* ram pointer */
-    dmaregs->romp = (void*)((u32)dst & 0x1FFFFFFF); /* rom pointer */
+    dmaregs->ramp = (void*)((u32)dst & 0x00FFFFFF); /* ram pointer */
+    dmaregs->romp = (void*)((u32)src & 0x1FFFFFFF); /* rom pointer */
     
     /* Write size */
     dmaregs->size_romram = length - 1;

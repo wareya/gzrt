@@ -2,7 +2,7 @@
 
 /* Define a handler */
 #define GS_HANDLER( name )	\
-static enum CodeStatus 				\
+static enum CodeStatus 		\
 name ( struct Code * c )			
 
 /* Code types */
@@ -24,22 +24,15 @@ enum CodeTypes
 struct RepeaterCode
 {
 	unsigned identifier : 16;
-	unsigned number : 8;
-	unsigned offset : 8;
-	unsigned x : 16;
-	signed	 inc : 16;
+	unsigned number		:  8;
+	unsigned offset		:  8;
+	unsigned x			: 16;
+	signed	 inc		: 16;
 };
 
 /* Functions */
 enum CodeStatus gs_apply ( struct Code * c );
 void gs_process ( struct Code * list, int length );
-
-/* Default gameshark codes */
-u32 gs_codes[] = 
-{
-	0x50001004, 0x00000020,
-	0x82400000, 0x88000000
-};
 
 /* Placeholder */
 GS_HANDLER( gs_invalid ) { return Continue; }

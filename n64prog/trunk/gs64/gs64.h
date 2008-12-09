@@ -5,7 +5,7 @@
 #define __GS64_H__
 
 /* Storage in ROM of codes */
-#define GS_ROM_OFFSET	0xB1FFF000
+#define GS_ROM_OFFSET	(0xB0000000 | ((32 * 1024 * 1024) - (1024)))
 
 /* Data types */
 typedef unsigned int	u32;
