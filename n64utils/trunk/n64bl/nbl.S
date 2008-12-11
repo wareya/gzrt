@@ -4,7 +4,7 @@
 loadbin:
 
     # Stack pointer
-    la      $sp, 0x803FFFF0
+    la      $sp, 0x803FF000
     
     # Note! This stack pointer address WILL get overridden
     # by the original game at some point. This is just the

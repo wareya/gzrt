@@ -141,11 +141,10 @@ int main ( int argc, char ** argv )
     fread( code_old, 1, sizeof(code_old), rom_h );
     
     /* Personalize code loader */
+    int cs = binary_size + sizeof(code_fix_boot) + sizeof(code_old);
     CODE_SET_VALUE( code_boot_copy, I_BC_ROM_ADDR, rom_source | 0x10000000 );
     CODE_SET_VALUE( code_boot_copy, I_BC_RAM_ADDR, ram_target & 0x00FFFFFF );
-    CODE_SET_VALUE( code_boot_copy, I_BC_SIZE, binary_size + sizeof(code_fix_boot) + sizeof(code_old) );
-    printf( "%u, %u\n", binary_size + sizeof(code_fix_boot) + sizeof(code_old), CODE_GET_VALUE(code_boot_copy, I_BC_SIZE) );
-    
+    CODE_SET_VALUE( code_boot_copy, I_BC_SIZE, cs - (cs % 8) + 8 - 1 );
     
     /* Write code loader */
     fseek( rom_h, LOADER_ADDRESS, SEEK_SET );
