@@ -1,6 +1,6 @@
 /*
 *   Nintendo 64 Binary Loader
-*   Copyright (c) 2002  ZZT32 [mbr@64.vg]
+*   Copyright (c) 2008  ZZT32 [mbr@64.vg]
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
