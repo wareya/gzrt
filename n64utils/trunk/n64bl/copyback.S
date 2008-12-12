@@ -19,10 +19,17 @@ copyback:
 cloop:
     lw      $a1, 0($v1)
     sw      $a1, 0($v0)
+	
+	# Update pointers
     addi    $v0, 4
     addi    $v1, 4
+	
+	# Make sure what we wrote gets into the cache
+    cache	4, ($v0)
+	
+	# Branch back
     bne     $v0, $a0, cloop
-    
+	
     # Call the binary
     lui     $a0, 0x8888
     ori     $a0, $a0, 0x8888
