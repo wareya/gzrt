@@ -4,10 +4,10 @@
 
 # Basics
 PROGRAM = gs64
-PARTS   = crt0.o $(PROGRAM).o code.o dma.o hook.o
+PARTS   = crt0.o $(PROGRAM).o code.o codeRec.o dma.o hook.o
 
 # N64 tree variables
-N64ROOT = ../root
+N64ROOT = /u/Programming/n64tree-win32/root
 N64BIN  = $(N64ROOT)/bin
 
 # Environment variables

@@ -36,6 +36,7 @@ extern CodeHandler gs_handlers[];
 /* Function definitions */
 extern void gs_process ( struct Code * list, int length );
 extern int dma_read ( void * dst, void * src, u32 length );
+extern int gs_compile ( struct Code * c, int len );
 
 /* Apply a single gameshark code */
 static inline enum CodeStatus

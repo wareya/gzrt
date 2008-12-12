@@ -34,6 +34,10 @@ struct RepeaterCode
 enum CodeStatus gs_apply ( struct Code * c );
 void gs_process ( struct Code * list, int length );
 
+/* Global variables */
+void (*gs_iteration)( void );
+static unsigned * prog_seeker;
+
 /* Placeholder */
 GS_HANDLER( gs_invalid ) { return Continue; }
 
