@@ -39,9 +39,15 @@ wait:
     lw      $v0, 16($v1)
     andi    $v0, $v0, 1
     bnez    $v0, wait
-    
-    # Call it
+	
+	# Give proper prefix
     li      $v0, 0x80000000
     or      $v0, $a0, $v0
+	
+	# Update cache
+	cache	0x15, 0($v0)
+	nop
+    
+    # Call it
     jr      $v0
 

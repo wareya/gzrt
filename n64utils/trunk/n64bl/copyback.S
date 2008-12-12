@@ -25,7 +25,7 @@ cloop:
     addi    $v1, 4
 	
 	# Make sure what we wrote gets into the cache
-    cache	4, ($v0)
+    cache	0x15, ($v0)
 	
 	# Branch back
     bne     $v0, $a0, cloop
