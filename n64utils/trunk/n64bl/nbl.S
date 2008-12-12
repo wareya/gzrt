@@ -28,11 +28,11 @@ loadbin:
     sw      $a0, 0($v1)
     
     # Transfer size
-    lui     $v0, 0
-    ori     $v0, 0x4660
+    lui     $t0, 0
+    ori     $t0, 0x4660
     
     # Store it
-    sw      $v0, 12($v1)
+    sw      $t0, 12($v1)
     
     # Wait until transfer complete
 wait:
@@ -45,8 +45,12 @@ wait:
     or      $v0, $a0, $v0
 	
 	# Update cache
-	cache	0x15, 0($v0)
-	nop
+	or		$t1, $zero, $v0
+cacheloop:
+	cache	0x15, 0($t1)
+	addiu	$t0, -4
+	addiu	$t1,  4
+	bgtz	$t0, cacheloop
     
     # Call it
     jr      $v0
