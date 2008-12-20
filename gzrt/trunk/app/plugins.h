@@ -7,99 +7,99 @@
 /* An open Zelda ROM context */
 struct RomSpec
 {
-	void * rom;
-	void * fs;
-	void * nt;
+    void * rom;
+    void * fs;
+    void * nt;
 };
 
 /* File spec */
 struct PluginFileSpec
 {
-	/* File info */
-	int 	    id;
-	char        filename[64];
-	unsigned 	vstart;
-	unsigned 	vend;
-	unsigned 	start;
-	unsigned 	end;
-	
-	/* File contents */
-	unsigned char * file;
-	unsigned		filesize;
-	
-	/* ROM info */
-	char  * rom_filename;
-	FILE  * rom_handle;
+    /* File info */
+    int         id;
+    char        filename[64];
+    unsigned    vstart;
+    unsigned    vend;
+    unsigned    start;
+    unsigned    end;
+    
+    /* File contents */
+    unsigned char * file;
+    unsigned        filesize;
+    
+    /* ROM info */
+    char  * rom_filename;
+    FILE  * rom_handle;
 };
 
 /* Plugin transaction */
 struct PluginTransac
 {
-	/* Plugin target */
-	const void * plugin;
-	
-	/* File information */
-	struct PluginFileSpec * file;
+    /* Plugin target */
+    const void * plugin;
+    
+    /* File information */
+    struct PluginFileSpec * file;
 };
 
 /* GZRT inherited functions */
 struct Functions
 {
-	/* Memory management */
-	void     * (*malloc) ( unsigned );
-	void     * (*calloc) ( unsigned );
-	void       (*free)   ( void *   );
-	unsigned   (*mused)  ( void     );
-	
-	/* Debug/error handling */
-	void	   (*error)  ( char *, int, char *, ... );
-	void	   (*debug)  ( char *, int, char *, ... );
-	void       (*notice) ( char *, char *           );
-	void     *	reserved2;
-	
-	/* Plugin ending */
-	void       (*close)  ( const struct PluginTransac * );
-	void     *	reserved3;
+    /* Memory management */
+    void     * (*malloc) ( unsigned );
+    void     * (*calloc) ( unsigned );
+    void       (*free)   ( void *   );
+    unsigned   (*mused)  ( void     );
+    
+    /* Debug/error handling */
+    void       (*error)  ( char *, int, char *, ... );
+    void       (*debug)  ( char *, int, char *, ... );
+    void       (*notice) ( char *, char *           );
+    void     *  reserved2;
+    
+    /* Plugin ending */
+    void       (*close)  ( const struct PluginTransac * );
+    void     *  reserved3;
 };
 
 /* Init function handler */
 typedef int (*GZRT_P_INIT)
 (
-	const struct Functions *
+    const struct Functions *
 );
 
 /* Menu bar handler */
 typedef int (*GZRT_P_MENU)
 (
-	const struct Functions *,
-	const struct RomSpec *
+    const struct Functions *,
+    const struct RomSpec *
 );
 
 /* File action handler */
 typedef int (*GZRT_P_ACTION)
 (
-	const struct Functions *,
-	const struct RomSpec *,
-	const struct PluginTransac *
+    const struct Functions *,
+    const struct RomSpec *,
+    const struct PluginTransac *
 );
 
 /* Plugin information header */
 struct PluginMeta
 {
-	/* Basic stuff */
-	char * short_name;		/* Short name - displayed in menu		*/
-	char * long_name;		/* Long program name					*/
-	char * author;			/* Author - such as, "ZZT32 [zz@64.vg]" */
-	char * group;			/* Website or group 					*/
-	char * version;			/* Version number - such as, "v0.1"		*/
-	
-	/* Extended description */
-	char * desc;
-	
-	/* Functions */
-	GZRT_P_INIT		init;
-	GZRT_P_MENU		menu_bar;
-	GZRT_P_ACTION	action;
+    /* Basic stuff */
+    char * short_name;      /* Short name - displayed in menu       */
+    char * long_name;       /* Long program name                    */
+    char * author;          /* Author - such as, "ZZT32 [zz@64.vg]" */
+    char * group;           /* Website or group                     */
+    char * version;         /* Version number - such as, "v0.1"     */
+    
+    /* Extended description */
+    char * desc;
+    
+    /* Functions */
+    GZRT_P_INIT     init;
+    GZRT_P_MENU     menu_bar;
+    GZRT_P_ACTION   action;
 };
 
 /*
