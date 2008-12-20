@@ -7,8 +7,13 @@ PROJECT=gzrt
 # Compiler options
 CC=gcc
 
+# GTK flags
+GTK_FLAGS	 = $(shell pkg-config gtk+-2.0 --cflags)
+GTK_LIBS	 = $(shell pkg-config gtk+-2.0 --libs)
+GMODULE_LIBS = $(shell pkg-config gmodule-2.0 --libs)
+
 # Standard flags
-CFLAGS += -g -DIN_GZRT -I. `pkg-config --cflags gtk+-2.0 gmodule-2.0` -O3 --std=gnu99 -funsigned-char
+CFLAGS += -g -DIN_GZRT $(GTK_FLAGS) -I. -O3 --std=gnu99 -funsigned-char
 
 # Include search paths...
 CFLAGS += -Ilibs/z64 -Ilibs/n64rom
@@ -17,7 +22,7 @@ CFLAGS += -Ilibs/z64 -Ilibs/n64rom
 CFLAGS += -Wfatal-errors -Wall -Wno-char-subscripts
 
 # Linker flags
-LDFLAGS += `pkg-config --libs gtk+-2.0 gmodule-2.0` -Llibs -lz64 -ln64rom
+LDFLAGS += $(GMODULE_LIBS) $(GTK_LIBS) -Llibs -lz64 -ln64rom
 
 # Parts - GUI
 PARTS=$(PROJECT).o gui/gui.o gui/splash.o gui/error.o gui/filesel.o gui/main.o \
