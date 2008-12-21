@@ -25,7 +25,7 @@ NSINC	= $(N64ROOT)/mips64/include
 ASFLAGS = -march=vr4300 -mabi=32
 LDFLAGS = -T $(PROGRAM).x -L . -L $(NSLIB) -lc -lnosys
 CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mtune=vr4300 \
-	  -I ../include -I $(NSINC) -Os -mabi=32
+	  -I ../include -I $(NSINC) -Os -mabi=32 -std=gnu99
 
 # Compile binary
 all: $(PROGRAM).bin
