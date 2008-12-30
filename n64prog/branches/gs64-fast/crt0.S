@@ -1,4 +1,4 @@
-#include "regs.h"
+#include "mips.h"
 
 init:
     

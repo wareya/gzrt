@@ -48,7 +48,7 @@ void n64main ( void )
     {
         loaded = 1;
         gs_load();
-		gs_compile( ptr, count );
+		/* gs_compile( ptr, count ); */	
     }
     
     /* Apply codes */

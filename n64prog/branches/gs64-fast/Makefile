@@ -4,10 +4,10 @@
 
 # Basics
 PROGRAM = gs64
-PARTS   = crt0.o $(PROGRAM).o code.o codeRec.o dma.o hook.o
+PARTS   = crt0.o $(PROGRAM).o code.o comp.o dma.o hook.o asm.o
 
 # N64 tree variables
-N64ROOT = /u/Programming/n64tree-win32/root
+N64ROOT = /home/zzt32/MEDIA/Programming/n64db/trunk/root
 N64BIN  = $(N64ROOT)/bin
 
 # Environment variables
@@ -25,7 +25,7 @@ NSINC	= $(N64ROOT)/mips64/include
 ASFLAGS = -march=vr4300 -mabi=32
 LDFLAGS = -T $(PROGRAM).x -L . -L $(NSLIB) -lc -lnosys
 CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mtune=vr4300 \
-	  -I ../include -I $(NSINC) -Os -mabi=32 -std=gnu99
+	  -I ../include -I $(NSINC) -Os -mabi=32 -std=gnu99 -D_NO_MIPS_PREFIX
 
 # Compile binary
 all: $(PROGRAM).bin
