@@ -7,7 +7,7 @@ PROGRAM = gex64
 PARTS   = gex.o
 
 # N64 tree variables
-N64ROOT = /u/Programming/n64tree
+N64ROOT = /home/zzt32/MEDIA/Programming/n64/trunk/root
 N64BIN  = ${N64ROOT}/bin
 
 # Environment variables
@@ -18,7 +18,7 @@ CHEAT   = $(N64BIN)/nemucheat
 BINCODE = $(N64BIN)/bin2code
 
 # Flags
-LDFLAGS = -T $(PROGRAM).x -L . -lc -lnosys
+LDFLAGS = -T $(PROGRAM).x -L . -lc -lnosys -L$(N64ROOT)/lib/gcc-lib/mips64/3.3 -lgcc
 CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mtune=vr4300 \
 		  -I../include -I. -Os -mabi=32 -mno-gpopt
 
