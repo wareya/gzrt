@@ -31,17 +31,18 @@ struct GexBox
 
 typedef int (*__func_gexDrawText)
 (
-    char * text,
-    int x,
-    int y,
-    int unkn
+    char *,  /* String to be printed */
+    int,     /* X location of text   */
+    int,     /* Y location of text   */
+    int      /* Unknown              */
 );
 
 typedef int (*__func_gexDrawBox)
 (
-    struct GexBox * b
+    struct GexBox *
 );
 
+/* Macros for neatly calling Gex functions */
 #define CALL_GEX_FUNC(func)     ((__func_##func)FUNC_PTR(__func_addr_##func))
 #define FUNC_PTR(ptr)           ((void*)(((u32)ptr)&0x807FFFFF))
 
