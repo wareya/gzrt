@@ -1,7 +1,7 @@
 #include "mips.h"
 
-	.global _start
-	.ent	_start
+    .global _start
+    .ent    _start
 
 _start:
     
@@ -33,5 +33,5 @@ bss_clear:
     
     # Return
     jr      $ra
-	
-	.end _start
+    
+    .end _start

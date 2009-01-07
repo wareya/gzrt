@@ -26,10 +26,6 @@ struct GexBox
     /* Other information */
     u16 boxtype;
     u16 _1; /* 0004 */
-    
-    /* Unknown pointers */
-    void * _2;
-    void * _3;
 };
 
 typedef int (*__func_gexDrawText)
@@ -67,9 +63,7 @@ struct GexBox name = {                          \
     (x) - (320/2), (y) - (240/2),               \
     (x) - (320/2) + (w), (y) - (240/2) + (h),   \
     (r), (g), (b), (a),                         \
-    1, 4,                                       \
-    __type_value_GexBox_ptr_1,                  \
-    __type_value_GexBox_ptr_2                   \
+    0, 0                                        \
 }
 
 /* Global functions */
@@ -83,6 +77,10 @@ extern void hookFunc ( void );
 #define __func_addr_gexDrawBox      0x8003F334
 #define __func_addr_gexSprintf      0x8005C290
 #define __func_addr_gexDrawText3D   0x800387F0
+
+/* Box functions */
+#define __func_addr_gexBoxSetLoc    0x8003F6CC
+
 
 /* Constants - related to arguments */
 #define __type_value_GexBox_ptr_1   (void*)0x80078110
