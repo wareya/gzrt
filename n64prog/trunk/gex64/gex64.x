@@ -28,7 +28,7 @@ SECTIONS {
     * boot code which is copying it down from the cart
     */
 
-   . = 0x803FF000 ;
+   . = 0x80400000 ;
 
    /* The text section carries the app code and its relocation addr is
     * the first byte of the cart domain in cached, unmapped memory

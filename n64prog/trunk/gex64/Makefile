@@ -4,28 +4,26 @@
 
 # Name!
 PROGRAM = gex64
-PARTS   = gex.o
+PARTS   = crt0.o gex.o hook.o
 
 # N64 tree variables
 N64ROOT = /home/zzt32/MEDIA/Programming/n64/trunk/root
 N64BIN  = ${N64ROOT}/bin
 
 # Environment variables
-CC      = $(N64BIN)/mips64-gcc
-LD      = $(N64BIN)/mips64-ld
-OBJCOPY = $(N64BIN)/mips64-objcopy
-CHEAT   = $(N64BIN)/nemucheat
-BINCODE = $(N64BIN)/bin2code
+CC      = mips64-gcc
+LD      = mips64-ld
+AS		= mips64-as
+OBJCOPY = mips64-objcopy
 
 # Flags
-LDFLAGS = -T $(PROGRAM).x -L . -lc -lnosys -L$(N64ROOT)/lib/gcc-lib/mips64/3.3 -lgcc
-CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mtune=vr4300 \
-		  -I../include -I. -Os -mabi=32 -mno-gpopt
+ASFLAGS = -mabi=32 -march=vr4300
+LDFLAGS = -T $(PROGRAM).x
+CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 \
+	  	  -mtune=vr4300 -I../include -I. -Os -mabi=32 -D_NO_MIPS_PREFIX
 
 # Compile binary
 all: $(PROGRAM).bin
-	$(BINCODE) $(PROGRAM).bin 803FF000 codes.txt # Turn binary into GS code
-	cat hook codes.txt | $(CHEAT) "Gex Code" 1 > final.txt
 
 $(PROGRAM).bin: $(PROGRAM).elf
 	$(OBJCOPY) $(PROGRAM).elf $(PROGRAM).bin -O binary

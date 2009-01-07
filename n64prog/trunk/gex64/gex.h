@@ -4,6 +4,9 @@
 #ifndef __GEX64_H__
 #define __GEX64_H__
 
+/* C stuff */
+#ifndef __LANGUAGE_ASSEMBLY__
+
 #include <stdint.h>
 
 typedef uint32_t    u32;
@@ -42,6 +45,13 @@ typedef int (*__func_gexDrawBox)
     struct GexBox *
 );
 
+typedef int (*__func_gexSprintf)
+(
+    char *, /* Target        */
+    char *, /* Format string */
+    ...     /* Arguments     */
+);
+
 /* Macros for neatly calling Gex functions */
 #define CALL_GEX_FUNC(func)     ((__func_##func)FUNC_PTR(__func_addr_##func))
 #define FUNC_PTR(ptr)           ((void*)(((u32)ptr)&0x807FFFFF))
@@ -49,6 +59,7 @@ typedef int (*__func_gexDrawBox)
 /* Functions */
 #define gexDrawText(text, x, y, u)  (CALL_GEX_FUNC(gexDrawText)(text, x, y, u))
 #define gexDrawBox(box)             (CALL_GEX_FUNC(gexDrawBox)(box))
+#define gexSprintf(dest, fmt, ...)  (CALL_GEX_FUNC(gexSprintf)(dest, fmt, ##__VA_ARGS__))
 
 /* Pseudo, custom functions */
 #define gexMakeBox(name,w,h,x,y,r,g,b,a)        \
@@ -61,9 +72,16 @@ struct GexBox name = {                          \
     __type_value_GexBox_ptr_2                   \
 }
 
+/* Global functions */
+extern void gexMain ( void );
+extern void hookFunc ( void );
+
+#endif /* !__LANGUAGE_ASSEMBLY__ */
+
 /* Function addresses */
 #define __func_addr_gexDrawText     0x80030DD8
 #define __func_addr_gexDrawBox      0x8003F334
+#define __func_addr_gexSprintf      0x8005C290
 #define __func_addr_gexDrawText3D   0x800387F0
 
 /* Constants - related to arguments */
