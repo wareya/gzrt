@@ -19,8 +19,8 @@ OBJCOPY = mips64-objcopy
 # Flags
 ASFLAGS = -mabi=32 -march=vr4300
 LDFLAGS = -T $(PROGRAM).x
-CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 \
-	  	  -mtune=vr4300 -I../include -I. -Os -mabi=32 -D_NO_MIPS_PREFIX
+CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mabi=32 -Os \
+          -mtune=vr4300 -I../include -I. -D__MIPS_NO_PREFIX
 
 # Compile binary
 all: $(PROGRAM).bin
