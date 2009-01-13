@@ -8,15 +8,15 @@
 /* Constants */
 #define DB_TABLE_NAME   "z64_functions"
 #define DB_TABLE_FMT                        \
-"CREATE TABLE z64_functions             "   \
-"(                                      "   \
-"   address     INTEGER PRIMARY KEY,    "   \
-"   name        TEXT,                   "   \
-"   arguments   TEXT,                   "   \
-"   return      TEXT,                   "   \
-"   library     TEXT,                   "   \
-"   description TEXT                    "   \
-");                                     "
+"CREATE TABLE z64_functions             \n" \
+"(                                      \n" \
+"   address     INTEGER PRIMARY KEY,    \n" \
+"   name        TEXT,                   \n" \
+"   arguments   TEXT,                   \n" \
+"   return      TEXT,                   \n" \
+"   library     TEXT,                   \n" \
+"   description TEXT                    \n" \
+");                                     \n"
 
 /* Database handle */
 sqlite3 * db;
