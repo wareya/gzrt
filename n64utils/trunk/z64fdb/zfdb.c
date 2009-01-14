@@ -183,10 +183,10 @@ void dumpHeader ( char * out )
     /* Step through and get the results */
     while( sqlite3_step( statement) == SQLITE_ROW )
     {
-        u32 addr = sqlite3_column_int( statement, 0 );
-        char * ret = sqlite3_column_text( statement, 1 );
-        char * name = sqlite3_column_text( statement, 2 );
-        char * args = sqlite3_column_text( statement, 3 );
+        /* u32 addr = sqlite3_column_int( statement, 0 ); */
+        char * ret  = (char*)sqlite3_column_text( statement, 1 );
+        char * name = (char*)sqlite3_column_text( statement, 2 );
+        char * args = (char*)sqlite3_column_text( statement, 3 );
         
         if( (config.flags & FLAG_NO_UNKNOWNS) && strstr(name, "FNC_") )
             continue;
