@@ -3,7 +3,7 @@
 *****************************/
 #ifndef __ZFDB_H__
 
-#define ZFDB_VERSION    "v0"
+#define ZFDB_VERSION    "v0.1"
 
 /* Deps */
 #include <time.h>
@@ -42,7 +42,8 @@ enum AppAction
 /* Flags */
 enum AppFlags
 {
-    FLAG_SHOW_DEBUG = (1 << 1)
+    FLAG_SHOW_DEBUG  = (1 << 1),
+    FLAG_NO_UNKNOWNS = (1 << 2)
 };
 
 /* The function entry data type */

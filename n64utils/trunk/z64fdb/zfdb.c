@@ -188,7 +188,10 @@ void dumpHeader ( char * out )
         char * name = sqlite3_column_text( statement, 2 );
         char * args = sqlite3_column_text( statement, 3 );
         
-        fprintf( o, "extern %s %s %s; /* 0x%08X */\n", ret, name, args, addr );
+        if( (config.flags & FLAG_NO_UNKNOWNS) && strstr(name, "FNC_") )
+            continue;
+        
+        fprintf( o, "extern %s %s %s;\n", ret, name, args );
     }
     
     /* Finalize statement */
@@ -242,6 +245,10 @@ int main ( int argc, char ** argv )
                 
                 case 'h':
                  config.action = ACTION_DUMP_HEADER;
+                break;
+                
+                case 'u':
+                 config.flags |= FLAG_NO_UNKNOWNS;
                 break;
             }
             else
