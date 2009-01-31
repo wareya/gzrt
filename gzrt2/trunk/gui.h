@@ -13,7 +13,7 @@
 
 /* Constants */
 #define GZRT_GUI_RES_PATH		"./res"
-#define GZRT_GUI_RES_LOGO		GZRT_GUI_RES_PATH "/logo.svg"
+#define GZRT_GUI_RES_LOGO		GZRT_GUI_RES_PATH "/logo.png"
 #define GZRT_GUI_WINDOW_TITLE	"GNU Zelda ROM Tool"
 
 /* Functions -- gui.c */
