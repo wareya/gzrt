@@ -21,6 +21,7 @@
 /* Application flags */
 #define GZRT_F_PLUGINS_LOADED	(1 << 1)
 #define GZRT_F_PLUGINS_ERROR	(1 << 2)
+#define GZRT_F_CANT_QUIT		(1 << 3)
 
 /* Configuration structer */
 struct gzrtConf
@@ -50,5 +51,10 @@ extern void gzrt_process_remove ( pid_t );
 
 /* Functions -- func.c */
 extern double timeDiff ( struct timeval *, struct timeval * );
+extern double timeSinceStart ( void );
+extern char * filename ( char * s );
+
+/* Functions -- sig.c */
+extern void gzrt_signal_init ( void );
 
 #endif /* !__GZRT_H__ */

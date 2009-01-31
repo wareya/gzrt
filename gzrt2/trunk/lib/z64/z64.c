@@ -38,9 +38,9 @@ Z64 * z64_open ( N64Rom * rom )
 	if( (ret->at = z64at_open( ret )) )
 		ret->status |= Z64_LOADED_AT;
 	
-	/* Read the scene table */
+	/* Read the scene table 
 	if( (ret->st = z64st_open( ret )) )
-		ret->status |= Z64_LOADED_ST;
+		ret->status |= Z64_LOADED_ST;*/
 	
 	/* Store filename */
 	ret->filename = strdup((char*)rom->filename);

@@ -1,7 +1,12 @@
 PROGRAM = gzrt
 
-PARTS = $(PROGRAM).o msg.o plugin.o ipc.o gui.o func.o db.o file.o sqlite3.o
+# App parts
+PARTS = $(PROGRAM).o msg.o plugin.o ipc.o gui.o func.o db.o file.o sig.o sqlite3.o
 
+# GUI subparts
+PARTS +=  gui/about.o gui/open.o gui/main.o
+
+# Applications
 CC = gcc
 
 # Libraries
@@ -10,7 +15,7 @@ LIBS_LOCAL  = -ln64rom -lz64
 
 # Headers
 INC_EXTERN = $(shell pkg-config --cflags gtk+-2.0)
-INC_LOCAL  = -Ilib/inc
+INC_LOCAL  = -I. -I.. -Ilib/inc
 
 # Defines
 DEFINES = -DGZRT_DEBUG -D_GNU_SOURCE
