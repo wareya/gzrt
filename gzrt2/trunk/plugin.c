@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <poll.h>
 #include <stdlib.h>
 #include <glib.h> 
 #include "gzrt.h"
@@ -25,33 +26,153 @@ typedef const char cchr;
 /* ----------------------------------------------
    Plugin descriptor
    ---------------------------------------------- */
-   
-/* Plugin meta information */
-struct gzrtPluginMeta
+
+/* An identification packet */
+struct gzrtPluginIdent
 {
-    cchr * name;
-    cchr * author;
-    cchr * group;
-    cchr * version;
-    cchr * desc;
+	int   magic;
+	pid_t pid;
 };
 
-/* Plugin descriptors */
-struct gzrtPlugin
+/* List of recognized plugins */
+static GList * plugins;		/* Type is `GzrtPlugin` 		*/
+
+/* List of plugin instances */
+static GList * instances;		/* Type is `GzrtPluginInstance` */
+static double inst_last_change;	/* Last time new plugin added   */
+
+
+/* ----------------------------------------------
+   Plugin communication
+   ---------------------------------------------- */
+
+/* Variables */
+static GList * filedes;
+
+/* Handle a packet from a plugin */
+static void gzrt_plugin_manager_handle ( GzrtPluginInstance * P )
 {
-    /* Generic information */
-    char * filename;
-    
-    /* Plugin meta information */
-    struct gzrtPluginMeta * meta;
-    
-    /* Process ID */
-    pid_t pid;
-};
+	static GzrtPacket packet;
+	int ret;
+	
+	/* Read a packet in from the file descriptor */
+	ret = read( P->fd[1], &packet, sizeof(packet) );
+	
+	/* Check return value */
+	if( ret == -1 )
+	{
+		/* This plugin is not communicating properly - kill it */
+		gzrt_plugin_manager_kill_plugin( P );
+		
+		return;
+	}
+	
+	/* Check magic... */
+	if( packet.magic != GZRT_PLUGIN_MAGIC )
+	{
+		/* This plugin is not identifying itself properly - kill */
+		gzrt_plugin_manager_kill_plugin( P );
+		
+		return;
+	}
+	
+	/* Notice */
+	DEBUG( "PID %i is a verified GZRT plugin.", P->pid );
+}
 
-/* List of active plugins */
-static GList * plugins;
-
+/* Initialize the plugin communication module */
+static void gzrt_plugin_manager_main ( void )
+{
+	static double last_update;
+	static int watchcount;
+	static struct pollfd * watchlist;;
+	static int pollret = -1;
+	static int status;
+	static pid_t child;
+	int i;
+	
+listen_loop: ;
+	
+	/* Rebuild? */
+	if( last_update != inst_last_change )
+	{
+		int len = g_list_length(instances);
+		
+		DEBUG( "Rebuilding FD watch index." );
+		
+		/* Store new time */
+		last_update = inst_last_change;
+		
+		/* Free old */
+		if( watchlist )
+          free( watchlist );
+		
+		/* Store len */
+		watchcount = len;
+		
+		/* Yes, rebuild fd watch list */
+		watchlist = calloc( sizeof(struct pollfd), len );
+		
+		/* Fill it */
+		for( i = 0; i < len; i++ )
+		{
+			/* Get current plugin instance */
+			GzrtPluginInstance * cur = g_list_nth( instances, i )->data;
+			
+			/* Store FD & flags */
+			watchlist[i].fd = cur->fd[1];
+			watchlist[i].events = POLLIN;
+		}
+	}
+	
+	/* Is there something to watch? */
+	if( last_update && watchlist )
+	{
+		/* Yeah */
+		pollret = poll( watchlist, watchcount, 100 );
+	}
+	else
+	{
+		/* Nope, just sleep */
+		g_usleep( G_USEC_PER_SEC / 10 );
+	}
+	
+	/* Check the return value of poll */
+	if( pollret )
+	{
+		/* `pollret` file descriptors are ready for access */
+		
+		/* Handle each */
+		for( i = 0; i < watchcount; i++ )
+		{
+			/* Check flags... */
+			if( (watchlist[i].revents & POLLIN) )
+				
+				/* Handle it */
+				gzrt_plugin_manager_handle( g_list_nth(instances, i)->data );
+		}
+	}
+	
+	/* Check the status of child processes */
+	while( (child = waitpid( -1, &status, WNOHANG )) )
+	{
+		/* Error? */
+		if( child == -1 )
+			break; /* Handle this later... */
+		
+		/* Did the child quit? */
+		if( WIFEXITED(status) || WIFSIGNALED(status) )
+		{
+			/* Yeah, remove references from it */
+			gzrt_plugin_manager_unref_by_pid( child );
+			
+			DEBUG( "Lost child %i.", child );
+		}
+	}
+    
+    /* Loop again */
+    goto listen_loop;
+}
 
 
 /* ----------------------------------------------
@@ -72,12 +193,6 @@ entries[] =
     { "description", G_TYPE_STRING },
     { NULL }
 };
-
-
-/*
- * Note: Plugin handler configuration/details stored in the global
- * GZRT configuration struct (see gzrt.h)
- */
 
 /* Load all the plugins */
 static gboolean
@@ -137,7 +252,7 @@ gzrt_plugin_load ( void )
         }
         
         /* Store filename */
-        plugin->filename = strdup(groups[i]);
+        plugin->filename = g_strdup_printf( "%s/%s", GZRT_PLUGIN_PATH, groups[i] );
         
         /* Append plugin */
         plugins = g_list_append( plugins, plugin );
@@ -161,14 +276,6 @@ gzrt_plugin_load ( void )
     return (sanetized ? TRUE : FALSE);
 }
 
-/* Plugin manager main event loop */
-static void gzrt_plugin_manager_main ( void )
-{
-loop:
-    sleep( 1 );
-    goto loop;
-}
-
 /* Initialize the plugin manager */
 void gzrt_plugin_manager_init ( void )
 {
@@ -181,4 +288,147 @@ void gzrt_plugin_manager_init ( void )
     }
     
     return;
+}
+
+/* Start a plugin */
+void gzrt_plugin_manager_start_plugin ( GzrtPlugin * P )
+{
+	/* Record instance */
+	GzrtPluginInstance * self = calloc( sizeof(GzrtPluginInstance), 1);
+	self->plugin = P;
+	
+	/* Set up a socket pair */
+	socketpair(AF_UNIX, SOCK_STREAM, 0, self->fd);
+	
+	DEBUG( "%s\n", P->filename );
+	
+	/* Fork a new process */
+	if( !(self->pid = fork()) )
+	{
+		/* Close standard output */
+		close( 1 );
+		
+		/* Duplicate created file descriptor */
+		dup( self->fd[0] );
+		
+		/* Close original */
+		close( self->fd[0] );
+		
+		/* Call application */
+		execl( P->filename, P->filename, NULL );
+		
+		/* It should never reach this point */
+		exit( -1 );
+	}
+	
+	/* Record new instance */
+	instances = g_list_append( instances, self );
+	
+	/* Record last change */
+	inst_last_change = timeSinceStart();
+}
+
+/* Get plugins */
+GList * gzrt_plugin_manager_get_plugins ( void )
+{
+	return plugins;
+}
+
+/* Get plugins */
+GList * gzrt_plugin_manager_get_instances ( void )
+{
+	return instances;
+}
+
+/* Kill all plugin instances */
+void gzrt_plugin_manager_kill_all ( void )
+{
+	int i, l = g_list_length( instances );
+	
+	for( i = 0; i < l; i++ )
+	{
+		GzrtPluginInstance * p = g_list_nth( instances, i )->data;
+		
+		kill( p->pid, SIGTERM );
+		
+		DEBUG( "Sent SIGTERM to %i.", p->pid );
+	}
+}
+
+/* Kill a plugin instance */
+void gzrt_plugin_manager_kill_plugin ( GzrtPluginInstance * P )
+{
+	close( P->fd[0] );
+	close( P->fd[1] );
+	kill( P->pid, SIGTERM );
+	free( P );
+	
+	/* Remove reference */
+	instances = g_list_remove( instances, P );
+	
+	/* Record last change */
+	inst_last_change = timeSinceStart();
+}
+
+/* Kill by PID */
+void gzrt_plugin_manager_kill_plugin_by_pid ( pid_t pid )
+{
+	int i, l = g_list_length(instances);
+	GzrtPluginInstance * P = NULL;
+	
+	for( i = 0; i < l; i++ )
+	{
+		P = g_list_nth( instances, i )->data;
+		
+		if( P->pid == pid )
+		{
+			/* Close sockets */
+			close( P->fd[0] );
+			close( P->fd[1] );
+			
+			/* Terminate process */
+			kill( P->pid, SIGTERM );
+		}
+	}
+	
+	/* Remove reference */
+	if( P != NULL )
+	{
+		instances = g_list_remove( instances, P );
+	}
+	
+	free( P );
+	
+	/* Record last change */
+	inst_last_change = timeSinceStart();
+}
+
+/* Unreference plugin by pid */
+void gzrt_plugin_manager_unref_by_pid ( pid_t pid )
+{
+	int i, l = g_list_length(instances);
+	GzrtPluginInstance * P = NULL;
+	
+	for( i = 0; i < l; i++ )
+	{
+		P = g_list_nth( instances, i )->data;
+		
+		if( P->pid == pid )
+		{
+			/* Close sockets */
+			close( P->fd[0] );
+			close( P->fd[1] );
+		}
+	}
+	
+	/* Remove reference */
+	if( P != NULL )
+	{
+		instances = g_list_remove( instances, P );
+	}
+	
+	free( P );
+	
+	/* Record last change */
+	inst_last_change = timeSinceStart();
 }

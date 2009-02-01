@@ -15,7 +15,7 @@
 /* Constants */
 #define GZRT_GUI_RES_PATH		"./res"
 #define GZRT_GUI_RES_LOGO		GZRT_GUI_RES_PATH "/logo.png"
-#define GZRT_GUI_WINDOW_TITLE	"GNU Zelda ROM Tool 2"
+#define GZRT_GUI_WINDOW_TITLE	"GNU Zelda ROM Tool"
 
 /* A GZRT main window */
 typedef struct 
@@ -25,8 +25,19 @@ typedef struct
 	
 	/* GTK elements */
 	GtkWidget * window;
-	GtkTreeView  * tree_view;
-	GtkTreeModel * tree_model;
+	GtkWidget * notebook;
+	
+	/*
+	 *  Z64 List elements
+	 */
+    GtkTreeView  * z64_file_view;
+	GtkListStore * z64_file_store;
+    GtkTreeView  * z64_actor_view;
+	GtkListStore * z64_actor_store;
+    GtkTreeView  * z64_scene_view;
+	GtkListStore * z64_scene_store;
+    GtkTreeView  * z64_object_view;
+	GtkListStore * z64_object_store;
 }
 GzrtWindow;
 
@@ -39,7 +50,10 @@ extern void gzrt_gui_close_startup_screen ( void );
 extern void gzrt_gui_about_show ( void );
 
 /* Functions -- gui/open.c */
-extern void gzrt_gui_open_rom ( void );
+GzrtFile * gzrt_gui_open_rom ( int );
+
+/* Functions -- gui/main.c */
+extern void gzrt_gui_main_window_create ( void );
 
 #endif /* __GZRT_GUI_H__ */
 

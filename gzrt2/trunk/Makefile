@@ -1,7 +1,7 @@
 PROGRAM = gzrt
 
 # App parts
-PARTS = $(PROGRAM).o msg.o plugin.o ipc.o gui.o func.o db.o file.o sig.o sqlite3.o
+PARTS = $(PROGRAM).o msg.o plugin.o gui.o func.o db.o file.o sig.o sqlite3.o
 
 # GUI subparts
 PARTS +=  gui/about.o gui/open.o gui/main.o

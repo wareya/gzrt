@@ -6,8 +6,17 @@
 #include "gzrt.h"
 #include "gui.h"
 
+/* ----------------------------------------------
+   Variables
+   ---------------------------------------------- */
+
 /* The startup window */
 static GtkWidget * startup_window;
+
+
+/* ----------------------------------------------
+   Local functions
+   ---------------------------------------------- */
 
 /* Set the window icon sets */
 static void gzrt_gui_icons_init ( void )
@@ -73,7 +82,7 @@ gzrt_gui_create_quickstart_menu ( void )
         if( menu_spec[i].stock )
         {
             /* Get stock image */
-            image = gtk_image_new_from_stock( menu_spec[i].stock, GTK_ICON_SIZE_LARGE_TOOLBAR );
+            image = gtk_image_new_from_stock( menu_spec[i].stock, GTK_ICON_SIZE_MENU );
             
             /* Set image */
             gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM(item), image );
@@ -108,6 +117,11 @@ gzrt_gui_qs_handler ( GtkWidget * b, GdkEventButton * event, GtkWidget * menu )
 
     return FALSE;
 }
+
+
+/* ----------------------------------------------
+   Global functions
+   ---------------------------------------------- */
 
 /* Create the start screen */
 void gzrt_gui_show_startup_screen ( void )
@@ -157,7 +171,7 @@ void gzrt_gui_show_startup_screen ( void )
     g_signal_connect_swapped( G_OBJECT(button4), "clicked", G_CALLBACK(gzrt_exit), (void*)0 );
     g_signal_connect( G_OBJECT(button3), "clicked", G_CALLBACK(gzrt_gui_about_show), NULL );
     g_signal_connect( G_OBJECT(button2), "event", G_CALLBACK(gzrt_gui_qs_handler), qs );
-    g_signal_connect( G_OBJECT(button1), "clicked", G_CALLBACK(gzrt_gui_open_rom), NULL );
+    g_signal_connect( G_OBJECT(button1), "clicked", G_CALLBACK(gzrt_gui_main_window_create), NULL );
     
     /* Store window pointer */
     startup_window = window;

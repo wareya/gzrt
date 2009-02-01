@@ -51,8 +51,10 @@ Z64 * z64_open ( N64Rom * rom )
 /* Close a Zelda 64 ROM */
 void z64_close ( Z64 * h )
 {
-	z64fs_close( h->fs );
-	z64nt_close( h->nt );
+	if( h->status & Z64_LOADED_FS )
+		z64fs_close( h->fs );
+	if( h->status & Z64_LOADED_NT )
+		z64nt_close( h->nt );
 	free( h->filename );
 	free( h->f_code_data );
 	free( h );

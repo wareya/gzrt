@@ -16,7 +16,7 @@
 #include <pthread.h>
 
 /* Program version */
-#define GZRT_VERSION	"v0.4"
+#define GZRT_VERSION	"v2"
 
 /* Application flags */
 #define GZRT_F_PLUGINS_LOADED	(1 << 1)

@@ -33,10 +33,6 @@ static void gzrt_init ( int * argc, char *** argv )
     gtk_init( argc, argv );
     DEBUG( "Initialized GTK." );
     
-    /* Initialize IPC */
-    gzrt_ipc_init();
-    DEBUG( "Initialized IPC." );
-    
     /* Start the plugin manager */
     gzrt_plugin_manager_init();
     DEBUG( "Initialized plugin manager." );
@@ -61,14 +57,14 @@ static void gzrt_deinit ( void )
     
     DEBUG( "Quitting..." );
     
-    /* Kill clients */
-    gzrt_ipc_kill_clients();
-    
     /* Free list */
     g_list_free(conf.procs);
     
     /* Stop db manager */
     gzrt_db_deinit();
+	
+	/* Kill all plugins */
+	gzrt_plugin_manager_kill_all();
 }
 
 /* Quit with code */
@@ -102,7 +98,9 @@ int main ( int argc, char ** argv )
 {
     /* Initialize the application */
     gzrt_init( &argc, &argv );
-    
+	
+	gzrt_plugin_manager_start_plugin( g_list_nth(gzrt_plugin_manager_get_plugins(),0)->data );
+	
     /* Sleep in gtk_main() */
     gtk_main();
     

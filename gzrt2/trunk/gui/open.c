@@ -8,12 +8,12 @@
 #include "msg.h"
 #include "gui.h"
 
-/* Open a ROM */
-void gzrt_gui_open_rom ( void )
+/* Open a non-zelda ROM */
+GzrtFile * gzrt_gui_open_rom ( int what )
 {
 	int v;
 	
-	GzrtFile * ret;
+	GzrtFile * ret = NULL;
 	
 	GtkWidget * dialog = gtk_file_chooser_dialog_new
 	( 
@@ -32,7 +32,7 @@ diagrun: ;
 		case GTK_RESPONSE_ACCEPT:
 	    
 		 /* Try to load the file */
-		 if( !(ret = gzrt_file_open(gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ))) )
+		 if( !(ret = gzrt_file_open(what, gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ))) )
 		 {
 			gzrt_message( MSG_ERROR, "Error", "An error occured while trying to load your ROM." );
 		 }
@@ -40,9 +40,6 @@ diagrun: ;
 		 {
 			 /* Worked */
 			 gtk_widget_hide( dialog );
-			 
-			 /* Close startup screen */
-			 gzrt_gui_close_startup_screen();
 			 
 			 /* Notice */
 			 gzrt_message( 0, "Notice", "Loaded \"%s\" successfully.", ret->name );
@@ -66,5 +63,5 @@ diagrun: ;
 	
 	/* Out of loop */
 outloop:
-	return;
+	return ret;
 }
