@@ -313,10 +313,10 @@ void gzrt_plugin_manager_start_plugin ( GzrtPlugin * P )
 {
 	/* Record instance */
 	GzrtPluginInstance * self;
-	self->plugin = P;
 	
 	/* Allocate memory */
 	self = calloc( sizeof(GzrtPluginInstance), 1);
+	self->plugin = P;
 	
 	/* Set up a socket pair */
 	socketpair(AF_UNIX, SOCK_STREAM, 0, self->fd);
