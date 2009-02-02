@@ -30,5 +30,6 @@ GzrtFile;
 /* Functions -- file.c */
 extern GzrtFile * gzrt_file_open ( int, char * );
 extern void gzrt_file_close ( GzrtFile * );
+extern GList * gzrt_files_open ( void );
 
 #endif /* __GZRT_FILE_H__ */

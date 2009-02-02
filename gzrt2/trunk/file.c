@@ -142,3 +142,8 @@ void gzrt_file_close ( GzrtFile * file )
 	files = g_list_remove( files, file );
 }
 
+/* Get a list of open files */
+GList * gzrt_files_open ( void )
+{
+	return files;
+}

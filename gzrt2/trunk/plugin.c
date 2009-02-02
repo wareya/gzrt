@@ -15,7 +15,7 @@
 #include <glib.h> 
 #include "gzrt.h"
 #include "msg.h"
-#include "ipc.h"
+#include "file.h"
 #include "plugin.h"
 
 typedef const char cchr;
@@ -312,8 +312,11 @@ void gzrt_plugin_manager_init ( void )
 void gzrt_plugin_manager_start_plugin ( GzrtPlugin * P )
 {
 	/* Record instance */
-	GzrtPluginInstance * self = calloc( sizeof(GzrtPluginInstance), 1);
+	GzrtPluginInstance * self;
 	self->plugin = P;
+	
+	/* Allocate memory */
+	self = calloc( sizeof(GzrtPluginInstance), 1);
 	
 	/* Set up a socket pair */
 	socketpair(AF_UNIX, SOCK_STREAM, 0, self->fd);
@@ -450,3 +453,83 @@ void gzrt_plugin_manager_unref_by_pid ( pid_t pid )
 	/* Record last change */
 	inst_last_change = timeSinceStart();
 }
+
+
+/* --------------------------------------
+   Plugin request handlers
+   -------------------------------------- */
+
+/* A ROM enumeration */
+typedef struct
+{
+	int amount;
+	int lengths[];
+	/* path strings placed here */
+}
+RGzrtEnumRom;
+
+/* A ROM read request */
+typedef struct
+{
+	int length;
+	unsigned char data[];
+}
+RGzrtRomRead;
+
+/* Enumerate ROMs open */
+static void gzrt_p_enum_roms ( GzrtPluginInstance * P )
+{
+	GzrtFile * cur;
+	GList * files;
+	RGzrtEnumRom * final;
+	int total = 0, len, tlen, i, amount;
+	void * target;
+	
+	/* Get current list */
+	files = gzrt_files_open();
+	
+	/* Count total length of strings */
+	amount = g_list_length( files );
+	for( i = 0; i < amount; i++ )
+	{
+		cur = g_list_nth( files, i )->data;
+		len += strlen(cur->path) + 1;
+	}
+	
+	/* Length aquired, prepare final */
+	tlen = sizeof(RGzrtEnumRom) + len * sizeof(int) + len;
+	final = malloc( tlen );
+	
+	/* Write amount */
+	final->amount = amount;
+	
+	/* Write lengths */
+	for( i = 0; i < amount; i++ )
+	{
+		cur = g_list_nth( files, i )->data;
+		
+		final->lengths[i] = strlen( cur->path ) + 1;
+	}
+	
+	/* String target */
+	target = final + sizeof(int) + len * sizeof(int);
+	
+	/* Write strings */
+	for( i = 0; i < amount; i++ )
+	{
+		cur = g_list_nth( files, i )->data;
+		
+		strcpy( target, cur->path );
+		
+		final += final->lengths[i];
+	}
+	
+	/* Send it to plugin */
+	gzrt_plugin_manager_send_data( P, final, tlen );
+}
+
+/* Read some stuff from a ROM */
+static int gzrt_p_rom_read ( char * path, int offset, int len )
+{
+}
+	
