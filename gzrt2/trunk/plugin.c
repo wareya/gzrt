@@ -46,9 +46,6 @@ static double inst_last_change;	/* Last time new plugin added   */
    Plugin communication
    ---------------------------------------------- */
 
-/* Variables */
-static GList * filedes;
-
 /* Handle a packet from a plugin */
 static void gzrt_plugin_manager_handle ( GzrtPluginInstance * P )
 {
@@ -77,7 +74,28 @@ static void gzrt_plugin_manager_handle ( GzrtPluginInstance * P )
 	}
 	
 	/* Notice */
-	DEBUG( "PID %i is a verified GZRT plugin.", P->pid );
+	DEBUG( "Recieved packet from %i; data segment is %i bytes in length.", P->pid, packet.length );
+}
+
+/* Send some data to a plugin */
+static void gzrt_plugin_manager_send_data ( GzrtPluginInstance * P, void * data, int size )
+{
+	static GzrtPacket packet;
+	
+	/* Set data... */
+	packet.magic = GZRT_PLUGIN_MAGIC;
+	packet.origin = getpid();
+	gettimeofday( &packet.time, NULL );
+	packet.length = size;
+	
+	/* Write packet header */
+	write( P->fd[1], &packet, sizeof(packet) );
+	
+	/* Write remaining data */
+	write( P->fd[1], data, size );
+	
+	/* Notice */
+	DEBUG( "Send packet to %i; data segment is %u bytes.", P->pid, size );
 }
 
 /* Initialize the plugin communication module */

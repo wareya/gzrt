@@ -10,6 +10,7 @@
 /* Replacements for old GTKs */
 #if GTK_MINOR_VERSION < 10
 # define gtk_window_set_deletable
+# define GTK_STOCK_INFO GTK_STOCK_ABOUT
 #endif
 
 /* Constants */

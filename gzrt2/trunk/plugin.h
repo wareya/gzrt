@@ -75,7 +75,10 @@ typedef struct gzrtPacket
 	struct timeval time;
 	
 	/* Length of data */
-	int datalen;
+	int length;
+	
+	/* Function ID */
+	int funct;
 	
 	/* Data */
 	unsigned char data[];
