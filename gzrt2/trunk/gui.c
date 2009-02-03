@@ -172,6 +172,7 @@ void gzrt_gui_show_startup_screen ( void )
     g_signal_connect( G_OBJECT(button3), "clicked", G_CALLBACK(gzrt_gui_about_show), NULL );
     g_signal_connect( G_OBJECT(button2), "event", G_CALLBACK(gzrt_gui_qs_handler), qs );
     g_signal_connect( G_OBJECT(button1), "clicked", G_CALLBACK(gzrt_gui_main_window_create), NULL );
+	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(gzrt_exit), (void*)0 );
     
     /* Store window pointer */
     startup_window = window;

@@ -77,29 +77,11 @@ void gzrt_exit ( int code )
     gtk_main_quit();
 }
 
-/* Record a new process */
-void gzrt_process_log ( pid_t pid )
-{
-    conf.procs = g_list_append( conf.procs, GINT_TO_POINTER(pid) );
-    
-    DEBUG( "Logged new process %i.", pid );
-}
-
-/* Remove a process */
-void gzrt_process_remove ( pid_t pid )
-{
-    conf.procs = g_list_remove( conf.procs, GINT_TO_POINTER(pid) );
-    
-    DEBUG( "Removed process %i.", pid );
-}
-
 /* Main */
 int main ( int argc, char ** argv )
 {
     /* Initialize the application */
     gzrt_init( &argc, &argv );
-	
-	gzrt_plugin_manager_start_plugin( g_list_nth(gzrt_plugin_manager_get_plugins(),0)->data );
 	
     /* Sleep in gtk_main() */
     gtk_main();
