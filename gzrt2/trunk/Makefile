@@ -11,7 +11,7 @@ CC = gcc
 
 # Libraries
 LIBS_EXTERN = $(shell pkg-config --libs gtk+-2.0)
-LIBS_LOCAL  = -ln64rom -lz64
+LIBS_LOCAL  = -lpthread -ln64rom -lz64
 
 # Headers
 INC_EXTERN = $(shell pkg-config --cflags gtk+-2.0)
