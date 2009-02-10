@@ -207,7 +207,7 @@ nc_menu_bar_gen ( void )
 				continue;
 			}
 			
-			/* Create item */http://www.64.vg/wiki/index.php?title=Main_Page
+			/* Create item */
 			item = gtk_image_menu_item_new_with_mnemonic( f->name );
 			gtk_container_add( GTK_CONTAINER(submenu), item );
 			
