@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *   ZSEQ GTK GUI - config.c                                               *
- *    - GUI (C) 2009 ZZT32 (http://64.vg/)								   *
- *    - App (C) 2009 messiaen											   *
+ *    - GUI (C) 2009 ZZT32 (http://64.vg/)                                 *
+ *    - App (C) 2009 messiaen                                              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -117,217 +117,217 @@ cleanup:
 static void
 load_rom ( void )
 {
-	GtkWidget * dialog = gtk_file_chooser_dialog_new
-	( 
-		"Load ROM", NULL,
-		GTK_FILE_CHOOSER_ACTION_OPEN, 
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
-		NULL
-	);
-	
+    GtkWidget * dialog = gtk_file_chooser_dialog_new
+    ( 
+        "Load ROM", NULL,
+        GTK_FILE_CHOOSER_ACTION_OPEN, 
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
+        NULL
+    );
+    
 diagrun: ;
-	/* Check outcome */
-	switch( gtk_dialog_run(GTK_DIALOG(dialog)) )
-	{
-		/* Chose? */
-		case GTK_RESPONSE_ACCEPT:
-	    
-		 rom_path = strdup(gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
-		 gtk_widget_destroy( dialog );
-		 goto outloop;
-		 
-		break;
-		
-		/* NO! */
-		case GTK_RESPONSE_CANCEL: case GTK_RESPONSE_DELETE_EVENT:
-		
-		 gtk_widget_destroy( dialog );
-		 goto outloop;
-		
-		break;
-	}
-	
-	outloop: ;
+    /* Check outcome */
+    switch( gtk_dialog_run(GTK_DIALOG(dialog)) )
+    {
+        /* Chose? */
+        case GTK_RESPONSE_ACCEPT:
+        
+         rom_path = strdup(gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
+         gtk_widget_destroy( dialog );
+         goto outloop;
+         
+        break;
+        
+        /* NO! */
+        case GTK_RESPONSE_CANCEL: case GTK_RESPONSE_DELETE_EVENT:
+        
+         gtk_widget_destroy( dialog );
+         goto outloop;
+        
+        break;
+    }
+    
+    outloop: ;
 }
 
 /* Get a sequence filename */
 static void
 load_seq ( void )
 {
-	GtkWidget * dialog = gtk_file_chooser_dialog_new
-	( 
-		"Load ROM", NULL,
-		GTK_FILE_CHOOSER_ACTION_OPEN, 
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
-		NULL
-	);
-	
+    GtkWidget * dialog = gtk_file_chooser_dialog_new
+    ( 
+        "Load ROM", NULL,
+        GTK_FILE_CHOOSER_ACTION_OPEN, 
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, 
+        NULL
+    );
+    
 diagrun: ;
-	/* Check outcome */
-	switch( gtk_dialog_run(GTK_DIALOG(dialog)) )
-	{
-		/* Chose? */
-		case GTK_RESPONSE_ACCEPT:
-	    
-		 seq_path = strdup(gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
-		 gtk_widget_destroy( dialog );
-		 goto outloop;
-		 
-		break;
-		
-		/* NO! */
-		case GTK_RESPONSE_CANCEL: case GTK_RESPONSE_DELETE_EVENT:
-		
-		 gtk_widget_destroy( dialog );
-		 goto outloop;
-		
-		break;
-	}
-	
-	outloop: ;
+    /* Check outcome */
+    switch( gtk_dialog_run(GTK_DIALOG(dialog)) )
+    {
+        /* Chose? */
+        case GTK_RESPONSE_ACCEPT:
+        
+         seq_path = strdup(gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) ));
+         gtk_widget_destroy( dialog );
+         goto outloop;
+         
+        break;
+        
+        /* NO! */
+        case GTK_RESPONSE_CANCEL: case GTK_RESPONSE_DELETE_EVENT:
+        
+         gtk_widget_destroy( dialog );
+         goto outloop;
+        
+        break;
+    }
+    
+    outloop: ;
 }
 
 /* Check handler */
 static int
 check_handler ( GtkWidget * w )
 {
-	seq_all = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(w) );
-	
-	if( !seq_all )
-		gtk_widget_set_sensitive( combo, TRUE );
-	else
-		gtk_widget_set_sensitive( combo, FALSE );
-	
-	return FALSE;
+    seq_all = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(w) );
+    
+    if( !seq_all )
+        gtk_widget_set_sensitive( combo, TRUE );
+    else
+        gtk_widget_set_sensitive( combo, FALSE );
+    
+    return FALSE;
 }
 
 /* Create window */
 static void
 create_window ( void )
 {
-	window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
-	vbox = gtk_vbox_new( FALSE, 8 );
-	hbox1 = gtk_hbox_new( TRUE, 8 );
-	open_seq = gtk_button_new_with_label( "Open seq file" );
-	open_rom = gtk_button_new_with_label( "Open ROM file" );
-	go = gtk_button_new_with_label( "Go!" );
-	hbox2 = gtk_hbox_new( FALSE, 8 );
-	combo = gtk_combo_box_new_text( );
-	check = gtk_check_button_new_with_label( "Replace all sequences" );
-	
-	gtk_container_add( GTK_CONTAINER(window), vbox );
-	gtk_box_pack_start( GTK_BOX(vbox), hbox1, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(vbox), hbox2, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hbox1), open_seq, FALSE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hbox1), open_rom, FALSE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hbox1), go, FALSE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hbox2), combo, TRUE, TRUE, 0 );
-	gtk_box_pack_start( GTK_BOX(hbox2), check, FALSE, TRUE, 0 );
-	
-	gtk_container_set_border_width( GTK_CONTAINER(window), 8 );
-	gtk_window_set_title( GTK_WINDOW(window), "ZSEQ" );
-	
-	gtk_widget_show_all( window );
-	
-	g_signal_connect( G_OBJECT(go), "clicked", G_CALLBACK(run), NULL );
-	g_signal_connect( G_OBJECT(open_seq), "clicked", G_CALLBACK(load_seq), NULL );
-	g_signal_connect( G_OBJECT(open_rom), "clicked", G_CALLBACK(load_rom), NULL );
-	g_signal_connect( G_OBJECT(check), "toggled", G_CALLBACK(check_handler), NULL );
-	g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(exit), (void*)-1 );
+    window = gtk_window_new( GTK_WINDOW_TOPLEVEL );
+    vbox = gtk_vbox_new( FALSE, 8 );
+    hbox1 = gtk_hbox_new( TRUE, 8 );
+    open_seq = gtk_button_new_with_label( "Open seq file" );
+    open_rom = gtk_button_new_with_label( "Open ROM file" );
+    go = gtk_button_new_with_label( "Go!" );
+    hbox2 = gtk_hbox_new( FALSE, 8 );
+    combo = gtk_combo_box_new_text( );
+    check = gtk_check_button_new_with_label( "Replace all sequences" );
+    
+    gtk_container_add( GTK_CONTAINER(window), vbox );
+    gtk_box_pack_start( GTK_BOX(vbox), hbox1, TRUE, TRUE, 0 );
+    gtk_box_pack_start( GTK_BOX(vbox), hbox2, TRUE, TRUE, 0 );
+    gtk_box_pack_start( GTK_BOX(hbox1), open_seq, FALSE, TRUE, 0 );
+    gtk_box_pack_start( GTK_BOX(hbox1), open_rom, FALSE, TRUE, 0 );
+    gtk_box_pack_start( GTK_BOX(hbox1), go, FALSE, TRUE, 0 );
+    gtk_box_pack_start( GTK_BOX(hbox2), combo, TRUE, TRUE, 0 );
+    gtk_box_pack_start( GTK_BOX(hbox2), check, FALSE, TRUE, 0 );
+    
+    gtk_container_set_border_width( GTK_CONTAINER(window), 8 );
+    gtk_window_set_title( GTK_WINDOW(window), "ZSEQ" );
+    
+    gtk_widget_show_all( window );
+    
+    g_signal_connect( G_OBJECT(go), "clicked", G_CALLBACK(run), NULL );
+    g_signal_connect( G_OBJECT(open_seq), "clicked", G_CALLBACK(load_seq), NULL );
+    g_signal_connect( G_OBJECT(open_rom), "clicked", G_CALLBACK(load_rom), NULL );
+    g_signal_connect( G_OBJECT(check), "toggled", G_CALLBACK(check_handler), NULL );
+    g_signal_connect_swapped( G_OBJECT(window), "destroy", G_CALLBACK(exit), (void*)-1 );
 }
 
 /* Add a song name to combo box (+value) */
 static int
 add_song ( char * name, int value )
 {
-	int r = g_list_length( songs );
-	
-	gtk_combo_box_append_text( GTK_COMBO_BOX(combo), name );
-	songs = g_list_append( songs, (void*)value );
-	
-	return r;
+    int r = g_list_length( songs );
+    
+    gtk_combo_box_append_text( GTK_COMBO_BOX(combo), name );
+    songs = g_list_append( songs, (void*)value );
+    
+    return r;
 }
 
 /* Get currently selected ID */
 static int
 cur_song ( void )
 {
-	return gtk_combo_box_get_active( GTK_COMBO_BOX(combo) );
+    return gtk_combo_box_get_active( GTK_COMBO_BOX(combo) );
 }
 
 /* Get currently selected value */
 static int
 cur_song_value ( void )
 {
-	int v = cur_song();
-	
-	if( v == -1 )
-		return v;
-	
-	return (int)g_list_nth( songs, v )->data;
+    int v = cur_song();
+    
+    if( v == -1 )
+        return v;
+    
+    return (int)g_list_nth( songs, v )->data;
 }
 
 /* run! */
 static int
 run ( void )
 {
-	static char cmdbuff[2048];
-	char * p = cmdbuff;
-	
-	/* Check values... */
-	if( !seq_path || !rom_path )
-	{
-		msg( NULL, "Sequence path or ROM path invalid." );
-		return FALSE;
-	}
-	if( cur_song() == -1 && !seq_all  )
-	{
-		msg( NULL, "Please choose a song to replace or all." );
-		return FALSE;
-	}
-	
-	p += sprintf( p, BIN_PATH " \"%s\" \"%s\" ", seq_path, rom_path );
-	
-	if( !seq_all )
-		
-		p += sprintf( p, "%i", cur_song() );
-	
-	else
-		
-		p += sprintf( p, "-all" );
-	
-	puts( cmdbuff );
-	
-	/* ___________________________________________________ */
-	
-	system( cmdbuff );
-	
-	/* ___________________________________________________ */
-	
-	return TRUE;
+    static char cmdbuff[2048];
+    char * p = cmdbuff;
+    
+    /* Check values... */
+    if( !seq_path || !rom_path )
+    {
+        msg( NULL, "Sequence path or ROM path invalid." );
+        return FALSE;
+    }
+    if( cur_song() == -1 && !seq_all  )
+    {
+        msg( NULL, "Please choose a song to replace or all." );
+        return FALSE;
+    }
+    
+    p += sprintf( p, BIN_PATH " \"%s\" \"%s\" ", seq_path, rom_path );
+    
+    if( !seq_all )
+        
+        p += sprintf( p, "%i", cur_song() );
+    
+    else
+        
+        p += sprintf( p, "-all" );
+    
+    puts( cmdbuff );
+    
+    /* ___________________________________________________ */
+    
+    system( cmdbuff );
+    
+    /* ___________________________________________________ */
+    
+    return TRUE;
 }
 
 int main ( int argc, char ** argv )
 {
-	static char buffer[64];
-	int i;
-	
-	gtk_init( &argc, &argv );
-	
-	create_window();
-	
-	/* Populate song list */
-	for( i = 0; i < 0x6E; i++ )
-	{
-		sprintf( buffer, "0x%02X", i );
-		
-		add_song( buffer, i );
-	}
-	
-	gtk_main();
-	
-	return 0;
+    static char buffer[64];
+    int i;
+    
+    gtk_init( &argc, &argv );
+    
+    create_window();
+    
+    /* Populate song list */
+    for( i = 0; i < 0x6E; i++ )
+    {
+        sprintf( buffer, "0x%02X", i );
+        
+        add_song( buffer, i );
+    }
+    
+    gtk_main();
+    
+    return 0;
 }
 
