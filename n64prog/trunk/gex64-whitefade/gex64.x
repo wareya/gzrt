@@ -22,8 +22,6 @@ OUTPUT_ARCH (mips)
 EXTERN (_start)
 ENTRY (_start)
 
-kprintf = 0x80002130 ;
-
 SECTIONS {
    /* Start address of code is 1K up in uncached, unmapped RAM.  We have
     * to be at least this far up in order to not interfere with the cart

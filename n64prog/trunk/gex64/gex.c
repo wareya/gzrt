@@ -2,6 +2,8 @@
 #include "gex.h"
 #include "mips.h"
 
+extern int kprintf ( char *, ... );
+
 /* Create our box struct */
 gexMakeBox(status_box, 180, 40, 40, 40, 0, 0, 0, 128);
 
@@ -32,4 +34,6 @@ void gexMain ( void )
     
     /* Print text */
     gexDrawText( "[ZZT32", 12, 230, 1 );
+	
+    kprintf( "OK\n" );
 }
