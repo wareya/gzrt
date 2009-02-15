@@ -8,7 +8,7 @@
 gexMakeBox( box, 320, 240, 0, 0, 255, 255, 255, 0 );
 
 /* Flags... */
-#define WHITE_IN_PROGRESS	(1 << 0)
+#define WHITE_IN_PROGRESS   (1 << 0)
 
 /* Status! */
 static u32 status;
@@ -32,55 +32,55 @@ void n64start ( void )
 /* Our main() */
 void gexMain ( void )
 {
-	/* Are we whiting yet? */
-	if( !(status & WHITE_IN_PROGRESS) )
-	{
-		/* Is our health zero? */
-		if( !*health )
-		{
-			/* Time to start */
-			status |= WHITE_IN_PROGRESS;
-			count = 0;
-			box.a = 0;
-			wait = 0;
-			inc = 3.0f;
-		}
-		else
-		{
-			/* Just return */
-			return;
-		}
-	}
-	
-	/* Are we done whiting? */
-	if( *health )
-	{
-		/* Yep */
-		status &= ~WHITE_IN_PROGRESS;
-		return;
-	}
-	
-	/* Wait? */
-	if( wait < 30 )
-	{
-		wait++;
-		return;
-	}
-	
-	/* Draw white box */
-	gexDrawBox( &box );
-	
-	/* Not maxed yet? */
-	if( count * inc > 255 )
-		box.a = 255;
-	else
-		box.a = count * inc;
-	
-	/* Update inc 
-	inc += 0.25f;*/
-	
-	/* Update counter */
-	count++;
+    /* Are we whiting yet? */
+    if( !(status & WHITE_IN_PROGRESS) )
+    {
+        /* Is our health zero? */
+        if( !*health )
+        {
+            /* Time to start */
+            status |= WHITE_IN_PROGRESS;
+            count = 0;
+            box.a = 0;
+            wait = 0;
+            inc = 3.0f;
+        }
+        else
+        {
+            /* Just return */
+            return;
+        }
+    }
+    
+    /* Are we done whiting? */
+    if( *health )
+    {
+        /* Yep */
+        status &= ~WHITE_IN_PROGRESS;
+        return;
+    }
+    
+    /* Wait? */
+    if( wait < 30 )
+    {
+        wait++;
+        return;
+    }
+    
+    /* Draw white box */
+    gexDrawBox( &box );
+    
+    /* Not maxed yet? */
+    if( count * inc > 255 )
+        box.a = 255;
+    else
+        box.a = count * inc;
+    
+    /* Update inc 
+    inc += 0.25f;*/
+    
+    /* Update counter */
+    count++;
 }
 
- 	 	
+        
