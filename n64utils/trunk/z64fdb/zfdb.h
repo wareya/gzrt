@@ -6,6 +6,7 @@
 #define ZFDB_VERSION    "v0.1"
 
 /* Deps */
+#include <glib.h>
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
@@ -19,7 +20,7 @@ typedef int16_t     s16;
 typedef const char  cchar;
 
 /* Boolean */
-typedef enum { FALSE, TRUE } bool;
+typedef gboolean bool;
 
 /* Shared macros */
 #define U32(x)              \
@@ -62,6 +63,12 @@ struct Config
 {
     enum AppAction action;
     int flags;
+	
+	/* Command line args */
+	cchar * a_action;
+	cchar * a_db;
+	cchar * a_file;
+	bool    a_debug;
 };
 
 /* No debug? */
@@ -72,8 +79,6 @@ struct Config
 
 /* Print a string */
 #define MESSAGE(x, ...) { fprintf( stderr, x, ##__VA_ARGS__ ); fflush(stderr); }
-
-extern char *strdup(const char *s);
 
 /*
  *  Global variables
@@ -122,13 +127,6 @@ extern int  dbBeginTransaction ( void );
 extern int  dbCommit ( void );
 extern int  dbInsertFunction ( u32 address, char * name, char * args, char * ret, char * lib, char * desc );
 extern bool dbFunctionExists ( u32 addr );
-
-
-/*
- *  Functions - control flow
- */
-extern void zfdbInit ( void );
-extern void zfdbDeinit ( void );
 
 
 /*

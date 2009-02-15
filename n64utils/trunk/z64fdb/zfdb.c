@@ -1,6 +1,7 @@
 /*****************************
 * Zelda 64 Function Database *
 *****************************/
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -11,6 +12,7 @@
 #include <errno.h>
 #include "zfdb.h"
 #include "sqlite3.h"
+#include "color.h"
 
 /* Global variables */
 struct timeval start;
@@ -45,9 +47,26 @@ bool validAddress ( u32 addr )
 **  Control flow functions
  */
 
-/* Initialization */
-void zfdbInit ( void )
+static const GOptionEntry args_normal[] =
 {
+	{ "action",   'A', 0,                                                   G_OPTION_ARG_STRING,   &config.a_action, "Action to take",         NULL },
+	{ "database", 'D', G_OPTION_FLAG_OPTIONAL_ARG | G_OPTION_FLAG_FILENAME, G_OPTION_ARG_FILENAME, &config.a_db,     "Database to work with",  NULL },
+	{ "file",     'F', G_OPTION_FLAG_OPTIONAL_ARG | G_OPTION_FLAG_FILENAME, G_OPTION_ARG_FILENAME, &config.a_file,   "File to work with",      NULL },
+	{ "debug",    'g', G_OPTION_FLAG_OPTIONAL_ARG,                          G_OPTION_ARG_NONE,     &config.a_debug,  "Display debug messages", NULL },
+	{ NULL }
+};
+
+/* Initialization */
+static void zfdbInit ( int * argc, char *** argv )
+{
+	GOptionContext * context;
+	GError * error;
+	
+	/* Command line arguments */
+	context = g_option_context_new( "Interact with an N64 function database" );
+	g_option_context_add_main_entries( context, args_normal, NULL );
+	g_option_context_parse( context, argc, argv, &error );
+	
     /* Set app start time */
     gettimeofday( &start, NULL );
     
@@ -55,6 +74,35 @@ void zfdbInit ( void )
     showLogo();
     
     /* */ kprintf( "Application begin..." );
+	
+	/*
+	 * Parse arguments
+	 */
+	if( !config.a_action )	/* No action */
+	{
+		MESSAGE( "Please choose an action.\n" );
+		exit( -1 );
+	}
+		
+	if( config.a_db )		/* Specific DB name */
+		dbname = (char*)config.a_db;
+	
+	/* Debug text */
+	if( config.a_debug )
+		config.flags |= FLAG_SHOW_DEBUG;
+	
+	/* Handle action */
+	if( !strcmp(config.a_action, "import") )
+		config.action = ACTION_IMPORT_DUMP;
+	else
+	if( !strcmp(config.a_action, "import-text") )
+		config.action = ACTION_IMPORT_TEXT;
+	else
+	if( !strcmp(config.a_action, "dump-header") )
+		config.action = ACTION_DUMP_HEADER;
+	else
+	exit( -1 );
+	
     
     /* Open the database */
     dbOpen();
@@ -78,7 +126,7 @@ void zfdbInit ( void )
 }
 
 /* Deinitialization */
-void zfdbDeinit ( void )
+static void zfdbDeinit ( void )
 {
     /* Close database */
     dbClose();
@@ -116,8 +164,10 @@ void loadFile ( char * name )
 }
 
 /* Import a file into the database */
-void importFile ( char * name )
+void importFile ( void )
 {
+	char * name = config.a_file;
+	
     /* Load the file */
     loadFile( name );
     
@@ -131,8 +181,9 @@ void importFile ( char * name )
 }
 
 /* Import a text file */
-void importText ( char * name )
+void importText ( void )
 {
+	char * name = config.a_file;
     FILE * fh;
     char func[256];
     u32 addr;
@@ -213,67 +264,26 @@ int main ( int argc, char ** argv )
     char * fname;
     int i;
     
-    zfdbInit();
-    
-    /* No args? */
-    if( argc == 1 )
-        showUsage(argc, argv);
-    
-    /* Check arguments */
-    if( argc == 2 )
-    {
-        fname = argv[1];
-    }
-    else
-    {
-        /* Scan through arguments */
-        for( i = 1; i < argc; i++ )
-        {
-            if( argv[i][0] == '-' ) switch( argv[i][1] )
-            {
-                case 'i':
-                 config.action = ACTION_IMPORT_DUMP;
-                break;
-                
-                case 't':
-                 config.action = ACTION_IMPORT_TEXT;
-                break;
-                
-                case 'd':
-                 config.flags |= FLAG_SHOW_DEBUG;
-                break;
-                
-                case 'h':
-                 config.action = ACTION_DUMP_HEADER;
-                break;
-                
-                case 'u':
-                 config.flags |= FLAG_NO_UNKNOWNS;
-                break;
-            }
-            else
-                
-                fname = argv[i];
-        }
-    }
+	/* Initialize the program */
+    zfdbInit( &argc, &argv );
     
     /* Check action */
     switch( config.action )
     {
         case ACTION_IMPORT_DUMP:
-         importFile( fname );
+         importFile( );
         break;
         
         case ACTION_IMPORT_TEXT:
-         importText( fname );
+         importText( );
         break;
         
         case ACTION_DUMP_HEADER:
-         dumpHeader( fname );
+         dumpHeader( config.a_file );
         break;
         
         default:
-         importFile( fname );
+         importFile( );
     }
     
     zfdbDeinit();
