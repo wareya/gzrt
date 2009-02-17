@@ -7,29 +7,29 @@
 */
 #include "mips.h"
 
-	.set	noreorder
+    .set    noreorder
 
-	.global bigTimeToFloat
-	.ent	bigTimeToFloat
-	
+    .global bigTimeToFloat
+    .ent    bigTimeToFloat
+    
 bigTimeToFloat:
-	
-	# Load the 64-bit word
-	ld			$v0, ($a0)
-	
-	# Send it to a floating point register
-	dmtc1		$v0, $f0
-	
-	# Convert it to a single float
-	cvt.s.l 	$f2, $f0
-	
-	# Load our conversion value
-	li			$v0, 0x4C3532B8
-	mtc1		$v0, $f0
-	
-	# Return
-	jr			$ra
-	div.s		$f0, $f2, $f0	# And divide!
+    
+    # Load the 64-bit word
+    ld          $v0, ($a0)
+    
+    # Send it to a floating point register
+    dmtc1       $v0, $f0
+    
+    # Convert it to a single float
+    cvt.s.l     $f2, $f0
+    
+    # Load our conversion value
+    li          $v0, 0x4C3532B8
+    mtc1        $v0, $f0
+    
+    # Return
+    jr          $ra
+    div.s       $f0, $f2, $f0   # And divide!
 
-	.end	bigTimeToFloat
-	
+    .end    bigTimeToFloat
+    

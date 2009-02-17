@@ -22,7 +22,14 @@ OUTPUT_ARCH (mips)
 EXTERN (_start)
 ENTRY (_start)
 
-gexSprintf = 0x8005C290 ;
+/* Function addresses */
+gexSprintf     = 0x8005C290 ;
+gexDrawText    = 0x80030DD8 ;
+gexDrawBox     = 0x8003F334 ;
+gexDrawText3D  = 0x800387F0 ;
+gexDrawTextBox = 0x8003F6CC ;
+osGetCount     = 0x80066340 ;
+
 
 SECTIONS {
    /* Start address of code is 1K up in uncached, unmapped RAM.  We have

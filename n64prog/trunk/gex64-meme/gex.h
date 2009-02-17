@@ -9,6 +9,9 @@
 
 #include <stdint.h>
 
+/* Address of controller input */
+#define GEX_CONTROLLER      (void*)0x800E5DB0
+
 typedef uint64_t    u64;
 typedef uint32_t    u32;
 typedef uint16_t    u16;
@@ -31,59 +34,25 @@ struct GexBox
 
 struct GexText
 {
-	/* Coordinates */
-	u16 x, y;
-	
-	/* Text itself */
-	char * text;
+    /* Coordinates */
+    u16 x, y;
+    
+    /* Text itself */
+    char * text;
 };
-	
-
-typedef int (*__func_gexDrawText)
-(
-    char *,  /* String to be printed */
-    int,     /* X location of text   */
-    int,     /* Y location of text   */
-    int      /* Unknown              */
-);
-
-typedef int (*__func_gexDrawBox)
-(
-    struct GexBox *
-);
-
-typedef int (*__func_gexSprintf)
-(
-    char *, /* Target        */
-    char *, /* Format string */
-    ...     /* Arguments     */
-);
-
-typedef int (*__func_gexDrawTextBox)
-(
-    int,	/* Horizontal offset (from 0; signed) */
-	int,	/* Vertical offset (from 0; signed)   */
-	int,	/* Width							  */
-	int,	/* Height 							  */
-	int,	/* Number of objects                  */
-	void *  /* Pointer to objects (GexText)		  */
-);
-
-typedef int (*__func_osGetCount)( void );
 
 
-
-/* Macros for neatly calling Gex functions */
-#define CALL_GEX_FUNC(func)    		((__func_##func)FUNC_PTR(__func_addr_##func))
-#define FUNC_PTR(ptr)           	((void*)(((u32)ptr)&0x807FFFFF))
-
-/* Functions */
-#define gexDrawText(text, x, y, u)  (CALL_GEX_FUNC(gexDrawText)(text, x, y, u))
-#define gexDrawBox(box)             (CALL_GEX_FUNC(gexDrawBox)(box))
-#define osGetCount()				(CALL_GEX_FUNC(osGetCount)())
-#define gexDrawTextBox(x,y,w,h,n,s)	(CALL_GEX_FUNC(gexDrawTextBox)(x,y,w,h,n,s))
-/* #define gexSprintf(dest, fmt, ...)  (CALL_GEX_FUNC(gexSprintf)(dest, fmt, ##__VA_ARGS__)) */
+/* Gex functions */
+extern int gexDrawText ( char *, int, int, int );
+extern int gexDrawBox ( struct GexBox * );
 extern int gexSprintf ( char *, char *, ... );
+extern int gexDrawTextBox ( int, int, int, int, int, void * );
+extern int osGetCount ( void );
+
+/* Global functions */
+extern void gexMain ( void );
+extern void hookFunc ( void );
+
 
 /* Pseudo, custom functions */
 #define gexMakeBox(name,w,h,x,y,r,g,b,a)        \
@@ -94,12 +63,6 @@ struct GexBox name = {                          \
     0, 0                                        \
 }
 
-/* Global functions */
-extern void gexMain ( void );
-extern void hookFunc ( void );
-/* Address of controller input */
-#define GEX_CONTROLLER		(void*)0x800E5DB0
-
 #endif /* !__LANGUAGE_ASSEMBLY__ */
 
 /* Function addresses */
@@ -107,8 +70,8 @@ extern void hookFunc ( void );
 #define __func_addr_gexDrawBox      0x8003F334
 #define __func_addr_gexSprintf      0x8005C290
 #define __func_addr_gexDrawText3D   0x800387F0
-#define __func_addr_osGetCount		0x80066340
-#define __func_addr_gexDrawTextBox	0x8003F6CC
+#define __func_addr_osGetCount      0x80066340
+#define __func_addr_gexDrawTextBox  0x8003F6CC
 
 /* Box functions */
 #define __func_addr_gexBoxSetLoc    0x8003F6CC
