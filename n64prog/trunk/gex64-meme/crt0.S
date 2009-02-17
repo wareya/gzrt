@@ -6,7 +6,7 @@
 _start:
     
     # Grab some stack space...
-    addi    $sp, -4
+    addi    $sp, -16
     
     # Store the return address
     sw      $ra, 0($sp)
@@ -29,7 +29,7 @@ bss_clear:
     lw      $ra, 0($sp)
     
     # Restore stack pointer
-    addi    $sp, 4
+    addi    $sp, 16
     
     # Return
     jr      $ra
