@@ -1,0 +1,5 @@
+#!/bin/sh
+cp -v /cygdrive/c/Gex\ 64\ -\ Enter\ the\ Gecko\ \(U\)\ \[\!\].z64 .
+n64bl Gex\ 64\ -\ Enter\ the\ Gecko\ \(U\)\ \[\!\].z64 gex64.bin 0xFC0000 0x80400000
+cp -v Gex\ 64\ -\ Enter\ the\ Gecko\ \(U\)\ \[\!\].z64 /cygdrive/c/GEX_.Z64
+
