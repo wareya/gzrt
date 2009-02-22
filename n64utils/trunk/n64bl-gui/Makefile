@@ -13,7 +13,7 @@ else
 endif
 
 # Utils flags
-CFLAGS  += -O3 $(shell pkg-config --cflags gtk+-2.0)
+CFLAGS  += -g -O0 $(shell pkg-config --cflags gtk+-2.0)
 LDFLAGS += $(shell pkg-config --libs gtk+-2.0)
 
 # Application pieces
