@@ -1,6 +1,6 @@
 PROGRAM = n64bl
 
-PARTS = $(PROGRAM).o
+PARTS = $(PROGRAM).o crc.o
 
 CC = gcc
 
