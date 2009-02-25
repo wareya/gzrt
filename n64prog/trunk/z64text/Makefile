@@ -24,7 +24,7 @@ CFLAGS  = -fno-builtin -std=gnu99 -nodefaultlibs -march=vr4300 -mtune=vr4300 \
 
 # Compile binary
 all: $(PROGRAM).bin
-	$(BINCODE) $(PROGRAM).bin 803FF000 codes.txt # Turn binary into GS code
+	$(BINCODE) $(PROGRAM).bin 80600000 codes.txt # Turn binary into GS code
 	cat hook codes.txt | $(CHEAT) "Z64 Text" 1 > final.txt
 
 $(PROGRAM).bin: $(PROGRAM).elf
