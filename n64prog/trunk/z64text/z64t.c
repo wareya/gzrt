@@ -35,14 +35,12 @@ void _start ( void )
         12,			/* X position	*/
         26			/* Y position	*/
     );
-    
+
     /* Draw that sucker */
-    DrawText
+     DrawText
     (
         Z64TEXT_CONST_ARG,		/* Unknown	*/
         "Souylsin is clueless (%08X)",	/* String	*/
         ztarget				/* Format string */
     );
 }
-
-	
