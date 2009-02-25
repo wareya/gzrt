@@ -29,7 +29,7 @@ typedef int ( *SETXY )
 typedef int ( *DRAWTEXT )
 (
 	u32,		/* Not sure - Stack Pointer + ???	*/
-	char* textaddr,	/* Text address				*/
+	char* text,	/* String to be printed			*/
 	u32 texvar	/* Variables for format string		*/
 );
 
