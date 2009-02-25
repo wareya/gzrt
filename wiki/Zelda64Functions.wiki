@@ -30,4 +30,29 @@ typedef int (*z64_actor_spawn)
     u32 rz,	 /* Z Rotation			*/
     int variable /* Actor variable		*/
 );
+/* Set text RGB	*/
+typedef int ( *z64_set_text_rgb )
+(
+    u32,	/* Not sure - Stack Pointer + ???	*/
+    u16 red,	/* red 					*/
+    u16 green,	/* green				*/
+    u16 blue,	/* blue					*/
+    u16 alpha	/* alpha				*/
+);
+
+/* Set text coordinites	*/
+typedef int ( *z64_set_text_xy )
+(
+    u32,	/* Not sure - Stack Pointer + ???	*/
+    u16 xpos,	/* Text X position (X Pos >> 3)		*/
+    u16 ypos	/* Text Y position (Y Pos >> 3)		*/
+);
+
+/* Draw text	*/
+typedef int ( *z64_draw_text )
+(
+    u32,	/* Not sure - Stack Pointer + ???	*/
+    u32 textaddr,/* Text address			*/
+    u32 texvar	/* Variables for format string		*/
+);
 }}}
