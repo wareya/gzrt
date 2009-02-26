@@ -10,11 +10,6 @@
 
 void _start ( void )
 {
-    /* Routines	*/
-    SETRGB SetTextRGB	= (void*)Z64TEXT_SET_RGB;
-    SETXY SetTextXY	= (void*)Z64TEXT_SET_XY;
-    DRAWTEXT DrawText	= (void*)Z64TEXT_DRAW;
-
     /* ZTarget	*/
     Z64ZTARGET *ztarget	= (void*)Z64_CNST_ZTARGET;
 

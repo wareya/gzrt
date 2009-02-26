@@ -28,7 +28,10 @@ SECTIONS {
     * boot code which is copying it down from the cart
     */
 
-   . = 0x803FF000 ;
+   . = 0x80600000 ;		/* z64t.c		*/
+   SetTextRGB = 0x800FB3AC;	/* Set RGB routine	*/
+   SetTextXY = 0x800FB41C;	/* Set XY routine	*/
+   DrawText = 0x800FBCB4;	/* Text draw routine 	*/
 
    /* The text section carries the app code and its relocation addr is
     * the first byte of the cart domain in cached, unmapped memory
