@@ -1,14 +1,14 @@
 /*
-	UNIX-ified Yaz0 reencoder by ZZT32 (http://64.vg/)
-	
-	This is a prilimiary version for GZRT which just takes input from stdin and 
-	writes the output to stdout. Future versions will include this functionality 
-	and the original functionality by way of command line switches.
-	
-	Original header:
-	 //version 1.0 (20050707)
-	 //by shevious
-	 //Thanks to thakis for yaz0dec 1.0.
+    UNIX-ified Yaz0 reencoder by ZZT32 (http://64.vg/)
+    
+    This is a prilimiary version for GZRT which just takes input from stdin and 
+    writes the output to stdout. Future versions will include this functionality 
+    and the original functionality by way of command line switches.
+    
+    Original header:
+     //version 1.0 (20050707)
+     //by shevious
+     //Thanks to thakis for yaz0dec 1.0.
 */
 
 #include <stdio.h>
@@ -214,26 +214,26 @@ void encodeAll(u8 * src, int srcSize )
 
 int main(int argc, char* argv[])
 {
-	int c;
-	GByteArray * input;
-	
-	/* Create a new data buffer */
-	input = g_byte_array_new();
-	
-	/* Fill the buffer */
-	while( (c = getchar()) != EOF )
-	{
-		unsigned char j = c;
-		
-		/* Append */
-		input = g_byte_array_append( input, &j, 1 );
-	}
-	
-	/* Call it */
-	encodeAll( input->data, input->len );
-	
-	/* Free list */
-	g_byte_array_free( input, TRUE );
-	
-	return 0;
+    int c;
+    GByteArray * input;
+    
+    /* Create a new data buffer */
+    input = g_byte_array_new();
+    
+    /* Fill the buffer */
+    while( (c = getchar()) != EOF )
+    {
+        unsigned char j = c;
+        
+        /* Append */
+        input = g_byte_array_append( input, &j, 1 );
+    }
+    
+    /* Call it */
+    encodeAll( input->data, input->len );
+    
+    /* Free list */
+    g_byte_array_free( input, TRUE );
+    
+    return 0;
 }
