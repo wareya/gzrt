@@ -140,7 +140,7 @@ static int mr4kd_rcpy_fpr ( char *dest, int reg )
 #define TOKEN(x, y) ((x) << 8 | (y))
 
 /* Give some pretty, formatted output */
-int mr4kd_sprintf ( char *dest, char *name, uint32 instruction, uint32 pc, char *fmt )
+int mr4kd_sprintf ( char *dest, char *name, uint32_t instruction, uint32_t pc, char *fmt )
 {
     /* 
     ** Format specifiers:
@@ -176,7 +176,7 @@ int mr4kd_sprintf ( char *dest, char *name, uint32 instruction, uint32 pc, char 
     int s = 0; /* Source */
     int d = 0; /* Dest   */
     
-    uint16 token;
+    uint16_t token;
     
     /* Scan the format string for specifiers */
     for( s = 0; fmt[s]; s++ )

@@ -1176,7 +1176,7 @@ static void SD(){
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=[ DECODE_OP ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=[//
-void r4300_decode_op( uint32 instr, char *opcode, char *arguments, int counter )
+void r4300_decode_op( uint32_t instr, char *opcode, char *arguments, int counter )
 {
     char buffer[256]; int result;
     mr4kd_disassemble( instr, counter, buffer );
@@ -1189,7 +1189,7 @@ void r4300_decode_op( uint32 instr, char *opcode, char *arguments, int counter )
 }
 
 /* Disassemble */
-void mr4kd_disassemble ( uint32 instruction, uint32 counter, char * buffer )
+void mr4kd_disassemble ( uint32_t instruction, uint32_t counter, char * buffer )
 {
     mot = instruction;
     pc  = counter;

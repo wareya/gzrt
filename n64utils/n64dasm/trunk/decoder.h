@@ -27,10 +27,8 @@
 #include <stdint.h>
 #include "opprintf.h"
 
-typedef uint32_t uint32;
-
-void r4300_decode_op( uint32 instr, char *op, char *args, int pc );
-void mr4kd_disassemble ( uint32 instruction, uint32 counter, char * buffer );
+void r4300_decode_op( uint32_t instr, char *op, char *args, int pc );
+void mr4kd_disassemble ( uint32_t instruction, uint32_t counter, char * buffer );
 
 #endif /* __DECODER_H__ */
 
